@@ -767,6 +767,22 @@
         
         /* 인라인 SVG 아이콘 (외부 의존성 없음, 항상 표시) */
         .icon-svg { display: inline-block; vertical-align: middle; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        
+        /* 유튜브 채널아트 가이드 오버레이 */
+        .canvas-wrapper { position: relative; }
+        .youtube-guide-overlay {
+            position: absolute; bottom: 8px; left: 8px; right: 8px;
+            background: rgba(0,0,0,0.85); color: #fff;
+            padding: 10px 12px; border-radius: 12px;
+            font-size: 12px; z-index: 10;
+            pointer-events: none;
+        }
+        .youtube-guide-title { font-weight: 700; margin-bottom: 8px; font-size: 13px; }
+        .youtube-guide-items { display: flex; flex-wrap: wrap; gap: 8px; }
+        .guide-item {
+            padding: 4px 10px; border-radius: 6px; border-left: 4px solid;
+            background: rgba(255,255,255,0.15);
+        }
     </style>
 </head>
 <body>
@@ -866,6 +882,16 @@
     <div id="ratioScreen" class="feature-screen">
         <div class="canvas-wrapper">
             <canvas id="ratioCanvas"></canvas>
+            <!-- 유튜브 채널아트 선택 시 표시되는 기기별 가이드 안내 (캔버스 위 HTML 오버레이) -->
+            <div id="youtubeGuideOverlay" class="youtube-guide-overlay" style="display:none;">
+                <div class="youtube-guide-title">📺 기기별 표시 영역</div>
+                <div class="youtube-guide-items">
+                    <span class="guide-item" style="border-color:#9C27B0;"><b>TV</b> 전체(2560×1440)</span>
+                    <span class="guide-item" style="border-color:#2196F3;"><b>컴퓨터</b> 2560×423</span>
+                    <span class="guide-item" style="border-color:#4CAF50;"><b>태블릿</b> 1855×423</span>
+                    <span class="guide-item" style="border-color:#FF5722;"><b>모바일</b> 1546×423 (로고·글씨)</span>
+                </div>
+            </div>
         </div>
         <div class="control-panel">
             <div class="tool-section">
@@ -1746,12 +1772,14 @@
         const e = evt || (typeof event !== 'undefined' ? event : null);
         if (e && e.currentTarget) e.currentTarget.classList.add('selected');
         
+        // 유튜브 채널아트 선택 시 가이드 오버레이 표시
+        const overlay = document.getElementById('youtubeGuideOverlay');
+        if (overlay) overlay.style.display = (w === 'youtube') ? 'block' : 'none';
+        
         drawRatioImage();
     }
 
     function drawRatioImage() {
-        if (!ratioImg.src) return;
-        
         const maxSize = 500;
         let canvasWidth, canvasHeight;
         let showYoutubeGuide = false;
@@ -1783,18 +1811,20 @@
         ratioCtx.fillStyle = ratioBgColor;
         ratioCtx.fillRect(0, 0, ratioCanvas.width, ratioCanvas.height);
         
-        // 이미지 크기 계산 (여백 생성 - 이미지를 자르지 않음)
-        const scale = Math.min(
-            ratioCanvas.width / ratioImg.width,
-            ratioCanvas.height / ratioImg.height
-        ) * ratioScale;
-        
-        const scaledW = ratioImg.width * scale;
-        const scaledH = ratioImg.height * scale;
-        const x = (ratioCanvas.width - scaledW) / 2 + ratioOffsetX;
-        const y = (ratioCanvas.height - scaledH) / 2 + ratioOffsetY;
-        
-        ratioCtx.drawImage(ratioImg, x, y, scaledW, scaledH);
+        // 이미지가 있으면 그리기
+        if (ratioImg.src) {
+            const scale = Math.min(
+                ratioCanvas.width / ratioImg.width,
+                ratioCanvas.height / ratioImg.height
+            ) * ratioScale;
+            
+            const scaledW = ratioImg.width * scale;
+            const scaledH = ratioImg.height * scale;
+            const x = (ratioCanvas.width - scaledW) / 2 + ratioOffsetX;
+            const y = (ratioCanvas.height - scaledH) / 2 + ratioOffsetY;
+            
+            ratioCtx.drawImage(ratioImg, x, y, scaledW, scaledH);
+        }
         
         // 인스타 스토리 안전 영역 가이드
         if (showStoryGuide) {
@@ -1838,23 +1868,74 @@
             ratioCtx.fillText('✓ 안전 영역 (글씨 여기에)', ratioCanvas.width / 2, safeY + safeHeight / 2);
         }
         
-        // 유튜브 채널아트 안전 영역 가이드
+        // 유튜브 채널아트 기기별 표시 영역 가이드 (TV / 컴퓨터 / 태블릿 / 모바일)
         if (showYoutubeGuide) {
-            const safeWidth = (1546 / 2560) * ratioCanvas.width;
-            const safeHeight = (423 / 1440) * ratioCanvas.height;
-            const safeX = (ratioCanvas.width - safeWidth) / 2;
-            const safeY = (ratioCanvas.height - safeHeight) / 2;
+            const cw = ratioCanvas.width;
+            const ch = ratioCanvas.height;
             
-            ratioCtx.strokeStyle = '#FF5722';
-            ratioCtx.lineWidth = 2;
-            ratioCtx.setLineDash([10, 5]);
-            ratioCtx.strokeRect(safeX, safeY, safeWidth, safeHeight);
+            // 텍스트가 이미지 위에서 잘 보이도록 배경 처리
+            ratioCtx.font = 'bold 13px "Noto Sans KR", sans-serif';
+            
+            // 1. TV - 전체 표시 (2560×1440)
+            ratioCtx.strokeStyle = '#9C27B0';
+            ratioCtx.lineWidth = 3;
+            ratioCtx.setLineDash([6, 6]);
+            ratioCtx.strokeRect(3, 3, cw - 6, ch - 6);
             ratioCtx.setLineDash([]);
+            ratioCtx.fillStyle = 'rgba(0,0,0,0.7)';
+            ratioCtx.fillRect(6, 4, 185, 20);
+            ratioCtx.fillStyle = '#FFFFFF';
+            ratioCtx.textAlign = 'left';
+            ratioCtx.fillText('TV: 전체 표시 (2560×1440)', 10, 18);
             
-            ratioCtx.fillStyle = 'rgba(255, 87, 34, 0.9)';
-            ratioCtx.font = 'bold 12px "Pretendard", sans-serif';
+            // 2. 컴퓨터 - 전체 가로, 중앙 세로 423px
+            const pcHeight = (423 / 1440) * ch;
+            const pcY = (ch - pcHeight) / 2;
+            ratioCtx.fillStyle = 'rgba(33, 150, 243, 0.15)';
+            ratioCtx.fillRect(0, pcY, cw, pcHeight);
+            ratioCtx.strokeStyle = '#2196F3';
+            ratioCtx.lineWidth = 3;
+            ratioCtx.setLineDash([10, 6]);
+            ratioCtx.strokeRect(0, pcY, cw, pcHeight);
+            ratioCtx.setLineDash([]);
+            ratioCtx.fillStyle = 'rgba(0,0,0,0.7)';
+            ratioCtx.fillRect(cw/2 - 75, Math.max(4, pcY - 22), 150, 18);
+            ratioCtx.fillStyle = '#FFFFFF';
             ratioCtx.textAlign = 'center';
-            ratioCtx.fillText('모바일 안전 영역 (1546×423)', ratioCanvas.width / 2, safeY - 10);
+            ratioCtx.fillText('컴퓨터 (2560×423)', cw / 2, Math.max(16, pcY - 8));
+            
+            // 3. 태블릿 - 중앙 1855×423
+            const tabletWidth = (1855 / 2560) * cw;
+            const tabletHeight = (423 / 1440) * ch;
+            const tabletX = (cw - tabletWidth) / 2;
+            const tabletY = (ch - tabletHeight) / 2;
+            ratioCtx.fillStyle = 'rgba(76, 175, 80, 0.2)';
+            ratioCtx.fillRect(tabletX, tabletY, tabletWidth, tabletHeight);
+            ratioCtx.strokeStyle = '#2E7D32';
+            ratioCtx.lineWidth = 3;
+            ratioCtx.setLineDash([8, 5]);
+            ratioCtx.strokeRect(tabletX, tabletY, tabletWidth, tabletHeight);
+            ratioCtx.setLineDash([]);
+            ratioCtx.fillStyle = 'rgba(0,0,0,0.7)';
+            ratioCtx.fillRect(cw/2 - 70, Math.max(4, tabletY - 22), 140, 18);
+            ratioCtx.fillStyle = '#FFFFFF';
+            ratioCtx.fillText('태블릿 (1855×423)', cw / 2, Math.max(16, tabletY - 8));
+            
+            // 4. 모바일 - 안전 영역 (로고·글씨 여기에)
+            const mobileWidth = (1546 / 2560) * cw;
+            const mobileHeight = (423 / 1440) * ch;
+            const mobileX = (cw - mobileWidth) / 2;
+            const mobileY = (ch - mobileHeight) / 2;
+            ratioCtx.fillStyle = 'rgba(255, 87, 34, 0.25)';
+            ratioCtx.fillRect(mobileX, mobileY, mobileWidth, mobileHeight);
+            ratioCtx.strokeStyle = '#E64A19';
+            ratioCtx.lineWidth = 4;
+            ratioCtx.setLineDash([]);
+            ratioCtx.strokeRect(mobileX, mobileY, mobileWidth, mobileHeight);
+            ratioCtx.fillStyle = 'rgba(0,0,0,0.8)';
+            ratioCtx.fillRect(cw/2 - 130, mobileY + mobileHeight/2 - 12, 260, 24);
+            ratioCtx.fillStyle = '#FFFFFF';
+            ratioCtx.fillText('모바일 안전 영역 (1546×423) - 로고·글씨 여기', cw / 2, mobileY + mobileHeight / 2 + 4);
         }
         
         // 트위터 헤더 프로필 사진 미리보기
@@ -3195,7 +3276,21 @@
                 // 이미지가 완전히 로드된 후에 추가
                 stickers.push(stickerData);
                 saveHistory(); // 히스토리 저장
+                
+                // 새 스티커 자동 선택 + 패널 표시 (바로 핀치로 크기 조절 가능)
+                selectedStickerIndex = stickers.length - 1;
+                selectedTextIndex = -1;
+                const panel = document.getElementById('selectedItemPanel');
+                if (panel) {
+                    panel.style.display = 'block';
+                    document.getElementById('itemBorderColor').value = stickerData.borderColor;
+                    document.getElementById('itemBorderWidth').value = stickerData.borderWidth;
+                    document.getElementById('itemScale').value = stickerData.scale * 100;
+                }
+                
+                // 즉시 화면에 반영 (모바일에서 화면을 눌러야 보이던 문제 해결)
                 drawDecorate();
+                requestAnimationFrame(function() { drawDecorate(); });
             } catch (error) {
                 console.error('스티커 로딩 오류:', error);
                 alert('스티커를 불러올 수 없습니다.');
