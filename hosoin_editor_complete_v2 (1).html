@@ -1,4 +1,9 @@
 <!DOCTYPE html>
+<!--
+  호소인 에디터 - 인플루언서용 이미지 편집기
+  파일 구조: HEAD(메타,CSS) | BODY(SVG스프라이트,앱컨테이너,기능화면들) | SCRIPT(초기화,기능별로직)
+  주요 섹션: 1.비율변경 2.겹치기 3.콜라주 4.꾸미기 5.분할 6.테두리컷 7.미리보기 8.이미지자르기
+-->
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -39,10 +44,6 @@
     <link rel="manifest" href="/manifest.json">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    
-    <!-- Lucide Icons -->
-    <!-- 버전 고정 권장: @latest 대신 특정 버전 사용 시 호환성 유지 -->
-    <script src="https://unpkg.com/lucide@0.294.0"></script>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -399,6 +400,43 @@
         input[type="range"]::-moz-range-thumb:active {
             transform: scale(1.05);
         }
+        
+        /* 모바일: 사진 겹치기 슬라이더 터치 영역 확대 (오조작 방지) */
+        @media (max-width: 768px), (hover: none) {
+            #mergeScreen .merge-control-row {
+                padding: 16px 0;
+                margin-bottom: 8px;
+                min-height: 72px;
+                border-bottom: 1px solid #eee;
+            }
+            #mergeScreen .merge-control-row:last-of-type {
+                border-bottom: none;
+            }
+            #mergeScreen input[type="range"] {
+                height: 12px;
+                margin-top: 12px;
+                padding: 8px 0;
+            }
+            #mergeScreen input[type="range"]::-webkit-slider-thumb {
+                width: 36px;
+                height: 36px;
+                border-width: 4px;
+            }
+            #mergeScreen input[type="range"]::-moz-range-thumb {
+                width: 36px;
+                height: 36px;
+                border-width: 4px;
+            }
+            #mergeScreen input[type="number"] {
+                min-height: 44px;
+                padding: 10px 12px;
+                font-size: 16px;
+            }
+            #mergeScreen .control-panel {
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+        
         input[type="color"] { 
             width: 36px; 
             height: 36px; 
@@ -726,9 +764,43 @@
             font-size: 12px;
             font-weight: 600;
         }
+        
+        /* 인라인 SVG 아이콘 (외부 의존성 없음, 항상 표시) */
+        .icon-svg { display: inline-block; vertical-align: middle; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
     </style>
 </head>
 <body>
+
+<!-- SVG 아이콘 스프라이트 (Feather/Lucide 스타일, 외부 스크립트 불필요) -->
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;">
+  <symbol id="icon-maximize-2" viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></symbol>
+  <symbol id="icon-git-merge" viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></symbol>
+  <symbol id="icon-layers" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/></symbol>
+  <symbol id="icon-sparkles" viewBox="0 0 24 24"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></symbol>
+  <symbol id="icon-scissors" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/></symbol>
+  <symbol id="icon-crop" viewBox="0 0 24 24"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></symbol>
+  <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="icon-square-scissors" viewBox="0 0 24 24"><path d="M6 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V6a3 3 0 0 0-3-3Z"/><path d="M8 12l6 6"/><path d="m14 12-6 6"/><circle cx="8" cy="8" r="2"/></symbol>
+  <symbol id="icon-align-left" viewBox="0 0 24 24"><line x1="21" y1="6" x2="3" y2="6"/><line x1="15" y1="12" x2="3" y2="12"/><line x1="17" y1="18" x2="3" y2="18"/></symbol>
+  <symbol id="icon-align-center" viewBox="0 0 24 24"><line x1="21" y1="6" x2="3" y2="6"/><line x1="17" y1="12" x2="7" y2="12"/><line x1="19" y1="18" x2="5" y2="18"/></symbol>
+  <symbol id="icon-align-right" viewBox="0 0 24 24"><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="12" x2="9" y2="12"/><line x1="21" y1="18" x2="7" y2="18"/></symbol>
+  <symbol id="icon-share-2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></symbol>
+  <symbol id="icon-rotate-ccw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="icon-flip-vertical" viewBox="0 0 24 24"><path d="M21 8V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2"/><path d="M21 16v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2"/><path d="M4 12H20"/></symbol>
+  <symbol id="icon-layout-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></symbol>
+  <symbol id="icon-layout-list" viewBox="0 0 24 24"><rect x="8" y="6" width="13" height="2"/><rect x="8" y="11" width="13" height="2"/><rect x="8" y="16" width="13" height="2"/><rect x="3" y="6" width="2" height="2"/><rect x="3" y="11" width="2" height="2"/><rect x="3" y="16" width="2" height="2"/></symbol>
+  <symbol id="icon-layout" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></symbol>
+  <symbol id="icon-columns-2" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="18"/><rect x="13" y="3" width="8" height="18"/></symbol>
+  <symbol id="icon-columns-3" viewBox="0 0 24 24"><rect x="2" y="3" width="5" height="18"/><rect x="9.5" y="3" width="5" height="18"/><rect x="17" y="3" width="5" height="18"/></symbol>
+  <symbol id="icon-rows-3" viewBox="0 0 24 24"><rect x="3" y="2" width="18" height="5"/><rect x="3" y="9.5" width="18" height="5"/><rect x="3" y="17" width="18" height="5"/></symbol>
+  <symbol id="icon-panel-left" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="18"/><rect x="14" y="3" width="7" height="18"/></symbol>
+  <symbol id="icon-panel-top" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="7"/><rect x="3" y="13" width="18" height="8"/></symbol>
+  <symbol id="icon-trending-up" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></symbol>
+  <symbol id="icon-maximize" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></symbol>
+  <symbol id="icon-square" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></symbol>
+  <symbol id="icon-undo-2" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a5 5 0 0 1 5 5v0"/></symbol>
+  <symbol id="icon-redo-2" viewBox="0 0 24 24"><path d="m15 10 5 5-5 5"/><path d="M20 15H10a5 5 0 0 1-5-5V5"/></symbol>
+</svg>
 
 <div class="app-container">
     <header class="app-header" id="mainHeader">
@@ -748,42 +820,42 @@
         
         <div class="menu-grid">
             <div class="menu-card" onclick="openFeature('ratio')">
-                <div class="menu-icon"><i data-lucide="maximize-2" style="width:42px;height:42px;stroke-width:2;"></i></div>
+                <div class="menu-icon"><svg class="icon-svg" width="42" height="42"><use href="#icon-maximize-2"/></svg></div>
                 <div class="menu-label">비율 변경</div>
                 <div class="menu-desc">어떤 플랫폼이든<br>딱 맞게 변경하기</div>
             </div>
             <div class="menu-card" onclick="openFeature('merge')">
-                <div class="menu-icon"><i data-lucide="git-merge" style="width:42px;height:42px;stroke-width:2;"></i></div>
+                <div class="menu-icon"><svg class="icon-svg" width="42" height="42"><use href="#icon-git-merge"/></svg></div>
                 <div class="menu-label">겹치기</div>
                 <div class="menu-desc">썸네일 프레임<br>쉽게 올리기</div>
             </div>
             <div class="menu-card" onclick="openFeature('collage')">
-                <div class="menu-icon"><i data-lucide="layers" style="width:42px;height:42px;stroke-width:2;"></i></div>
+                <div class="menu-icon"><svg class="icon-svg" width="42" height="42"><use href="#icon-layers"/></svg></div>
                 <div class="menu-label">콜라주</div>
                 <div class="menu-desc">모아보기 콘텐츠<br>최적화 레이아웃</div>
             </div>
             <div class="menu-card" onclick="openFeature('decorate')">
-                <div class="menu-icon"><i data-lucide="sparkles" style="width:42px;height:42px;stroke-width:2;"></i></div>
+                <div class="menu-icon"><svg class="icon-svg" width="42" height="42"><use href="#icon-sparkles"/></svg></div>
                 <div class="menu-label">꾸미기</div>
                 <div class="menu-desc">가독성 200%<br>정보 콘텐츠 전용 꾸미기</div>
             </div>
             <div class="menu-card" onclick="openFeature('split')">
-                <div class="menu-icon"><i data-lucide="scissors" style="width:42px;height:42px;stroke-width:2;"></i></div>
+                <div class="menu-icon"><svg class="icon-svg" width="42" height="42"><use href="#icon-scissors"/></svg></div>
                 <div class="menu-label">분할</div>
                 <div class="menu-desc">사진 한 장으로<br>고퀄 분할 피드</div>
             </div>
             <div class="menu-card" onclick="openFeature('crop')">
-                <div class="menu-icon"><i data-lucide="crop" style="width:42px;height:42px;stroke-width:2;"></i></div>
+                <div class="menu-icon"><svg class="icon-svg" width="42" height="42"><use href="#icon-crop"/></svg></div>
                 <div class="menu-label">테두리 컷</div>
                 <div class="menu-desc">지저분한 테두리<br>1초만에 깔끔 정리</div>
             </div>
             <div class="menu-card" onclick="openFeature('preview')">
-                <div class="menu-icon"><i data-lucide="eye" style="width:42px;height:42px;stroke-width:2;"></i></div>
+                <div class="menu-icon"><svg class="icon-svg" width="42" height="42"><use href="#icon-eye"/></svg></div>
                 <div class="menu-label">미리보기</div>
                 <div class="menu-desc">프사 바꾸기 전<br>프로필 미리보기</div>
             </div>
             <div class="menu-card" onclick="openFeature('trim')">
-                <div class="menu-icon"><i data-lucide="square-scissors" style="width:42px;height:42px;stroke-width:2;"></i></div>
+                <div class="menu-icon"><svg class="icon-svg" width="42" height="42"><use href="#icon-square-scissors"/></svg></div>
                 <div class="menu-label">이미지 자르기</div>
                 <div class="menu-desc">원하는 부분만<br>손쉽게 자르기</div>
             </div>
@@ -851,13 +923,13 @@
             <div class="tool-section">
                 <div style="display: flex; gap: 8px;">
                     <button class="btn secondary" onclick="alignRatioPosition('left')" style="flex: 1;">
-                        <i data-lucide="align-left" style="width:16px;height:16px;"></i> 좌측
+                        <svg class="icon-svg" width="16" height="16"><use href="#icon-align-left"/></svg> 좌측
                     </button>
                     <button class="btn secondary" onclick="alignRatioPosition('center')" style="flex: 1;">
-                        <i data-lucide="align-center" style="width:16px;height:16px;"></i> 가운데
+                        <svg class="icon-svg" width="16" height="16"><use href="#icon-align-center"/></svg> 가운데
                     </button>
                     <button class="btn secondary" onclick="alignRatioPosition('right')" style="flex: 1;">
-                        <i data-lucide="align-right" style="width:16px;height:16px;"></i> 우측
+                        <svg class="icon-svg" width="16" height="16"><use href="#icon-align-right"/></svg> 우측
                     </button>
                 </div>
                 <p style="font-size: 11px; color: #888; margin: 5px 0 0 0; text-align: center;">
@@ -867,13 +939,13 @@
 
             <div style="display: flex; gap: 10px; margin-bottom: 10px;">
                 <button class="btn secondary" onclick="resetRatioAll()" style="flex: 1;">
-                    <i data-lucide="rotate-ccw" style="width:16px;height:16px;"></i> 작업 초기화
+                    <svg class="icon-svg" width="16" height="16"><use href="#icon-rotate-ccw"/></svg> 작업 초기화
                 </button>
             </div>
 
             <div style="display: flex; gap: 10px;">
                 <button class="btn primary" onclick="downloadRatioImage()" style="flex: 1;">💾 다운로드</button>
-                <button class="btn secondary" onclick="shareRatioImage()" style="flex: 1;"><i data-lucide="share-2" style="width:16px;height:16px;"></i> 공유</button>
+                <button class="btn secondary" onclick="shareRatioImage()" style="flex: 1;"><svg class="icon-svg" width="16" height="16"><use href="#icon-share-2"/></svg> 공유</button>
             </div>
         </div>
     </div>
@@ -921,7 +993,7 @@
                 <!-- 레이어 순서 변경 -->
                 <div style="margin-bottom: 20px;">
                     <button class="btn secondary" onclick="swapMergeLayers()" style="width: 100%;">
-                        <i data-lucide="flip-vertical" style="width:16px;height:16px;"></i> 레이어 순서 바꾸기
+                        <svg class="icon-svg" width="16" height="16"><use href="#icon-flip-vertical"/></svg> 레이어 순서 바꾸기
                     </button>
                     <p style="font-size: 10px; color: #888; margin: 5px 0 0 0; text-align: center;">
                         위층과 아래층을 서로 바꿉니다
@@ -929,48 +1001,48 @@
                 </div>
                 
                 <!-- 위치 X -->
-                <div style="margin-bottom: 18px;">
-                    <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div class="merge-control-row" style="margin-bottom: 18px;">
+                    <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; cursor: default;">
                         <span style="font-size: 14px; font-weight: 600; color: var(--text-main);">위치 X</span>
                         <input type="number" id="overlayXInput" min="-50" max="150" value="50" style="width: 70px; padding: 6px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 600; text-align: center;">
                     </label>
-                    <input type="range" id="overlayX" min="-50" max="150" value="50" step="1" style="width: 100%;">
+                    <input type="range" id="overlayX" min="-50" max="150" value="50" step="1" style="width: 100%; touch-action: none;">
                 </div>
                 
                 <!-- 위치 Y -->
-                <div style="margin-bottom: 18px;">
-                    <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div class="merge-control-row" style="margin-bottom: 18px;">
+                    <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; cursor: default;">
                         <span style="font-size: 14px; font-weight: 600; color: var(--text-main);">위치 Y</span>
                         <input type="number" id="overlayYInput" min="-50" max="150" value="50" style="width: 70px; padding: 6px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 600; text-align: center;">
                     </label>
-                    <input type="range" id="overlayY" min="-50" max="150" value="50" step="1" style="width: 100%;">
+                    <input type="range" id="overlayY" min="-50" max="150" value="50" step="1" style="width: 100%; touch-action: none;">
                 </div>
                 
                 <!-- 크기 -->
-                <div style="margin-bottom: 18px;">
-                    <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div class="merge-control-row" style="margin-bottom: 18px;">
+                    <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; cursor: default;">
                         <span style="font-size: 14px; font-weight: 600; color: var(--text-main);">크기</span>
                         <div style="display: flex; align-items: center; gap: 5px;">
                             <input type="number" id="overlayScaleInput" min="10" max="200" value="100" style="width: 70px; padding: 6px; border: 2px solid var(--border); border-radius: 8px; font-size: 14px; font-weight: 600; text-align: center;">
                             <span style="font-size: 14px; color: var(--text-secondary);">%</span>
                         </div>
                     </label>
-                    <input type="range" id="overlayScale" min="10" max="200" value="100" step="1" style="width: 100%;">
+                    <input type="range" id="overlayScale" min="10" max="200" value="100" step="1" style="width: 100%; touch-action: none;">
                 </div>
                 
                 <!-- 투명도 -->
-                <div style="margin-bottom: 18px;">
-                    <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div class="merge-control-row" style="margin-bottom: 18px;">
+                    <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; cursor: default;">
                         <span style="font-size: 14px; font-weight: 600; color: var(--text-main);">투명도</span>
                         <span id="opacityValue" style="font-size: 14px; font-weight: 600; color: var(--primary);">100%</span>
                     </label>
-                    <input type="range" id="overlayOpacity" min="0" max="100" value="100" style="width: 100%;">
+                    <input type="range" id="overlayOpacity" min="0" max="100" value="100" style="width: 100%; touch-action: none;">
                 </div>
             </div>
 
             <div style="display: flex; gap: 10px;">
                 <button class="btn primary" onclick="downloadMergedImage()" style="flex: 1;">💾 다운로드</button>
-                <button class="btn secondary" onclick="shareMergedImage()" style="flex: 1;"><i data-lucide="share-2" style="width:16px;height:16px;"></i> 공유</button>
+                <button class="btn secondary" onclick="shareMergedImage()" style="flex: 1;"><svg class="icon-svg" width="16" height="16"><use href="#icon-share-2"/></svg> 공유</button>
             </div>
         </div>
     </div>
@@ -1000,39 +1072,32 @@
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px;">
                     <!-- 자유 배치 -->
                     <div onclick="selectCollageMode('freeform', event)" id="collageFreeform" class="collage-mode-btn">
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; padding: 10px;">
-                            <div style="width: 25px; height: 20px; background: #11593F; border-radius: 2px;"></div>
-                            <div style="width: 15px; height: 30px; background: #11593F; border-radius: 2px;"></div>
-                            <div style="width: 20px; height: 25px; background: #11593F; border-radius: 2px; margin-top: -5px;"></div>
-                            <div style="width: 18px; height: 15px; background: #11593F; border-radius: 2px;"></div>
+                        <div style="display: flex; justify-content: center; align-items: center; padding: 10px 0;">
+                            <svg class="icon-svg" width="40" height="40" style="color:#11593F;"><use href="#icon-layout-grid"/></svg>
                         </div>
                         <div style="text-align: center; font-size: 11px; margin-top: 5px; font-weight: 700;">자유 배치</div>
                     </div>
                     
                     <!-- 가로 -->
                     <div onclick="selectCollageMode('horizontal', event)" id="collageHorizontal" class="collage-mode-btn">
-                        <div style="display: flex; gap: 3px; justify-content: center;">
-                            <div style="width: 20px; height: 50px; background: #11593F; border-radius: 4px;"></div>
-                            <div style="width: 20px; height: 50px; background: #11593F; border-radius: 4px;"></div>
-                            <div style="width: 20px; height: 50px; background: #11593F; border-radius: 4px;"></div>
+                        <div style="display: flex; justify-content: center; align-items: center; padding: 10px 0;">
+                            <svg class="icon-svg" width="40" height="40" style="color:#11593F;"><use href="#icon-columns-3"/></svg>
                         </div>
-                        <div style="text-align: center; font-size: 11px; margin-top: 10px; font-weight: 700;">가로</div>
+                        <div style="text-align: center; font-size: 11px; margin-top: 5px; font-weight: 700;">가로</div>
                     </div>
                     
                     <!-- 세로 -->
                     <div onclick="selectCollageMode('vertical', event)" id="collageVertical" class="collage-mode-btn">
-                        <div style="display: flex; flex-direction: column; gap: 3px; justify-content: center; align-items: center;">
-                            <div style="width: 65px; height: 14px; background: #11593F; border-radius: 4px;"></div>
-                            <div style="width: 65px; height: 14px; background: #11593F; border-radius: 4px;"></div>
-                            <div style="width: 65px; height: 14px; background: #11593F; border-radius: 4px;"></div>
+                        <div style="display: flex; justify-content: center; align-items: center; padding: 10px 0;">
+                            <svg class="icon-svg" width="40" height="40" style="color:#11593F;"><use href="#icon-rows-3"/></svg>
                         </div>
-                        <div style="text-align: center; font-size: 11px; margin-top: 10px; font-weight: 700;">세로</div>
+                        <div style="text-align: center; font-size: 11px; margin-top: 5px; font-weight: 700;">세로</div>
                     </div>
                     
                     <!-- 격자 -->
                     <div onclick="selectCollageMode('grid', event)" id="collageGrid" class="collage-mode-btn">
                         <div style="display: flex; justify-content: center; align-items: center; padding: 10px 0;">
-                            <i data-lucide="grid-2x2" style="width: 40px; height: 40px; color: #11593F;"></i>
+                            <svg class="icon-svg" width="40" height="40" style="color:#11593F;"><use href="#icon-layout-grid"/></svg>
                         </div>
                         <div style="text-align: center; font-size: 11px; margin-top: 5px; font-weight: 700;">격자</div>
                     </div>
@@ -1040,7 +1105,7 @@
                     <!-- 메인+서브 (큰거 1개 + 작은거 3개) -->
                     <div onclick="selectCollageMode('main_sub', event)" id="collageMain_sub" class="collage-mode-btn">
                         <div style="display: flex; justify-content: center; align-items: center; padding: 10px 0;">
-                            <i data-lucide="layout" style="width: 40px; height: 40px; color: #11593F;"></i>
+                            <svg class="icon-svg" width="40" height="40" style="color:#11593F;"><use href="#icon-layout"/></svg>
                         </div>
                         <div style="text-align: center; font-size: 11px; margin-top: 5px; font-weight: 700;">메인+서브</div>
                     </div>
@@ -1048,7 +1113,7 @@
                     <!-- 반반 세로 -->
                     <div onclick="selectCollageMode('half_vertical', event)" id="collageHalf_vertical" class="collage-mode-btn">
                         <div style="display: flex; justify-content: center; align-items: center; padding: 10px 0;">
-                            <i data-lucide="columns-2" style="width: 40px; height: 40px; color: #11593F;"></i>
+                            <svg class="icon-svg" width="40" height="40" style="color:#11593F;"><use href="#icon-columns-2"/></svg>
                         </div>
                         <div style="text-align: center; font-size: 11px; margin-top: 5px; font-weight: 700;">반반 세로</div>
                     </div>
@@ -1056,7 +1121,7 @@
                     <!-- L자 -->
                     <div onclick="selectCollageMode('l_shape', event)" id="collageL_shape" class="collage-mode-btn">
                         <div style="display: flex; justify-content: center; align-items: center; padding: 10px 0;">
-                            <i data-lucide="gallery-horizontal" style="width: 40px; height: 40px; color: #11593F;"></i>
+                            <svg class="icon-svg" width="40" height="40" style="color:#11593F;"><use href="#icon-panel-left"/></svg>
                         </div>
                         <div style="text-align: center; font-size: 11px; margin-top: 5px; font-weight: 700;">L자형</div>
                     </div>
@@ -1064,7 +1129,7 @@
                     <!-- T자 -->
                     <div onclick="selectCollageMode('t_shape', event)" id="collageT_shape" class="collage-mode-btn">
                         <div style="display: flex; justify-content: center; align-items: center; padding: 10px 0;">
-                            <i data-lucide="gallery-vertical" style="width: 40px; height: 40px; color: #11593F;"></i>
+                            <svg class="icon-svg" width="40" height="40" style="color:#11593F;"><use href="#icon-panel-top"/></svg>
                         </div>
                         <div style="text-align: center; font-size: 11px; margin-top: 5px; font-weight: 700;">T자형</div>
                     </div>
@@ -1072,7 +1137,7 @@
                     <!-- 계단 -->
                     <div onclick="selectCollageMode('stairs', event)" id="collageStairs" class="collage-mode-btn">
                         <div style="display: flex; justify-content: center; align-items: center; padding: 10px 0;">
-                            <i data-lucide="bar-chart-3" style="width: 40px; height: 40px; color: #11593F;"></i>
+                            <svg class="icon-svg" width="40" height="40" style="color:#11593F;"><use href="#icon-trending-up"/></svg>
                         </div>
                         <div style="text-align: center; font-size: 11px; margin-top: 5px; font-weight: 700;">계단형</div>
                     </div>
@@ -1090,7 +1155,7 @@
 
             <div style="display: flex; gap: 10px;">
                 <button class="btn primary" onclick="downloadCollageImage()" style="flex: 1;">💾 다운로드</button>
-                <button class="btn secondary" onclick="shareCollageImage()" style="flex: 1;"><i data-lucide="share-2" style="width:16px;height:16px;"></i> 공유</button>
+                <button class="btn secondary" onclick="shareCollageImage()" style="flex: 1;"><svg class="icon-svg" width="16" height="16"><use href="#icon-share-2"/></svg> 공유</button>
             </div>
         </div>
     </div>
@@ -1105,10 +1170,10 @@
             <!-- 실행 취소/다시 실행 버튼 -->
             <div style="display: flex; gap: 8px; margin-bottom: 15px;">
                 <button class="btn secondary" id="undoBtn" onclick="undo()" disabled style="flex: 1; font-size: 13px;">
-                    <i data-lucide="undo-2" style="width:14px;height:14px;"></i> 실행취소
+                    <svg class="icon-svg" width="14" height="14"><use href="#icon-undo-2"/></svg> 실행취소
                 </button>
                 <button class="btn secondary" id="redoBtn" onclick="redo()" disabled style="flex: 1; font-size: 13px;">
-                    <i data-lucide="redo-2" style="width:14px;height:14px;"></i> 다시실행
+                    <svg class="icon-svg" width="14" height="14"><use href="#icon-redo-2"/></svg> 다시실행
                 </button>
             </div>
             
@@ -1186,7 +1251,7 @@
 
             <div style="display: flex; gap: 10px;">
                 <button class="btn primary" onclick="downloadDecorateImage()" style="flex: 1;">💾 다운로드</button>
-                <button class="btn secondary" onclick="shareDecorateImage()" style="flex: 1;"><i data-lucide="share-2" style="width:16px;height:16px;"></i> 공유</button>
+                <button class="btn secondary" onclick="shareDecorateImage()" style="flex: 1;"><svg class="icon-svg" width="16" height="16"><use href="#icon-share-2"/></svg> 공유</button>
             </div>
         </div>
     </div>
@@ -1263,7 +1328,7 @@
             <button class="btn primary" onclick="cropBorder()">✂️ 테두리 깎기</button>
             <div style="display: flex; gap: 10px; margin-top: 10px;">
                 <button class="btn secondary" onclick="downloadCroppedImage()" style="flex: 1;">💾 다운로드</button>
-                <button class="btn secondary" onclick="shareCroppedImage()" style="flex: 1;"><i data-lucide="share-2" style="width:16px;height:16px;"></i> 공유</button>
+                <button class="btn secondary" onclick="shareCroppedImage()" style="flex: 1;"><svg class="icon-svg" width="16" height="16"><use href="#icon-share-2"/></svg> 공유</button>
             </div>
         </div>
     </div>
@@ -1322,13 +1387,13 @@
             <div class="tool-section">
                 <div style="display: flex; gap: 8px;">
                     <button class="btn secondary" onclick="alignPreviewPosition('left')" style="flex: 1;">
-                        <i data-lucide="align-left" style="width:16px;height:16px;"></i> 좌측
+                        <svg class="icon-svg" width="16" height="16"><use href="#icon-align-left"/></svg> 좌측
                     </button>
                     <button class="btn secondary" onclick="alignPreviewPosition('center')" style="flex: 1;">
-                        <i data-lucide="align-center" style="width:16px;height:16px;"></i> 가운데
+                        <svg class="icon-svg" width="16" height="16"><use href="#icon-align-center"/></svg> 가운데
                     </button>
                     <button class="btn secondary" onclick="alignPreviewPosition('right')" style="flex: 1;">
-                        <i data-lucide="align-right" style="width:16px;height:16px;"></i> 우측
+                        <svg class="icon-svg" width="16" height="16"><use href="#icon-align-right"/></svg> 우측
                     </button>
                 </div>
                 <p style="font-size: 11px; color: #888; margin: 5px 0 0 0; text-align: center;">
@@ -1338,7 +1403,7 @@
 
             <div style="display: flex; gap: 10px;">
                 <button class="btn primary" onclick="downloadPreviewImage()" style="flex: 1;">💾 다운로드</button>
-                <button class="btn secondary" onclick="sharePreviewImage()" style="flex: 1;"><i data-lucide="share-2" style="width:16px;height:16px;"></i> 공유</button>
+                <button class="btn secondary" onclick="sharePreviewImage()" style="flex: 1;"><svg class="icon-svg" width="16" height="16"><use href="#icon-share-2"/></svg> 공유</button>
             </div>
         </div>
     </div>
@@ -1367,28 +1432,42 @@
                 
                 <div style="display: flex; gap: 8px; margin-bottom: 12px;">
                     <button class="btn secondary" onclick="resetTrimArea()" style="flex: 1;">
-                        <i data-lucide="maximize" style="width:16px;height:16px;"></i> 전체 선택
+                        <svg class="icon-svg" width="16" height="16"><use href="#icon-maximize"/></svg> 전체 선택
                     </button>
                     <button class="btn secondary" onclick="setSquareTrim()" style="flex: 1;">
-                        <i data-lucide="square" style="width:16px;height:16px;"></i> 정사각형
+                        <svg class="icon-svg" width="16" height="16"><use href="#icon-square"/></svg> 정사각형
                     </button>
                 </div>
             </div>
 
             <button class="btn primary" onclick="executeTrim()">✂️ 자르기 실행</button>
             <button class="btn secondary" onclick="resetTrimAll()" style="width: 100%; margin-top: 10px;">
-                <i data-lucide="rotate-ccw" style="width:16px;height:16px;"></i> 작업 초기화
+                <svg class="icon-svg" width="16" height="16"><use href="#icon-rotate-ccw"/></svg> 작업 초기화
             </button>
             <div style="display: flex; gap: 10px; margin-top: 10px;">
                 <button class="btn secondary" onclick="downloadTrimmedImage()" style="flex: 1;">💾 다운로드</button>
-                <button class="btn secondary" onclick="shareTrimmedImage()" style="flex: 1;"><i data-lucide="share-2" style="width:16px;height:16px;"></i> 공유</button>
+                <button class="btn secondary" onclick="shareTrimmedImage()" style="flex: 1;"><svg class="icon-svg" width="16" height="16"><use href="#icon-share-2"/></svg> 공유</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // roundRect polyfill
+    /* ========== 호소인 에디터 - JavaScript ==========
+     * [1] polyfill
+     * [2] 전역변수, 네비게이션 (openFeature, goToMainMenu)
+     * [3] 비율변경 initRatio ~ downloadRatioImage
+     * [4] 겹치기 initMerge ~ downloadMergedImage
+     * [5] 콜라주 initCollage ~ createCollage
+     * [6] 꾸미기 initDecorate ~ drawDecorate
+     * [7] 분할 initSplit ~ downloadSplitZip
+     * [8] 테두리컷 initCrop ~ cropBorder
+     * [9] 미리보기 initPreview ~ drawPreview
+     * [10] 이미지자르기 initTrim ~ shareTrimmedImage
+     * [11] 유틸 getFormattedDate
+     */
+    
+    // [1] roundRect polyfill
     if (!CanvasRenderingContext2D.prototype.roundRect) {
         CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
             if (w < 2 * r) r = w / 2;
@@ -5400,12 +5479,7 @@
 </footer>
 
 
-    <script>
-        // Lucide 아이콘 초기화
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-    </script>
+    <!-- 아이콘은 인라인 SVG로 로드 없이 즉시 표시 -->
 
 </body>
 </html>
