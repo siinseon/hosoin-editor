@@ -48,7 +48,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Nanum+Pen+Script&family=Jua&family=Dokdo&family=Gaegu:wght@300;400;700&family=Hi+Melody&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Nanum+Pen+Script&family=Jua&family=Dokdo&family=Gaegu:wght@300;400;700&family=Hi+Melody&family=Black+Han+Sans&family=Gowun+Batang:wght@400;700&family=Song+Myung&family=Poor+Story&family=Yeon+Sung&display=swap" rel="stylesheet">
     
     <!-- Google Analytics - 여기에 본인의 GA 코드 삽입 -->
     <!-- 
@@ -783,6 +783,19 @@
             padding: 4px 10px; border-radius: 6px; border-left: 4px solid;
             background: rgba(255,255,255,0.15);
         }
+        
+        /* 꾸미기 효과 섹션 - 깔끔한 슬라이더 스타일 */
+        .effect-control { margin-bottom: 16px; }
+        .effect-control:last-child { margin-bottom: 0; }
+        .effect-label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .effect-label { font-size: 13px; font-weight: 600; color: var(--text-main); }
+        .effect-value { font-size: 13px; font-weight: 700; color: var(--primary); min-width: 44px; text-align: right; }
+        .effect-slider { width: 100%; height: 8px; margin: 0; }
+        .effect-select { width: 100%; padding: 10px 12px; border: 2px solid var(--border); border-radius: 10px; font-size: 14px; font-weight: 600; background: white; }
+        .effect-select:focus { border-color: var(--primary); outline: none; }
+        
+        /* 이미지 자르기 비율 버튼 */
+        .trim-ratio-btn.selected { border-color: var(--primary); background: #e8f5e9; color: var(--primary); }
     </style>
 </head>
 <body>
@@ -1242,10 +1255,50 @@
 
             <div id="selectedItemPanel" style="display: none; background: #fff8e1; border: 2px solid #ffecb3; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
                 <div class="section-title" style="color:#f57c00;">⚡ 선택된 요소 편집</div>
-                <div class="input-group">
-                    <span style="font-size:12px;">테두리:</span>
-                    <input type="color" id="itemBorderColor" value="#000000">
-                    <input type="range" id="itemBorderWidth" min="0" max="20" value="0">
+                <div id="itemStickerControls">
+                    <div class="input-group">
+                        <span style="font-size:12px;">테두리:</span>
+                        <input type="color" id="itemBorderColor" value="#000000">
+                        <input type="range" id="itemBorderWidth" min="0" max="20" value="0">
+                    </div>
+                </div>
+                <div id="itemTextControls" style="display: none;">
+                    <div class="input-group" style="margin-bottom: 10px;">
+                        <span style="font-size:12px;">색상:</span>
+                        <input type="color" id="itemTextColor" value="#ffffff" style="width: 44px; height: 36px;">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                        <div>
+                            <label class="effect-label" style="font-size: 11px;">효과</label>
+                            <select id="itemTextEffect" class="effect-select" style="padding: 8px; font-size: 13px;">
+                                <option value="none">기본</option>
+                                <option value="shadow">그림자</option>
+                                <option value="outline">테두리</option>
+                                <option value="glow">발광</option>
+                                <option value="bold">굵게</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="effect-label" style="font-size: 11px;">글씨체</label>
+                            <select id="itemTextFont" class="effect-select" style="padding: 8px; font-size: 13px;">
+                                <option value="'Noto Sans KR', sans-serif">본고딕</option>
+                                <option value="'Nanum Pen Script', cursive">나눔손글씨 펜</option>
+                                <option value="'Jua', sans-serif">주아</option>
+                                <option value="'Dokdo', cursive">독도</option>
+                                <option value="'Gaegu', cursive">개구</option>
+                                <option value="'Hi Melody', cursive">하이멜로디</option>
+                                <option value="'Black Han Sans', sans-serif">검은고딕</option>
+                                <option value="'Gowun Batang', serif">고운바탕</option>
+                                <option value="'Song Myung', serif">송명</option>
+                                <option value="'Poor Story', cursive">가난한이야기</option>
+                                <option value="'Yeon Sung', cursive">연성</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="effect-control" style="margin-bottom: 10px;">
+                        <div class="effect-label-row"><span class="effect-label">글씨 크기</span><span id="itemTextSizeValue" class="effect-value">36</span></div>
+                        <input type="range" id="itemTextSize" class="effect-slider" min="12" max="80" value="36">
+                    </div>
                 </div>
                 <div class="input-group">
                     <span style="font-size:12px;">크기:</span>
@@ -1255,23 +1308,72 @@
             </div>
 
             <div class="tool-section">
+                <div class="section-title">✏️ 글씨 추가</div>
+                <div style="margin-bottom: 12px;">
+                    <input type="text" id="textInput" placeholder="추가할 글씨를 입력하세요" style="width:100%; padding:12px 14px; border:2px solid var(--border); border-radius:10px; font-size:15px; font-weight:500;">
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                    <div>
+                        <label class="effect-label" style="display:block; margin-bottom:6px;">글씨체</label>
+                        <select id="fontFamily" class="effect-select" style="font-family: inherit;">
+                            <option value="'Noto Sans KR', sans-serif">본고딕</option>
+                            <option value="'Nanum Pen Script', cursive">나눔손글씨 펜</option>
+                            <option value="'Jua', sans-serif">주아</option>
+                            <option value="'Dokdo', cursive">독도</option>
+                            <option value="'Gaegu', cursive">개구</option>
+                            <option value="'Hi Melody', cursive">하이멜로디</option>
+                            <option value="'Black Han Sans', sans-serif">검은고딕</option>
+                            <option value="'Gowun Batang', serif">고운바탕</option>
+                            <option value="'Song Myung', serif">송명</option>
+                            <option value="'Poor Story', cursive">가난한이야기</option>
+                            <option value="'Yeon Sung', cursive">연성</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="effect-label" style="display:block; margin-bottom:6px;">효과</label>
+                        <select id="textEffect" class="effect-select">
+                            <option value="none">기본</option>
+                            <option value="shadow">그림자</option>
+                            <option value="outline">테두리</option>
+                            <option value="glow">발광</option>
+                            <option value="bold">굵게</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: end; margin-bottom: 12px;">
+                    <div class="effect-control">
+                        <div class="effect-label-row"><span class="effect-label">크기</span><span id="textSizeValue" class="effect-value">36</span></div>
+                        <input type="range" id="textSize" class="effect-slider" min="12" max="80" value="36">
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <label class="effect-label" style="flex-shrink:0;">색상</label>
+                        <input type="color" id="textColor" value="#ffffff" style="width:44px; height:44px; padding:4px; border:2px solid var(--border); border-radius:10px; cursor:pointer;">
+                    </div>
+                    <button class="btn accent" onclick="addText()" style="margin:0;">추가</button>
+                </div>
+            </div>
+
+            <div class="tool-section">
                 <div class="section-title">✨ 효과</div>
-                <div class="input-group">
-                    <span style="font-size:12px; width:50px;">필터막:</span>
-                    <select id="overlaySelect">
+                <div class="effect-control" style="margin-bottom: 18px;">
+                    <div class="effect-label-row"><span class="effect-label">필터막</span></div>
+                    <select id="overlaySelect" class="effect-select" style="margin-bottom: 12px;" onchange="drawDecorate()">
                         <option value="none">없음</option>
                         <option value="black">검은색 막</option>
                         <option value="white">흰색 막</option>
                         <option value="gradient-black">검은 그라데이션</option>
                         <option value="gradient-white">흰색 그라데이션</option>
                     </select>
-                    <input type="range" id="opacitySlider" min="0" max="100" value="50">
+                    <div class="effect-label-row"><span class="effect-label">투명도</span><span id="opacityDecoValue" class="effect-value">50%</span></div>
+                    <input type="range" id="opacitySlider" class="effect-slider" min="0" max="100" value="50">
                 </div>
-                <div class="input-group">
-                    <span style="font-size:12px; width:50px;">그림자:</span>
-                    <input type="range" id="shadowSlider" min="0" max="50" value="0">
-                    <span style="font-size:12px; width:50px; margin-left:10px;">모서리:</span>
-                    <input type="range" id="radiusSlider" min="0" max="100" value="0">
+                <div class="effect-control" style="margin-bottom: 18px;">
+                    <div class="effect-label-row"><span class="effect-label">그림자 강도</span><span id="shadowDecoValue" class="effect-value">0</span></div>
+                    <input type="range" id="shadowSlider" class="effect-slider" min="0" max="50" value="0">
+                </div>
+                <div class="effect-control">
+                    <div class="effect-label-row"><span class="effect-label">모서리 둥글기</span><span id="radiusDecoValue" class="effect-value">0</span></div>
+                    <input type="range" id="radiusSlider" class="effect-slider" min="0" max="100" value="0">
                 </div>
             </div>
 
@@ -1451,9 +1553,39 @@
             </div>
 
             <div class="tool-section">
+                <div class="section-title">✂️ 비율 선택</div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px;">
+                    <button class="btn secondary trim-ratio-btn" onclick="setTrimRatio(1, 1)" data-ratio="1-1" style="font-size: 12px; padding: 10px;">
+                        1:1
+                    </button>
+                    <button class="btn secondary trim-ratio-btn" onclick="setTrimRatio(16, 9)" data-ratio="16-9" style="font-size: 12px; padding: 10px;">
+                        16:9
+                    </button>
+                    <button class="btn secondary trim-ratio-btn" onclick="setTrimRatio(9, 16)" data-ratio="9-16" style="font-size: 12px; padding: 10px;">
+                        9:16
+                    </button>
+                    <button class="btn secondary trim-ratio-btn" onclick="setTrimRatio(4, 5)" data-ratio="4-5" style="font-size: 12px; padding: 10px;">
+                        4:5
+                    </button>
+                    <button class="btn secondary trim-ratio-btn" onclick="setTrimRatio(5, 4)" data-ratio="5-4" style="font-size: 12px; padding: 10px;">
+                        5:4
+                    </button>
+                    <button class="btn secondary trim-ratio-btn" onclick="setTrimRatio(3, 2)" data-ratio="3-2" style="font-size: 12px; padding: 10px;">
+                        3:2
+                    </button>
+                    <button class="btn secondary trim-ratio-btn" onclick="setTrimRatio(2, 3)" data-ratio="2-3" style="font-size: 12px; padding: 10px;">
+                        2:3
+                    </button>
+                    <button class="btn secondary trim-ratio-btn selected" onclick="setTrimRatio(null)" data-ratio="free" style="font-size: 12px; padding: 10px;">
+                        자유
+                    </button>
+                </div>
+            </div>
+
+            <div class="tool-section">
                 <div class="section-title">✂️ 자르기 영역 조정</div>
                 <p style="font-size: 11px; color: #666; margin: 0 0 12px 0; line-height: 1.5; background: #f0f8f0; padding: 12px; border-radius: 8px;">
-                    💡 초록 박스를 드래그하여 자를 영역을 선택하세요
+                    💡 비율 선택 후 초록 박스를 드래그하여 자를 영역을 조정하세요
                 </p>
                 
                 <div style="display: flex; gap: 8px; margin-bottom: 12px;">
@@ -1461,7 +1593,7 @@
                         <svg class="icon-svg" width="16" height="16"><use href="#icon-maximize"/></svg> 전체 선택
                     </button>
                     <button class="btn secondary" onclick="setSquareTrim()" style="flex: 1;">
-                        <svg class="icon-svg" width="16" height="16"><use href="#icon-square"/></svg> 정사각형
+                        <svg class="icon-svg" width="16" height="16"><use href="#icon-square"/></svg> 1:1
                     </button>
                 </div>
             </div>
@@ -2404,11 +2536,31 @@
         }
         
         try {
-            mergeCanvas.toBlob(function(blob) {
+            mergeCanvas.toBlob(async function(blob) {
+                const filename = `호소인_${getFormattedDate()}_인스타사이즈_1.png`;
+                
+                // 모바일: Web Share API 우선 (다운로드가 잘 안 되는 경우)
+                if (navigator.share && navigator.canShare) {
+                    try {
+                        const file = new File([blob], filename, { type: 'image/png' });
+                        if (navigator.canShare({ files: [file] })) {
+                            await navigator.share({
+                                files: [file],
+                                title: '호소인 에디터 - 겹친 이미지',
+                                text: '편집한 이미지를 저장하세요 (사진 앱 선택 시 저장됨)'
+                            });
+                            return;
+                        }
+                    } catch (e) {
+                        if (e.name !== 'AbortError') console.warn('공유 실패, 다운로드 시도:', e);
+                    }
+                }
+                
+                // 데스크톱 또는 공유 취소 시: 기존 다운로드 방식
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `호소인_${getFormattedDate()}_인스타사이즈_1.png`;
+                a.download = filename;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -2416,7 +2568,7 @@
             }, 'image/png');
         } catch (error) {
             console.error('다운로드 오류:', error);
-            alert('다운로드 중 오류가 발생했습니다. 다시 시도해주세요.');
+            alert('다운로드 중 오류가 발생했습니다. 공유 버튼을 시도해주세요!');
         }
     }
 
@@ -3167,7 +3319,7 @@
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `호소인_${getFormattedDate()}_인스타사이즈_1.png`;
+                a.download = `호소인_콜라주_${getFormattedDate()}.png`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -3283,9 +3435,7 @@
                 const panel = document.getElementById('selectedItemPanel');
                 if (panel) {
                     panel.style.display = 'block';
-                    document.getElementById('itemBorderColor').value = stickerData.borderColor;
-                    document.getElementById('itemBorderWidth').value = stickerData.borderWidth;
-                    document.getElementById('itemScale').value = stickerData.scale * 100;
+                    updateSelectedItemPanel();
                 }
                 
                 // 즉시 화면에 반영 (모바일에서 화면을 눌러야 보이던 문제 해결)
@@ -3299,13 +3449,58 @@
             e.target.value = '';
         };
 
-        ['overlaySelect', 'radiusSlider', 'shadowSlider', 'opacitySlider'].forEach(id => {
-            document.getElementById(id).oninput = drawDecorate;
-        });
+        document.getElementById('overlaySelect').oninput = drawDecorate;
+        document.getElementById('opacitySlider').oninput = function() {
+            const el = document.getElementById('opacityDecoValue');
+            if (el) el.textContent = this.value + '%';
+            drawDecorate();
+        };
+        document.getElementById('shadowSlider').oninput = function() {
+            const el = document.getElementById('shadowDecoValue');
+            if (el) el.textContent = this.value;
+            drawDecorate();
+        };
+        document.getElementById('radiusSlider').oninput = function() {
+            const el = document.getElementById('radiusDecoValue');
+            if (el) el.textContent = this.value;
+            drawDecorate();
+        };
 
         document.getElementById('itemBorderColor').oninput = function() {
             if (selectedStickerIndex !== -1) {
                 stickers[selectedStickerIndex].borderColor = this.value;
+                saveHistory();
+                drawDecorate();
+            }
+        };
+
+        document.getElementById('itemTextColor').oninput = function() {
+            if (selectedTextIndex !== -1) {
+                texts[selectedTextIndex].color = this.value;
+                saveHistory();
+                drawDecorate();
+            }
+        };
+        document.getElementById('itemTextEffect').onchange = function() {
+            if (selectedTextIndex !== -1) {
+                texts[selectedTextIndex].effect = this.value;
+                saveHistory();
+                drawDecorate();
+            }
+        };
+        document.getElementById('itemTextFont').onchange = function() {
+            if (selectedTextIndex !== -1) {
+                texts[selectedTextIndex].font = this.value;
+                saveHistory();
+                drawDecorate();
+            }
+        };
+        document.getElementById('itemTextSize').oninput = function() {
+            if (selectedTextIndex !== -1) {
+                texts[selectedTextIndex].size = parseInt(this.value);
+                const v = document.getElementById('itemTextSizeValue');
+                if (v) v.textContent = this.value;
+                saveHistory();
                 drawDecorate();
             }
         };
@@ -3314,13 +3509,40 @@
             const s = parseInt(document.getElementById('itemScale').value) / 100;
             if (selectedStickerIndex !== -1) stickers[selectedStickerIndex].scale = s;
             if (selectedTextIndex !== -1) texts[selectedTextIndex].scale = s;
+            saveHistory();
         });
 
         applyMagnetic(document.getElementById('itemBorderWidth'), () => {
             if (selectedStickerIndex !== -1) {
                 stickers[selectedStickerIndex].borderWidth = parseInt(document.getElementById('itemBorderWidth').value);
+                saveHistory();
             }
         });
+
+        window.updateSelectedItemPanel = function() {
+            const stickerDiv = document.getElementById('itemStickerControls');
+            const textDiv = document.getElementById('itemTextControls');
+            if (!stickerDiv || !textDiv) return;
+            if (selectedStickerIndex !== -1) {
+                stickerDiv.style.display = 'block';
+                textDiv.style.display = 'none';
+                const s = stickers[selectedStickerIndex];
+                document.getElementById('itemBorderColor').value = s.borderColor || '#000000';
+                document.getElementById('itemBorderWidth').value = s.borderWidth || 0;
+                document.getElementById('itemScale').value = (s.scale || 1) * 100;
+            } else if (selectedTextIndex !== -1) {
+                stickerDiv.style.display = 'none';
+                textDiv.style.display = 'block';
+                const t = texts[selectedTextIndex];
+                document.getElementById('itemTextColor').value = t.color || '#ffffff';
+                document.getElementById('itemTextEffect').value = t.effect || 'none';
+                document.getElementById('itemTextFont').value = t.font || "'Noto Sans KR', sans-serif";
+                document.getElementById('itemTextSize').value = t.size || 36;
+                const sizeVal = document.getElementById('itemTextSizeValue');
+                if (sizeVal) sizeVal.textContent = t.size || 36;
+                document.getElementById('itemScale').value = (t.scale || 1) * 100;
+            }
+        };
 
         decorateCanvas.addEventListener('mousedown', decorateStartInteract);
         decorateCanvas.addEventListener('touchstart', decorateStartInteract, {passive: false});
@@ -3389,7 +3611,7 @@
             decorateCtx.save();
             
             // 폰트 설정 (사용자 선택 폰트 또는 기본)
-            const fontFamily = t.font || "'Pretendard', sans-serif";
+            const fontFamily = t.font || "'Noto Sans KR', sans-serif";
             const fontWeight = (t.effect === 'bold') ? '900' : 'bold';
             decorateCtx.font = `${fontWeight} ${t.size}px ${fontFamily}`;
             decorateCtx.textAlign = "center";
@@ -3490,11 +3712,13 @@
     function toggleMode(newMode) {
         mode = newMode;
         document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(`btn-${newMode}`).classList.add('active');
+        const btn = document.getElementById('btn-' + newMode);
+        if (btn) btn.classList.add('active');
         
         selectedStickerIndex = -1;
         selectedTextIndex = -1;
-        document.getElementById('selectedItemPanel').style.display = 'none';
+        const panel = document.getElementById('selectedItemPanel');
+        if (panel) panel.style.display = 'none';
         drawDecorate();
     }
 
@@ -3631,7 +3855,15 @@
         });
         
         input.value = "";
-        toggleMode('arrange');
+        selectedTextIndex = texts.length - 1;
+        selectedStickerIndex = -1;
+        const panel = document.getElementById('selectedItemPanel');
+        if (panel) {
+            panel.style.display = 'block';
+            updateSelectedItemPanel();
+        }
+        const arrangeBtn = document.getElementById('btn-arrange');
+        if (arrangeBtn) toggleMode('arrange');
         saveHistory(); // 히스토리 저장
         drawDecorate();
     };
@@ -3805,8 +4037,7 @@
                     decorateStartY = y - s.y;
                     hit = true;
                     document.getElementById('selectedItemPanel').style.display = 'block';
-                    document.getElementById('itemBorderColor').value = s.borderColor;
-                    document.getElementById('itemBorderWidth').value = s.borderWidth;
+                    updateSelectedItemPanel();
                     document.getElementById('itemScale').value = s.scale * 100;
                     break;
                 }
@@ -3824,7 +4055,7 @@
                         decorateStartY = y - t.y;
                         hit = true;
                         document.getElementById('selectedItemPanel').style.display = 'block';
-                        document.getElementById('itemScale').value = t.scale * 100;
+                        updateSelectedItemPanel();
                         break;
                     }
                 }
@@ -4530,24 +4761,25 @@
     }
     
     function shareMergedImage() {
-        if (!mergedCanvas) {
-            alert('먼저 이미지를 합쳐주세요!');
+        if (!mergeCanvas || !mergeBaseImg.src) {
+            alert('먼저 배경 이미지를 업로드해주세요!');
             return;
         }
-        shareImage(mergedCanvas, '합친_이미지.png');
+        shareImage(mergeCanvas, '합친_이미지.png');
     }
     
     function shareCollageImage() {
-        if (!collageImg1.src) {
-            alert('먼저 이미지를 업로드해주세요!');
+        if (collageImages_arr.length === 0) {
+            alert('먼저 이미지를 추가해주세요!');
             return;
         }
+        if (collageCanvas.width === 500 && collageCanvas.height === 500) createCollage();
         shareImage(collageCanvas, '콜라주_이미지.png');
     }
     
     function shareDecorateImage() {
-        if (!decorateImg.src) {
-            alert('먼저 이미지를 업로드해주세요!');
+        if (!decorateImg.src && stickers.length === 0 && texts.length === 0) {
+            alert('저장할 내용이 없습니다!');
             return;
         }
         shareImage(decorateCanvas, '꾸민_이미지.png');
@@ -4655,6 +4887,10 @@
     function initPreview() {
         if (previewInitialized) return; // 이미 초기화됐으면 중복 실행 방지
         previewInitialized = true;
+        
+        document.querySelectorAll('#previewScreen .ratio-btn').forEach((btn, i) => {
+            btn.classList.toggle('selected', i === 0);
+        });
         
         previewCanvas = document.getElementById('previewCanvas');
         previewCtx = previewCanvas.getContext('2d');
@@ -5167,6 +5403,7 @@
     let trimInitialized = false;
     let trimImg = new Image();
     let trimArea = { x: 0, y: 0, width: 0, height: 0 };
+    let trimRatioLock = null; // { w, h } 비율 고정, null이면 자유
     let trimDragging = false;
     let trimDragHandle = null; // 'move', 'nw', 'ne', 'sw', 'se', 'n', 's', 'e', 'w'
     let trimDragStartX, trimDragStartY;
@@ -5200,6 +5437,10 @@
                     }
                     
                     // 초기 자르기 영역 설정 (전체)
+                    trimRatioLock = null;
+                    document.querySelectorAll('.trim-ratio-btn').forEach(btn => {
+                        btn.classList.toggle('selected', btn.dataset.ratio === 'free');
+                    });
                     trimArea = {
                         x: 0,
                         y: 0,
@@ -5347,70 +5588,85 @@
         const dy = coords.y - trimDragStartY;
         
         const minSize = 50;
+        const ratio = trimRatioLock ? (trimRatioLock.w / trimRatioLock.h) : null;
+        
+        function constrainRatio(w, h) {
+            if (!ratio) return { w: w, h: h };
+            if (w / h > ratio) return { w: h * ratio, h: h };
+            return { w: w, h: w / ratio };
+        }
         
         if (trimDragHandle === 'move') {
             trimArea.x = Math.max(0, Math.min(trimCanvas.width - trimArea.width, trimArea.x + dx));
             trimArea.y = Math.max(0, Math.min(trimCanvas.height - trimArea.height, trimArea.y + dy));
         } else if (trimDragHandle === 'nw') {
-            const newX = Math.max(0, trimArea.x + dx);
-            const newY = Math.max(0, trimArea.y + dy);
-            const newWidth = trimArea.width + (trimArea.x - newX);
-            const newHeight = trimArea.height + (trimArea.y - newY);
-            if (newWidth >= minSize && newHeight >= minSize) {
-                trimArea.x = newX;
-                trimArea.y = newY;
-                trimArea.width = newWidth;
-                trimArea.height = newHeight;
+            const rx = trimArea.x + trimArea.width, ry = trimArea.y + trimArea.height;
+            let newX = Math.max(0, trimArea.x + dx);
+            let newY = Math.max(0, trimArea.y + dy);
+            let newWidth = rx - newX;
+            let newHeight = ratio ? newWidth / ratio : (ry - newY);
+            let newYFinal = ry - newHeight;
+            if (ratio && newYFinal < 0) { newHeight = ry; newWidth = newHeight * ratio; newX = rx - newWidth; newYFinal = 0; }
+            if (newWidth >= minSize && newHeight >= minSize && newX >= 0 && newYFinal >= 0) {
+                trimArea.x = newX; trimArea.y = newYFinal; trimArea.width = newWidth; trimArea.height = newHeight;
             }
         } else if (trimDragHandle === 'ne') {
-            const newY = Math.max(0, trimArea.y + dy);
-            const newWidth = Math.max(minSize, trimArea.width + dx);
-            const newHeight = trimArea.height + (trimArea.y - newY);
-            if (newHeight >= minSize && trimArea.x + newWidth <= trimCanvas.width) {
-                trimArea.y = newY;
-                trimArea.width = newWidth;
-                trimArea.height = newHeight;
+            let newY = Math.max(0, trimArea.y + dy);
+            let newWidth = Math.max(minSize, trimArea.width + dx);
+            let newHeight = trimArea.height + (trimArea.y - newY);
+            if (ratio) { const c = constrainRatio(newWidth, newHeight); newWidth = c.w; newHeight = c.h; newY = trimArea.y + trimArea.height - newHeight; }
+            if (newHeight >= minSize && trimArea.x + newWidth <= trimCanvas.width && newY >= 0) {
+                trimArea.y = newY; trimArea.width = newWidth; trimArea.height = newHeight;
             }
         } else if (trimDragHandle === 'sw') {
-            const newX = Math.max(0, trimArea.x + dx);
-            const newWidth = trimArea.width + (trimArea.x - newX);
-            const newHeight = Math.max(minSize, trimArea.height + dy);
-            if (newWidth >= minSize && trimArea.y + newHeight <= trimCanvas.height) {
-                trimArea.x = newX;
-                trimArea.width = newWidth;
-                trimArea.height = newHeight;
+            let newX = Math.max(0, trimArea.x + dx);
+            let newWidth = trimArea.width + (trimArea.x - newX);
+            let newHeight = Math.max(minSize, trimArea.height + dy);
+            if (ratio) { const c = constrainRatio(newWidth, newHeight); newWidth = c.w; newHeight = c.h; newX = trimArea.x + trimArea.width - newWidth; }
+            if (newWidth >= minSize && trimArea.y + newHeight <= trimCanvas.height && newX >= 0) {
+                trimArea.x = newX; trimArea.width = newWidth; trimArea.height = newHeight;
             }
         } else if (trimDragHandle === 'se') {
-            const newWidth = Math.max(minSize, trimArea.width + dx);
-            const newHeight = Math.max(minSize, trimArea.height + dy);
+            let newWidth = Math.max(minSize, trimArea.width + dx);
+            let newHeight = Math.max(minSize, trimArea.height + dy);
+            if (ratio) { const c = constrainRatio(newWidth, newHeight); newWidth = c.w; newHeight = c.h; }
             if (trimArea.x + newWidth <= trimCanvas.width && trimArea.y + newHeight <= trimCanvas.height) {
-                trimArea.width = newWidth;
-                trimArea.height = newHeight;
+                trimArea.width = newWidth; trimArea.height = newHeight;
             }
         } else if (trimDragHandle === 'n') {
-            const newY = Math.max(0, trimArea.y + dy);
-            const newHeight = trimArea.height + (trimArea.y - newY);
-            if (newHeight >= minSize) {
-                trimArea.y = newY;
-                trimArea.height = newHeight;
+            if (!ratio) {
+                const newY = Math.max(0, trimArea.y + dy);
+                const newHeight = trimArea.height + (trimArea.y - newY);
+                if (newHeight >= minSize) { trimArea.y = newY; trimArea.height = newHeight; }
+            } else {
+                const newHeight = Math.max(minSize, trimArea.height - dy);
+                const newWidth = newHeight * ratio;
+                if (newWidth >= minSize && newWidth <= trimCanvas.width) {
+                    trimArea.y = trimArea.y + trimArea.height - newHeight;
+                    trimArea.width = newWidth; trimArea.height = newHeight;
+                }
             }
         } else if (trimDragHandle === 's') {
-            const newHeight = Math.max(minSize, trimArea.height + dy);
-            if (trimArea.y + newHeight <= trimCanvas.height) {
-                trimArea.height = newHeight;
-            }
+            let newHeight = Math.max(minSize, trimArea.height + dy);
+            if (ratio) { const newWidth = newHeight * ratio; if (newWidth >= minSize && trimArea.x + newWidth <= trimCanvas.width && trimArea.y + newHeight <= trimCanvas.height) { trimArea.width = newWidth; trimArea.height = newHeight; } }
+            else if (trimArea.y + newHeight <= trimCanvas.height) { trimArea.height = newHeight; }
         } else if (trimDragHandle === 'w') {
-            const newX = Math.max(0, trimArea.x + dx);
-            const newWidth = trimArea.width + (trimArea.x - newX);
-            if (newWidth >= minSize) {
-                trimArea.x = newX;
-                trimArea.width = newWidth;
+            if (!ratio) {
+                const newX = Math.max(0, trimArea.x + dx);
+                const newWidth = trimArea.width + (trimArea.x - newX);
+                if (newWidth >= minSize) { trimArea.x = newX; trimArea.width = newWidth; }
+            } else {
+                const newWidth = Math.max(minSize, trimArea.width - dx);
+                const newHeight = newWidth / ratio;
+                if (newHeight >= minSize && newHeight <= trimCanvas.height) {
+                    trimArea.x = trimArea.x + trimArea.width - newWidth;
+                    trimArea.width = newWidth; trimArea.height = newHeight;
+                }
             }
         } else if (trimDragHandle === 'e') {
-            const newWidth = Math.max(minSize, trimArea.width + dx);
-            if (trimArea.x + newWidth <= trimCanvas.width) {
-                trimArea.width = newWidth;
-            }
+            let newWidth = Math.max(minSize, trimArea.width + dx);
+            if (ratio) { const newHeight = newWidth / ratio; if (newHeight >= minSize && trimArea.x + newWidth <= trimCanvas.width && trimArea.y + newHeight <= trimCanvas.height) { trimArea.width = newWidth; trimArea.height = newHeight; } }
+            else if (trimArea.x + newWidth <= trimCanvas.width) { trimArea.width = newWidth; }
         }
         
         trimDragStartX = coords.x;
@@ -5426,6 +5682,10 @@
     function resetTrimArea() {
         if (!trimImg.src) return;
         
+        trimRatioLock = null;
+        document.querySelectorAll('.trim-ratio-btn').forEach(btn => {
+            btn.classList.toggle('selected', btn.dataset.ratio === 'free');
+        });
         trimArea = {
             x: 0,
             y: 0,
@@ -5437,18 +5697,45 @@
     }
 
     function setSquareTrim() {
+        setTrimRatio(1, 1);
+    }
+
+    window.setTrimRatio = function(w, h) {
         if (!trimImg.src) return;
         
-        const size = Math.min(trimCanvas.width, trimCanvas.height);
+        document.querySelectorAll('.trim-ratio-btn').forEach(btn => {
+            btn.classList.remove('selected');
+            if ((w === null && btn.dataset.ratio === 'free') || (w !== null && h !== null && btn.dataset.ratio === w + '-' + h)) {
+                btn.classList.add('selected');
+            }
+        });
+        
+        if (w === null || h === null) {
+            trimRatioLock = null;
+            resetTrimArea();
+            return;
+        }
+        
+        trimRatioLock = { w: w, h: h };
+        const ratio = w / h;
+        const canvasRatio = trimCanvas.width / trimCanvas.height;
+        let newW, newH;
+        if (ratio >= canvasRatio) {
+            newW = trimCanvas.width;
+            newH = trimCanvas.width / ratio;
+        } else {
+            newH = trimCanvas.height;
+            newW = trimCanvas.height * ratio;
+        }
         trimArea = {
-            x: (trimCanvas.width - size) / 2,
-            y: (trimCanvas.height - size) / 2,
-            width: size,
-            height: size
+            x: (trimCanvas.width - newW) / 2,
+            y: (trimCanvas.height - newH) / 2,
+            width: newW,
+            height: newH
         };
         trimmedResult = null;
         drawTrimCanvas();
-    }
+    };
 
     function resetTrimAll() {
         if (!trimImg.src) {
