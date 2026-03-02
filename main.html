@@ -7,6 +7,7 @@
     <title>지망생 에디터</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5/dist/iro.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Nanum+Pen+Script&family=Jua&family=Dokdo&family=Gaegu:wght@300;400;700&family=Hi+Melody&family=Nanum+Myeongjo:wght@400;700;800&family=Black+Han+Sans&family=Gugi&family=Do+Hyeon&family=East+Sea+Dokdo&family=Sunflower:wght@300;500;700&family=Gamja+Flower&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
@@ -75,7 +76,6 @@
         }
 
         #mainMenu { padding: 0; }
-        .menu-title { font-size: clamp(18px,4.5vw,22px); font-weight: 800; color: var(--primary); }
         .menu-title { text-align: center; font-size: clamp(18px,4.5vw,24px); font-weight: 800; color: var(--primary); margin-bottom: 30px; }
         .menu-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
         @media (min-width: 768px) { .menu-grid { grid-template-columns: 1fr 1fr 1fr; } }
@@ -298,6 +298,58 @@
         .preview-name { font-weight: 600; margin-bottom: 3px; }
         .preview-size { color: #888; font-size: 11px; }
         .delete-preview-btn { background: #ff4757; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
+
+        /* ── 아코디언 ── */
+        .accordion-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 10px; background: #f0faf0; border-radius: 10px;
+            cursor: pointer; margin-bottom: 4px; border: 1.5px solid #c8e6c9;
+            user-select: none; -webkit-user-select: none;
+        }
+        .accordion-header:hover { background: #e0f5e0; }
+        .accordion-header .acc-label { font-size: 13px; font-weight: 700; color: var(--primary); }
+        .accordion-header .acc-arrow { font-size: 12px; color: #888; transition: transform 0.2s; }
+        .accordion-header.open .acc-arrow { transform: rotate(180deg); }
+        .accordion-body { overflow: hidden; max-height: 0; transition: max-height 0.3s ease, padding 0.3s ease; }
+        .accordion-body.open { max-height: 600px; }
+        .accordion-body-inner { padding: 10px 4px 4px; }
+
+        /* ── 컬러픽커 팝업 ── */
+        .color-popup-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 9000; align-items: center; justify-content: center;
+        }
+        .color-popup-overlay.active { display: flex; }
+        .color-popup {
+            background: #1e1e2e; border-radius: 20px; padding: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6); width: 300px; max-width: 90vw;
+        }
+        .color-popup-title {
+            color: white; font-size: 14px; font-weight: 700; text-align: center; margin-bottom: 16px;
+        }
+        .color-popup-preview {
+            width: 100%; height: 44px; border-radius: 10px; margin-bottom: 14px;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        .color-popup-hex {
+            display: flex; gap: 8px; align-items: center; margin-bottom: 14px;
+        }
+        .color-popup-hex label { color: #aaa; font-size: 12px; min-width: 30px; }
+        .color-popup-hex input {
+            flex: 1; background: #2a2a3e; border: 1px solid #444; border-radius: 8px;
+            color: white; padding: 7px 10px; font-size: 13px; font-family: monospace;
+            outline: none;
+        }
+        .color-popup-hex input:focus { border-color: #11593F; }
+        .color-popup-btns { display: flex; gap: 8px; margin-top: 14px; }
+        .color-popup-btns button { flex: 1; padding: 10px; border-radius: 10px; border: none; cursor: pointer; font-weight: 700; font-size: 13px; }
+        .color-popup-btns .btn-cancel { background: #3a3a4e; color: #ccc; }
+        .color-popup-btns .btn-ok { background: var(--primary); color: white; }
+        #iroPickerWrap { display: flex; justify-content: center; }
+
+        /* ── 변환 핸들 ── */
+        .handle-cursor { cursor: nwse-resize; }
+    
     </style>
 </head>
 <body>
@@ -317,16 +369,16 @@
 
     <!-- 메인 메뉴 -->
     <div id="mainMenu">
-        <div class="edit-mode-banner" id="editModeBanner">✏️ 드래그로 카드를 끌어다 순서를 바꿔보세요</div>
+        <div class="edit-mode-banner" id="editModeBanner">드래그로 카드를 끌어다 순서를 바꿔보세요</div>
         <div style="display:flex; align-items:center; justify-content:space-between; padding: 20px 20px 0;">
-            <div class="menu-title" style="margin:0; text-align:left;">✨ 기능 선택</div>
-            <button class="sort-toggle-btn" id="sortToggleBtn" onclick="toggleEditMode()">☰ 순서 변경</button>
+            <div class="menu-title" style="margin:0; text-align:left;">기능 선택</div>
+            <button class="sort-toggle-btn" id="sortToggleBtn" onclick="toggleEditMode()">순서 변경</button>
         </div>
         <div class="menu-grid" id="menuGrid" style="padding: 16px 20px 0;">
             <!-- 카드는 JS로 렌더링 -->
         </div>
         <div style="padding: 12px 20px 20px;">
-            <button class="workflow-start-btn" onclick="startWorkflow()">🚀 설정한 순서대로 편집 시작</button>
+            <button class="workflow-start-btn" onclick="startWorkflow()">설정한 순서대로 편집 시작</button>
         </div>
     </div>
 
@@ -335,11 +387,11 @@
         <div class="canvas-wrapper"><canvas id="ratioCanvas"></canvas></div>
         <div class="control-panel">
             <div class="tool-section">
-                <div class="section-title">📷 이미지 업로드</div>
+                <div class="section-title">이미지 업로드</div>
                 <div class="file-upload-wrapper"><label for="ratioUpload" class="file-upload-label">+ 이미지 선택하기</label><input type="file" id="ratioUpload" accept="image/*"></div>
             </div>
             <div class="tool-section">
-                <div class="section-title">📐 비율 선택</div>
+                <div class="section-title">비율 선택</div>
                 <div class="ratio-grid">
                     <div class="ratio-btn" onclick="selectRatio(1,1,this)"><div class="ratio-label">정사각형</div><div class="ratio-value">1:1 (인스타그램)</div></div>
                     <div class="ratio-btn" onclick="selectRatio(4,5,this)"><div class="ratio-label">세로형</div><div class="ratio-value">4:5 (인스타 피드)</div></div>
@@ -350,7 +402,7 @@
                 </div>
             </div>
             <div class="tool-section">
-                <div class="section-title">🎨 배경색</div>
+                <div class="section-title">배경색</div>
                 <div class="input-group" style="justify-content:center;gap:15px;">
                     <div style="width:40px;height:40px;border-radius:50%;background:#fff;border:2px solid #ddd;cursor:pointer;" id="bgWhite" onclick="selectBgColor('#ffffff','bgWhite')"></div>
                     <div style="width:40px;height:40px;border-radius:50%;background:#000;border:2px solid #333;cursor:pointer;" id="bgBlack" onclick="selectBgColor('#000000','bgBlack')"></div>
@@ -362,10 +414,10 @@
             </div>
             <div class="tool-section">
                 <div style="display:flex;gap:8px;"><button class="btn secondary" onclick="alignRatioPosition('left')" style="flex:1;">◀ 좌측</button><button class="btn secondary" onclick="alignRatioPosition('center')" style="flex:1;">⬛ 가운데</button><button class="btn secondary" onclick="alignRatioPosition('right')" style="flex:1;">▶ 우측</button></div>
-                <p style="font-size:11px;color:#888;margin:6px 0 0;text-align:center;">💡 핀치로 확대/축소, 드래그로 이동</p>
+                <p style="font-size:11px;color:#888;margin:6px 0 0;text-align:center;">핀치로 확대/축소, 드래그로 이동</p>
             </div>
             <div class="action-row">
-                <button class="btn primary" onclick="downloadRatioImage()" style="flex:1;margin-top:0;">💾 저장</button>
+                <button class="btn primary" onclick="downloadRatioImage()" style="flex:1;margin-top:0;">저장</button>
                 <button class="btn secondary" onclick="shareRatioImage()" style="flex:1;">공유</button>
                 <button class="btn next-step" onclick="passToNext('ratioCanvas')" style="flex:1;">다음 단계 →</button>
             </div>
@@ -376,17 +428,17 @@
     <div id="mergeScreen" class="feature-screen">
         <div class="canvas-wrapper"><canvas id="mergeCanvas"></canvas></div>
         <div class="control-panel">
-            <div class="tool-section"><div class="section-title">📷 배경 이미지 (아래층)</div><div class="file-upload-wrapper"><label for="mergeBaseUpload" class="file-upload-label">+ 배경 이미지 선택</label><input type="file" id="mergeBaseUpload" accept="image/*"></div></div>
-            <div class="tool-section"><div class="section-title">🖼️ 겹칠 이미지 (위층)</div><div class="file-upload-wrapper"><label for="mergeOverlayUpload" class="file-upload-label" style="background:#fff3e0;border-color:#ffb74d;color:#f57c00;">+ 겹칠 이미지 선택</label><input type="file" id="mergeOverlayUpload" accept="image/*"></div></div>
+            <div class="tool-section"><div class="section-title">배경 이미지 (아래층)</div><div class="file-upload-wrapper"><label for="mergeBaseUpload" class="file-upload-label">+ 배경 이미지 선택</label><input type="file" id="mergeBaseUpload" accept="image/*"></div></div>
+            <div class="tool-section"><div class="section-title">겹칠 이미지 (위층)</div><div class="file-upload-wrapper"><label for="mergeOverlayUpload" class="file-upload-label" style="background:#fff3e0;border-color:#ffb74d;color:#f57c00;">+ 겹칠 이미지 선택</label><input type="file" id="mergeOverlayUpload" accept="image/*"></div></div>
             <div class="tool-section">
-                <div class="section-title">⚙️ 레이어 선택</div>
-                <div class="layer-select-btns"><button class="layer-select-btn" id="layerBtnBase" onclick="selectMergeLayer('base')">📷 아래층</button><button class="layer-select-btn active" id="layerBtnOverlay" onclick="selectMergeLayer('overlay')">🖼️ 위층</button></div>
-                <p style="font-size:11px;color:#888;margin:0 0 12px;text-align:center;background:#f0f8f0;padding:10px;border-radius:8px;">💡 드래그로 이동, 핀치/휠로 크기 조절</p>
+                <div class="section-title">레이어 선택</div>
+                <div class="layer-select-btns"><button class="layer-select-btn" id="layerBtnBase" onclick="selectMergeLayer('base')">아래층</button><button class="layer-select-btn active" id="layerBtnOverlay" onclick="selectMergeLayer('overlay')">위층</button></div>
+                <p style="font-size:11px;color:#888;margin:0 0 12px;text-align:center;background:#f0f8f0;padding:10px;border-radius:8px;">드래그로 이동, 핀치/휠로 크기 조절</p>
                 <button class="btn secondary" onclick="swapMergeLayers()" style="width:100%;margin-bottom:12px;">⇅ 레이어 순서 바꾸기</button>
                 <div class="slider-row"><label>투명도</label><input type="range" id="overlayOpacity" min="0" max="100" value="100" oninput="onMergeOpacity(this)"><span class="val" id="opacityValue">100%</span></div>
             </div>
             <div class="action-row">
-                <button class="btn primary" onclick="downloadMergedImage()" style="flex:1;margin-top:0;">💾 저장</button>
+                <button class="btn primary" onclick="downloadMergedImage()" style="flex:1;margin-top:0;">저장</button>
                 <button class="btn secondary" onclick="shareMergedImage()" style="flex:1;">공유</button>
                 <button class="btn next-step" onclick="passToNext('mergeCanvas')" style="flex:1;">다음 단계 →</button>
             </div>
@@ -398,13 +450,13 @@
         <div class="canvas-wrapper"><canvas id="collageCanvas"></canvas></div>
         <div class="control-panel">
             <div class="tool-section">
-                <div class="section-title">📷 이미지 추가 (최대 10개)</div>
+                <div class="section-title">이미지 추가 (최대 10개)</div>
                 <div class="file-upload-wrapper"><label for="collageUpload" class="file-upload-label">+ 이미지 추가하기</label><input type="file" id="collageUpload" accept="image/*" multiple></div>
-                <p style="font-size:11px;color:#888;margin:0 0 8px;text-align:center;background:#f0f8f0;padding:10px;border-radius:8px;">💡 자유 배치 모드: 터치/드래그로 이동, 핀치로 크기 조절</p>
+                <p style="font-size:11px;color:#888;margin:0 0 8px;text-align:center;background:#f0f8f0;padding:10px;border-radius:8px;">자유 배치 모드: 터치/드래그로 이동, 핀치로 크기 조절</p>
                 <div id="collagePreviewList" class="image-preview-list"></div>
             </div>
             <div class="tool-section">
-                <div class="section-title">📐 레이아웃 선택</div>
+                <div class="section-title">레이아웃 선택</div>
                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:15px;">
                     <div onclick="selectCollageMode('freeform')" id="collageFreeform" class="collage-mode-btn">
                         <div class="cm-icon" style="display:grid;grid-template-columns:repeat(2,1fr);gap:2px;padding:6px;">
@@ -494,7 +546,7 @@
                 <div class="slider-row"><label>간격</label><input type="range" id="collageGap" min="0" max="50" value="10" oninput="document.getElementById('collageGapValue').textContent=this.value+'px';createCollage()"><span class="val" id="collageGapValue">10px</span></div>
             </div>
             <div class="action-row">
-                <button class="btn primary" onclick="downloadCollageImage()" style="flex:1;margin-top:0;">💾 저장</button>
+                <button class="btn primary" onclick="downloadCollageImage()" style="flex:1;margin-top:0;">저장</button>
                 <button class="btn secondary" onclick="shareCollageImage()" style="flex:1;">공유</button>
                 <button class="btn next-step" onclick="passToNext('collageCanvas')" style="flex:1;">다음 단계 →</button>
             </div>
@@ -510,11 +562,11 @@
                 <button class="btn secondary" id="redoBtn" onclick="redo()" disabled style="flex:1;font-size:12px;">↪ 다시실행</button>
             </div>
             <div class="tool-section">
-                <div class="section-title">🖼️ 배경 이미지</div>
+                <div class="section-title">배경 이미지</div>
                 <div class="file-upload-wrapper"><label for="decorateUpload" class="file-upload-label">+ 배경 사진 불러오기</label><input type="file" id="decorateUpload" accept="image/*"></div>
             </div>
             <div class="tool-section">
-                <div class="section-title">✍️ 글 넣기</div>
+                <div class="section-title">글 넣기</div>
                 <div class="text-panel">
                     <div class="row">
                         <textarea id="textInput" placeholder="텍스트 입력... (엔터로 줄바꿈)" style="flex:1;font-size:15px;"></textarea>
@@ -548,7 +600,7 @@
                         <button class="weight-btn" id="italicBtn" onclick="toggleItalic()"><i>I</i></button>
                         <div class="align-btns">
                             <button class="align-btn active" id="alignLeft" onclick="setAlign('left')" title="왼쪽">≡</button>
-                            <button class="align-btn" id="alignCenter" onclick="setAlign('center')" title="가운데">☰</button>
+                            <button class="align-btn" id="alignCenter" onclick="setAlign('center')" title="가운데">≡≡</button>
                             <button class="align-btn" id="alignRight" onclick="setAlign('right')" title="오른쪽">≣</button>
                         </div>
                     </div>
@@ -557,57 +609,80 @@
                         <input type="range" id="textOpacity" min="10" max="100" value="100" oninput="document.getElementById('textOpacityVal').textContent=this.value+'%';liveUpdateSelectedText()">
                         <span class="val" id="textOpacityVal">100%</span>
                     </div>
+                    <!-- 글자색 / 배경색 -->
                     <div class="color-row-compact">
                         <label>글자색</label>
-                        <div class="color-picker-btn" id="textColorBtn" style="background:#ffffff;">
-                            <input type="color" id="textColor" value="#ffffff" oninput="document.getElementById('textColorBtn').style.background=this.value;liveUpdateSelectedText()">
-                        </div>
+                        <div class="color-picker-btn" id="textColorBtn" style="background:#ffffff;" onclick="openColorPicker('textColor','글자색',this)"></div>
                         <label style="margin-left:8px;">배경색</label>
-                        <div class="color-picker-btn" id="textBgColorBtn" style="background:transparent;border:2px dashed #aaa;" title="없음(투명)=클릭후 취소">
-                            <input type="color" id="textBgColor" value="#000000" oninput="document.getElementById('textBgColorBtn').style.background=this.value;currentTextStyle.bgColor=this.value;liveUpdateSelectedText()">
-                        </div>
+                        <div class="color-picker-btn" id="textBgColorBtn" style="background:transparent;border:2px dashed #aaa;" title="없음(투명)=클릭후 취소" onclick="openColorPicker('textBgColor','배경색',this)"></div>
                         <button class="btn small" onclick="clearTextBgColor()" style="background:#aaa;font-size:11px;padding:5px 8px;min-height:30px;">투명</button>
                     </div>
-                    <div class="color-row-compact">
-                        <label>테두리</label>
-                        <div class="color-picker-btn" id="textStrokeColorBtn" style="background:#000000;">
-                            <input type="color" id="textStrokeColor" value="#000000" oninput="document.getElementById('textStrokeColorBtn').style.background=this.value;liveUpdateSelectedText()">
+
+                    <!-- 아코디언: 테두리 -->
+                    <div class="accordion-header" onclick="toggleAccordion('accBorder',this)">
+                        <span class="acc-label">테두리 설정</span>
+                        <span class="acc-arrow">▼</span>
+                    </div>
+                    <div class="accordion-body" id="accBorder">
+                        <div class="accordion-body-inner">
+                            <div class="color-row-compact">
+                                <label>테두리색</label>
+                                <div class="color-picker-btn" id="textStrokeColorBtn" style="background:#000000;" onclick="openColorPicker('textStrokeColor','테두리색',this)"></div>
+                                <input type="range" id="textStrokeWidth" min="0" max="20" value="0" style="flex:1;margin-left:8px;" oninput="document.getElementById('textStrokeVal').textContent=this.value;liveUpdateSelectedText()">
+                                <span class="val" id="textStrokeVal">0</span>
+                            </div>
                         </div>
-                        <input type="range" id="textStrokeWidth" min="0" max="20" value="0" style="flex:1;margin-left:8px;" oninput="document.getElementById('textStrokeVal').textContent=this.value;liveUpdateSelectedText()">
-                        <span class="val" id="textStrokeVal">0</span>
                     </div>
-                    <div class="color-row-compact">
-                        <label>그림자</label>
-                        <div class="color-picker-btn" id="textShadowColorBtn" style="background:#000000;">
-                            <input type="color" id="textShadowColor" value="#000000" oninput="document.getElementById('textShadowColorBtn').style.background=this.value;liveUpdateSelectedText()">
+
+                    <!-- 아코디언: 그림자 -->
+                    <div class="accordion-header" onclick="toggleAccordion('accShadow',this)">
+                        <span class="acc-label">그림자 설정</span>
+                        <span class="acc-arrow">▼</span>
+                    </div>
+                    <div class="accordion-body" id="accShadow">
+                        <div class="accordion-body-inner">
+                            <div class="color-row-compact">
+                                <label>그림자색</label>
+                                <div class="color-picker-btn" id="textShadowColorBtn" style="background:#000000;" onclick="openColorPicker('textShadowColor','그림자색',this)"></div>
+                                <input type="range" id="textShadowBlur" min="0" max="40" value="0" style="flex:1;margin-left:8px;" oninput="document.getElementById('textShadowVal').textContent=this.value;liveUpdateSelectedText()">
+                                <span class="val" id="textShadowVal">0</span>
+                            </div>
+                            <div class="slider-row">
+                                <label>그림자 거리</label>
+                                <input type="range" id="textShadowDist" min="0" max="30" value="4" oninput="document.getElementById('textShadowDistVal').textContent=this.value;liveUpdateSelectedText()">
+                                <span class="val" id="textShadowDistVal">4</span>
+                            </div>
                         </div>
-                        <input type="range" id="textShadowBlur" min="0" max="40" value="0" style="flex:1;margin-left:8px;" oninput="document.getElementById('textShadowVal').textContent=this.value;liveUpdateSelectedText()">
-                        <span class="val" id="textShadowVal">0</span>
                     </div>
-                    <div class="slider-row">
-                        <label>그림자 거리</label>
-                        <input type="range" id="textShadowDist" min="0" max="30" value="4" oninput="document.getElementById('textShadowDistVal').textContent=this.value;liveUpdateSelectedText()">
-                        <span class="val" id="textShadowDistVal">4</span>
+
+                    <!-- 아코디언: 효과 -->
+                    <div class="accordion-header" onclick="toggleAccordion('accEffects',this)">
+                        <span class="acc-label">특수 효과</span>
+                        <span class="acc-arrow">▼</span>
                     </div>
-                    <div class="row" style="flex-wrap:wrap;gap:6px;">
-                        <span style="font-size:12px;color:#555;font-weight:600;align-self:center;">효과:</span>
-                        <button class="effect-chip active" id="efNone" onclick="setTextEffect('none')">없음</button>
-                        <button class="effect-chip" id="efOutline" onclick="setTextEffect('outline')">아웃라인</button>
-                        <button class="effect-chip" id="efGlow" onclick="setTextEffect('glow')">글로우</button>
-                        <button class="effect-chip" id="efShadow" onclick="setTextEffect('shadow')">그림자</button>
-                        <button class="effect-chip" id="efNeon" onclick="setTextEffect('neon')">네온</button>
-                        <button class="effect-chip" id="efEmboss" onclick="setTextEffect('emboss')">엠보스</button>
+                    <div class="accordion-body" id="accEffects">
+                        <div class="accordion-body-inner">
+                            <div class="row" style="flex-wrap:wrap;gap:6px;">
+                                <button class="effect-chip active" id="efNone" onclick="setTextEffect('none')">없음</button>
+                                <button class="effect-chip" id="efOutline" onclick="setTextEffect('outline')">아웃라인</button>
+                                <button class="effect-chip" id="efGlow" onclick="setTextEffect('glow')">글로우</button>
+                                <button class="effect-chip" id="efShadow" onclick="setTextEffect('shadow')">그림자</button>
+                                <button class="effect-chip" id="efNeon" onclick="setTextEffect('neon')">네온</button>
+                                <button class="effect-chip" id="efEmboss" onclick="setTextEffect('emboss')">엠보스</button>
+                            </div>
+                        </div>
                     </div>
+
                     <div style="margin-top:10px;display:flex;gap:8px;">
                         <button class="btn outline small" onclick="centerAlignSelected()" style="flex:1;">⊕ 캔버스 중앙 정렬</button>
                     </div>
                 </div>
-                <div class="section-title" style="margin-top:4px;">🎨 스티커 &amp; 위젯</div>
+                <div class="section-title" style="margin-top:4px;">스티커 &amp; 위젯</div>
                 <div class="input-group">
                     <select id="widgetType" onchange="updateWidgetPlaceholder()" style="flex:0.4;min-width:80px;">
-                        <option value="noti">🔔 알림</option>
-                        <option value="music">🎵 음악</option>
-                        <option value="location">📍 위치</option>
+                        <option value="noti">알림</option>
+                        <option value="music">음악</option>
+                        <option value="location">위치</option>
                     </select>
                     <input type="text" id="widgetInput1" placeholder="보낸사람">
                 </div>
@@ -618,18 +693,15 @@
                 <div class="file-upload-wrapper"><label for="stickerUpload" class="file-upload-label" style="background:#fff3e0;border-color:#ffb74d;color:#f57c00;">+ 스티커(PNG) 추가</label><input type="file" id="stickerUpload" accept="image/png,image/jpeg"></div>
             </div>
             <div id="selectedItemPanel" class="selected-item-panel" style="display:none;">
-                <div class="section-title" style="color:#f57c00;margin-bottom:10px;">⚡ 선택된 요소</div>
+                <div class="section-title" style="color:#f57c00;margin-bottom:10px;">선택된 요소</div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
                     <button class="btn secondary small" onclick="bringToFront()">맨 앞으로</button>
                     <button class="btn secondary small" onclick="sendToBack()">맨 뒤로</button>
                     <button class="btn danger small" onclick="deleteSelectedItem()">삭제</button>
                 </div>
-                <div class="slider-row" style="margin-top:10px;">
-                    <label>크기</label>
-                    <input type="range" id="itemScale" min="10" max="300" value="100" oninput="applyItemScale(this.value)">
-                    <span class="val" id="itemScaleVal">100%</span>
-                </div>
-                <div class="color-row-compact" style="margin-top:6px;">
+                <div class="color-row-compact" style="margin-top:10px;">
+                <input type="range" id="itemScale" min="10" max="300" value="100" style="display:none;" oninput="applyItemScale(this.value)">
+                <span id="itemScaleVal" style="display:none;">100%</span>
                     <label>스티커 테두리</label>
                     <div class="color-picker-btn" id="itemBorderColorBtn" style="background:#000000;">
                         <input type="color" id="itemBorderColor" value="#000000" oninput="document.getElementById('itemBorderColorBtn').style.background=this.value;applyStickerBorder()">
@@ -638,21 +710,26 @@
                 </div>
             </div>
             <div class="tool-section">
-                <div class="section-title">✨ 이미지 효과</div>
-                <div class="input-group">
-                    <span style="font-size:12px;width:50px;">필터막:</span>
-                    <select id="overlaySelect" oninput="drawDecorate()"><option value="none">없음</option><option value="black">검은색</option><option value="white">흰색</option><option value="gradient-black">검은 그라데이션</option><option value="gradient-white">흰색 그라데이션</option></select>
+                <div class="section-title">이미지 효과</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                    <span style="font-size:12px;min-width:50px;">필터막:</span>
+                    <select id="overlaySelect" oninput="drawDecorate()" style="flex:1;"><option value="none">없음</option><option value="black">검은색</option><option value="white">흰색</option><option value="gradient-black">검은 그라데이션</option><option value="gradient-white">흰색 그라데이션</option></select>
+                </div>
+                <div class="slider-row">
+                    <label style="min-width:50px;font-size:12px;">투명도</label>
                     <input type="range" id="opacitySlider" min="0" max="100" value="50" oninput="drawDecorate()">
                 </div>
-                <div class="input-group">
-                    <span style="font-size:12px;width:50px;">그림자:</span>
+                <div class="slider-row">
+                    <label style="min-width:50px;font-size:12px;">그림자</label>
                     <input type="range" id="shadowSlider" min="0" max="50" value="0" oninput="drawDecorate()">
-                    <span style="font-size:12px;width:50px;margin-left:8px;">모서리:</span>
+                </div>
+                <div class="slider-row">
+                    <label style="min-width:50px;font-size:12px;">모서리</label>
                     <input type="range" id="radiusSlider" min="0" max="100" value="0" oninput="drawDecorate()">
                 </div>
             </div>
             <div class="action-row">
-                <button class="btn primary" onclick="downloadDecorateImage()" style="flex:1;margin-top:0;">💾 저장</button>
+                <button class="btn primary" onclick="downloadDecorateImage()" style="flex:1;margin-top:0;">저장</button>
                 <button class="btn secondary" onclick="shareDecorateImage()" style="flex:1;">공유</button>
                 <button class="btn next-step" onclick="passToNext('decorateCanvas')" style="flex:1;">다음 단계 →</button>
             </div>
@@ -663,18 +740,18 @@
     <div id="splitScreen" class="feature-screen">
         <div class="canvas-wrapper"><canvas id="splitCanvas"></canvas></div>
         <div class="control-panel">
-            <div class="tool-section"><div class="section-title">📷 이미지 업로드</div><div class="file-upload-wrapper"><label for="splitUpload" class="file-upload-label">+ 분할할 이미지 선택</label><input type="file" id="splitUpload" accept="image/*"></div></div>
+            <div class="tool-section"><div class="section-title">이미지 업로드</div><div class="file-upload-wrapper"><label for="splitUpload" class="file-upload-label">+ 분할할 이미지 선택</label><input type="file" id="splitUpload" accept="image/*"></div></div>
             <div class="tool-section">
-                <div class="section-title">✂️ 분할 방식</div>
+                <div class="section-title">분할 방식</div>
                 <div class="ratio-grid">
                     <div class="ratio-btn" onclick="selectSplitMode(3,1,this)"><div class="ratio-label">가로 3분할</div><div class="ratio-value">1행 × 3열</div></div>
                     <div class="ratio-btn" onclick="selectSplitMode(3,2,this)"><div class="ratio-label">2×3 격자</div><div class="ratio-value">6개 조각</div></div>
                     <div class="ratio-btn" onclick="selectSplitMode(3,3,this)"><div class="ratio-label">3×3 격자</div><div class="ratio-value">9개 조각</div></div>
                 </div>
             </div>
-            <button class="btn primary" onclick="splitAndDownload()">✂️ 분할 후 ZIP 다운로드</button>
+            <button class="btn primary" onclick="splitAndDownload()">분할 후 ZIP 다운로드</button>
             <div class="action-row" style="margin-top:8px;">
-                <button class="btn secondary" style="flex:1;">💾 저장(ZIP)</button>
+                <button class="btn secondary" style="flex:1;">저장(ZIP)</button>
                 <button class="btn secondary" style="flex:1;">공유</button>
                 <button class="btn next-step" onclick="passToNext('splitCanvas')" style="flex:1;">다음 단계 →</button>
             </div>
@@ -685,14 +762,14 @@
     <div id="cropScreen" class="feature-screen">
         <div class="canvas-wrapper"><canvas id="cropCanvas"></canvas></div>
         <div class="control-panel">
-            <div class="tool-section"><div class="section-title">📷 이미지 업로드</div><div class="file-upload-wrapper"><label for="cropUpload" class="file-upload-label">+ 테두리 깎을 이미지 선택</label><input type="file" id="cropUpload" accept="image/*"></div></div>
+            <div class="tool-section"><div class="section-title">이미지 업로드</div><div class="file-upload-wrapper"><label for="cropUpload" class="file-upload-label">+ 테두리 깎을 이미지 선택</label><input type="file" id="cropUpload" accept="image/*"></div></div>
             <div class="tool-section">
-                <div class="section-title">⚙️ 테두리 깎기 설정</div>
+                <div class="section-title">테두리 깎기 설정</div>
                 <div class="slider-row"><label>깎을 두께</label><input type="range" id="cropAmount" min="1" max="50" value="5" oninput="document.getElementById('cropAmountValue').textContent=this.value+'px'"><span class="val" id="cropAmountValue">5px</span></div>
             </div>
-            <button class="btn primary" id="cropBtn" onclick="cropBorder()">✂️ 테두리 깎기</button>
+            <button class="btn primary" id="cropBtn" onclick="cropBorder()">테두리 깎기</button>
             <div class="action-row" style="margin-top:10px;">
-                <button class="btn secondary" onclick="downloadCroppedImage()" style="flex:1;">💾 저장</button>
+                <button class="btn secondary" onclick="downloadCroppedImage()" style="flex:1;">저장</button>
                 <button class="btn secondary" onclick="shareCroppedImage()" style="flex:1;">공유</button>
                 <button class="btn next-step" onclick="passToNext('cropCanvas')" style="flex:1;">다음 단계 →</button>
             </div>
@@ -703,10 +780,10 @@
     <div id="previewScreen" class="feature-screen">
         <div class="canvas-wrapper"><canvas id="previewCanvas"></canvas></div>
         <div class="control-panel">
-            <div class="tool-section"><div class="section-title">📷 배경 이미지</div><div class="file-upload-wrapper"><label for="previewUpload" class="file-upload-label">+ 배경 이미지 선택</label><input type="file" id="previewUpload" accept="image/*"></div></div>
-            <div class="tool-section"><div class="section-title">👤 프로필 사진 (선택)</div><div class="file-upload-wrapper"><label for="previewProfileUpload" class="file-upload-label" style="background:#e3f2fd;border-color:#64b5f6;color:#1976d2;">+ 프로필 사진 선택</label><input type="file" id="previewProfileUpload" accept="image/*"></div></div>
+            <div class="tool-section"><div class="section-title">배경 이미지</div><div class="file-upload-wrapper"><label for="previewUpload" class="file-upload-label">+ 배경 이미지 선택</label><input type="file" id="previewUpload" accept="image/*"></div></div>
+            <div class="tool-section"><div class="section-title">프로필 사진 (선택)</div><div class="file-upload-wrapper"><label for="previewProfileUpload" class="file-upload-label" style="background:#e3f2fd;border-color:#64b5f6;color:#1976d2;">+ 프로필 사진 선택</label><input type="file" id="previewProfileUpload" accept="image/*"></div></div>
             <div class="tool-section">
-                <div class="section-title">👁️ 미리보기 모드</div>
+                <div class="section-title">미리보기 모드</div>
                 <div class="ratio-grid">
                     <div class="ratio-btn" onclick="selectPreviewMode('profile',this)"><div class="ratio-label">프로필</div><div class="ratio-value">원형 미리보기</div></div>
                     <div class="ratio-btn" onclick="selectPreviewMode('youtube',this)"><div class="ratio-label">유튜브 채널아트</div><div class="ratio-value">2560×1440</div></div>
@@ -715,7 +792,7 @@
                 </div>
             </div>
             <div class="action-row">
-                <button class="btn primary" onclick="downloadPreviewImage()" style="flex:1;margin-top:0;">💾 저장</button>
+                <button class="btn primary" onclick="downloadPreviewImage()" style="flex:1;margin-top:0;">저장</button>
                 <button class="btn secondary" onclick="sharePreviewImage()" style="flex:1;">공유</button>
                 <button class="btn next-step" onclick="passToNext('previewCanvas')" style="flex:1;">다음 단계 →</button>
             </div>
@@ -726,9 +803,9 @@
     <div id="trimScreen" class="feature-screen">
         <div class="canvas-wrapper"><canvas id="trimCanvas"></canvas></div>
         <div class="control-panel">
-            <div class="tool-section"><div class="section-title">📷 이미지 업로드</div><div class="file-upload-wrapper"><label for="trimUpload" class="file-upload-label">+ 자를 이미지 선택</label><input type="file" id="trimUpload" accept="image/*"></div></div>
+            <div class="tool-section"><div class="section-title">이미지 업로드</div><div class="file-upload-wrapper"><label for="trimUpload" class="file-upload-label">+ 자를 이미지 선택</label><input type="file" id="trimUpload" accept="image/*"></div></div>
             <div class="tool-section">
-                <div class="section-title">📐 자르기 비율 고정</div>
+                <div class="section-title">자르기 비율 고정</div>
                 <div class="ratio-grid">
                     <div class="ratio-btn selected" id="trimRatioFree" onclick="setTrimRatio('free',this)"><div class="ratio-label">자유</div><div class="ratio-value">제한 없음</div></div>
                     <div class="ratio-btn" onclick="setTrimRatio('1:1',this)"><div class="ratio-label">1:1</div><div class="ratio-value">정사각형</div></div>
@@ -737,7 +814,7 @@
                     <div class="ratio-btn" onclick="setTrimRatio('9:16',this)"><div class="ratio-label">9:16</div><div class="ratio-value">릴스/스토리</div></div>
                     <div class="ratio-btn" onclick="setTrimRatio('3:4',this)"><div class="ratio-label">3:4</div><div class="ratio-value">세로 기본</div></div>
                 </div>
-                <p style="font-size:11px;color:#666;margin:0;background:#f0f8f0;padding:10px;border-radius:8px;">💡 초록 박스를 드래그하여 자를 영역 선택</p>
+                <p style="font-size:11px;color:#666;margin:0;background:#f0f8f0;padding:10px;border-radius:8px;">초록 박스를 드래그하여 자를 영역 선택</p>
             </div>
             <div class="tool-section">
                 <div style="display:flex;gap:8px;margin-bottom:10px;">
@@ -745,10 +822,10 @@
                     <button class="btn secondary" onclick="setSquareTrim()" style="flex:1;">정사각형</button>
                 </div>
             </div>
-            <button class="btn primary" onclick="executeTrim()">✂️ 자르기 실행</button>
+            <button class="btn primary" onclick="executeTrim()">자르기 실행</button>
             <button class="btn secondary" onclick="resetTrimAll()" style="width:100%;margin-top:8px;">↺ 작업 초기화</button>
             <div class="action-row" style="margin-top:10px;">
-                <button class="btn secondary" onclick="downloadTrimmedImage()" style="flex:1;">💾 저장</button>
+                <button class="btn secondary" onclick="downloadTrimmedImage()" style="flex:1;">저장</button>
                 <button class="btn secondary" onclick="shareTrimmedImage()" style="flex:1;">공유</button>
                 <button class="btn next-step" onclick="passToNext('trimCanvas')" style="flex:1;">다음 단계 →</button>
             </div>
@@ -762,6 +839,10 @@ if(!CanvasRenderingContext2D.prototype.roundRect){
 }
 function getFmtDate(){const n=new Date();return`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}_${String(n.getHours()).padStart(2,'0')}-${String(n.getMinutes()).padStart(2,'0')}`;}
 
+// 공통 다운로드 헬퍼
+function downloadCanvas(canvas, filename) {
+    canvas.toBlob(blob=>{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);},'image/png');
+}
 // ══════════════════════════════════════════
 // ── 메뉴 카드 데이터 & 순서 관리 ──
 // ══════════════════════════════════════════
@@ -795,12 +876,12 @@ function toggleEditMode() {
     if(isEditMode) {
         grid.classList.add('edit-mode');
         btn.classList.add('active');
-        btn.textContent = '✅ 완료';
+        btn.textContent = '완료';
         banner.classList.add('visible');
     } else {
         grid.classList.remove('edit-mode');
         btn.classList.remove('active');
-        btn.textContent = '☰ 순서 변경';
+        btn.textContent = '순서 변경';
         banner.classList.remove('visible');
         // 순서 localStorage 저장
         try { localStorage.setItem('jm_menuOrder', JSON.stringify(menuOrder)); } catch(e){}
@@ -874,8 +955,8 @@ function renderMenuGrid() {
         }, {passive: true});
 
         card.addEventListener('touchmove', e => {
+            touchMoved = true; // 편집 모드 여부 무관하게 항상 이동 감지 (스크롤 시 클릭 방지)
             if(!isEditMode) return;
-            touchMoved = true;
             const touch = e.touches[0];
             if(!touchClone) {
                 touchClone = card.cloneNode(true);
@@ -930,7 +1011,7 @@ function startWorkflow() {
 
 function openFeatureByWorkflow() {
     if(workflowStep < 0 || workflowStep >= currentWorkflow.length) {
-        alert('✅ 모든 편집 단계가 완료되었습니다!');
+        alert('모든 편집 단계가 완료되었습니다!');
         workflowStep = -1;
         goToMainMenu();
         return;
@@ -967,7 +1048,7 @@ function passToNext(canvasId) {
     sessionStorage.setItem('jm_step', String(workflowStep));
 
     if(workflowStep >= currentWorkflow.length) {
-        alert('✅ 모든 편집 단계가 완료되었습니다!');
+        alert('모든 편집 단계가 완료되었습니다!');
         workflowStep = -1;
         goToMainMenu();
         return;
@@ -1018,7 +1099,7 @@ function renderWorkflowIndicator() {
         }
         const step = document.createElement('span');
         step.className = 'wf-step' + (i === workflowStep ? ' active' : i < workflowStep ? ' done' : '');
-        step.textContent = (i < workflowStep ? '✓ ' : `${i+1}. `) + m.label;
+        step.textContent = (i < workflowStep ? '완 ' : `${i+1}. `) + m.label;
         stepsEl.appendChild(step);
     });
 }
@@ -1028,6 +1109,7 @@ function renderWorkflowIndicator() {
 // ══════════════════════════════════════════
 let currentFeature = null;
 const featureMap = {ratio:'ratioScreen',merge:'mergeScreen',collage:'collageScreen',decorate:'decorateScreen',split:'splitScreen',crop:'cropScreen',preview:'previewScreen',trim:'trimScreen'};
+const canvasMap  = {ratio:'ratioCanvas',merge:'mergeCanvas',collage:'collageCanvas',decorate:'decorateCanvas',split:'splitCanvas',crop:'cropCanvas',preview:'previewCanvas',trim:'trimCanvas'};
 const initMap = {ratio:initRatio,merge:initMerge,collage:initCollage,decorate:initDecorate,split:initSplit,crop:initCrop,preview:initPreview,trim:initTrim};
 
 function openFeature(f, fromWorkflow) {
@@ -1041,13 +1123,6 @@ function openFeature(f, fromWorkflow) {
     renderWorkflowIndicator();
     if(initMap[f]) initMap[f]();
     if(typeof lucide !== 'undefined') lucide.createIcons();
-    // 세션 임시 저장에서 복원 시도 (새로고침 대비)
-    restoreSessionImage(f);
-}
-
-function restoreSessionImage(f) {
-    // 워크플로우 진행 중일 때만 pass image 복원 (step이 이미 진행된 경우)
-    // (passToNext 에서 inject 하므로 여기선 생략)
 }
 
 function goToMainMenu() {
@@ -1061,7 +1136,6 @@ function goToMainMenu() {
 
 // ══════════════════════════════════════════
 // ── 임시 저장 (SessionStorage) ──
-// 새로고침 시 마지막 이미지 상태 복원
 // ══════════════════════════════════════════
 function sessionSave(canvasId) {
     try {
@@ -1074,8 +1148,8 @@ function sessionSave(canvasId) {
 }
 window.addEventListener('beforeunload', () => {
     if(currentFeature) {
-        const cvId = {ratio:'ratioCanvas',merge:'mergeCanvas',collage:'collageCanvas',decorate:'decorateCanvas',split:'splitCanvas',crop:'cropCanvas',preview:'previewCanvas',trim:'trimCanvas'}[currentFeature];
-        if(cvId) sessionSave(cvId);
+        const cvKey = canvasMap[currentFeature];
+        if(cvKey) sessionSave(cvKey);
         if(workflowStep >= 0) {
             sessionStorage.setItem('jm_workflow', JSON.stringify(currentWorkflow));
             sessionStorage.setItem('jm_step', String(workflowStep));
@@ -1106,7 +1180,7 @@ function alignRatioPosition(align){if(!ratioImg.src)return;ratioScale=1;ratioOff
 function selectBgColor(color,btnId){ratioBgColor=color;['bgWhite','bgBlack','bgGreen','bgCustom'].forEach(id=>{const b=document.getElementById(id);if(b)b.style.outline='none';});const b=document.getElementById(btnId);if(b)b.style.outline='3px solid var(--primary)';drawRatioImage();}
 function selectRatio(w,h,el){selectedRatioW=w;selectedRatioH=h;document.querySelectorAll('#ratioScreen .ratio-btn').forEach(b=>b.classList.remove('selected'));if(el)el.classList.add('selected');drawRatioImage();}
 function drawRatioImage(){if(!ratioImg.src)return;const maxSize=500;let cw,ch;if(selectedRatioW==='youtube'){cw=maxSize;ch=maxSize*(1440/2560);}else if(selectedRatioW==='twitter'){cw=maxSize;ch=maxSize*(500/1500);}else{cw=maxSize;ch=maxSize*(selectedRatioH/selectedRatioW);}ratioCanvas.width=cw;ratioCanvas.height=ch;ratioCtx.fillStyle=ratioBgColor;ratioCtx.fillRect(0,0,cw,ch);const s=Math.min(cw/ratioImg.width,ch/ratioImg.height)*ratioScale;ratioCtx.drawImage(ratioImg,(cw-ratioImg.width*s)/2+ratioOffsetX,(ch-ratioImg.height*s)/2+ratioOffsetY,ratioImg.width*s,ratioImg.height*s);}
-function downloadRatioImage(){if(!ratioImg.src){alert('먼저 이미지를 업로드해주세요!');return;}let dw,dh;if(selectedRatioW==='youtube'){dw=2560;dh=1440;}else if(selectedRatioW==='twitter'){dw=1500;dh=500;}else{const m=2048;if(selectedRatioW>=selectedRatioH){dw=m;dh=m*(selectedRatioH/selectedRatioW);}else{dh=m;dw=m*(selectedRatioW/selectedRatioH);}}const dc=document.createElement('canvas');dc.width=dw;dc.height=dh;const dx=dc.getContext('2d');dx.fillStyle=ratioBgColor;dx.fillRect(0,0,dw,dh);const ps=Math.min(ratioCanvas.width/ratioImg.width,ratioCanvas.height/ratioImg.height)*ratioScale,ds=Math.min(dw/ratioImg.width,dh/ratioImg.height)*ratioScale,osr=ds/ps,sw=ratioImg.width*ds,sh=ratioImg.height*ds;dx.drawImage(ratioImg,(dw-sw)/2+(ratioOffsetX*osr),(dh-sh)/2+(ratioOffsetY*osr),sw,sh);dc.toBlob(blob=>{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=ratioOriginalFileName?`${ratioOriginalFileName}_지망생편집.png`:`지망생_${getFmtDate()}.png`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);},'image/png');}
+function downloadRatioImage(){if(!ratioImg.src){alert('먼저 이미지를 업로드해주세요!');return;}let dw,dh;if(selectedRatioW==='youtube'){dw=2560;dh=1440;}else if(selectedRatioW==='twitter'){dw=1500;dh=500;}else{const m=2048;if(selectedRatioW>=selectedRatioH){dw=m;dh=m*(selectedRatioH/selectedRatioW);}else{dh=m;dw=m*(selectedRatioW/selectedRatioH);}}const dc=document.createElement('canvas');dc.width=dw;dc.height=dh;const dx=dc.getContext('2d');dx.fillStyle=ratioBgColor;dx.fillRect(0,0,dw,dh);const ps=Math.min(ratioCanvas.width/ratioImg.width,ratioCanvas.height/ratioImg.height)*ratioScale,ds=Math.min(dw/ratioImg.width,dh/ratioImg.height)*ratioScale,osr=ds/ps,sw=ratioImg.width*ds,sh=ratioImg.height*ds;dx.drawImage(ratioImg,(dw-sw)/2+(ratioOffsetX*osr),(dh-sh)/2+(ratioOffsetY*osr),sw,sh);downloadCanvas(dc, ratioOriginalFileName?`${ratioOriginalFileName}_지망생편집.png`:`지망생_${getFmtDate()}.png`);}
 function shareRatioImage(){if(!ratioImg.src){alert('먼저 이미지를 업로드해주세요!');return;}shareImage(ratioCanvas,'비율변경_이미지.png');}
 
 // ══════════════════════════════════════════
@@ -1132,7 +1206,7 @@ function selectMergeLayer(layer){activeLayer=layer;document.getElementById('laye
 function tryAutoFit(){if(!mergeBaseImg.src||!mergeOverlayImg.src)return;overlayLayer={x:0,y:0,w:mergeCanvas.width,h:mergeCanvas.height,opacity:overlayLayer.opacity};baseLayer={x:0,y:0,w:mergeCanvas.width,h:mergeCanvas.height,opacity:baseLayer.opacity};}
 function swapMergeLayers(){if(!mergeBaseImg.src||!mergeOverlayImg.src){alert('두 이미지를 모두 업로드해주세요!');return;}const tmpSrc=mergeBaseImg.src;mergeBaseImg=new Image();mergeBaseImg.src=mergeOverlayImg.src;mergeOverlayImg=new Image();mergeOverlayImg.src=tmpSrc;const tmpL={...baseLayer};baseLayer={...overlayLayer};overlayLayer={...tmpL};mergeBaseImg.onload=()=>{mergeCanvas.width=mergeBaseImg.width;mergeCanvas.height=mergeBaseImg.height;drawMergedImage()};}
 function drawMergedImage(){if(!mergeBaseImg.src)return;mergeCtx.clearRect(0,0,mergeCanvas.width,mergeCanvas.height);mergeCtx.save();mergeCtx.globalAlpha=baseLayer.opacity;mergeCtx.drawImage(mergeBaseImg,baseLayer.x,baseLayer.y,baseLayer.w,baseLayer.h);mergeCtx.restore();if(mergeOverlayImg.src&&mergeOverlayImg.complete&&mergeOverlayImg.naturalWidth>0){mergeCtx.save();mergeCtx.globalAlpha=overlayLayer.opacity;mergeCtx.drawImage(mergeOverlayImg,overlayLayer.x,overlayLayer.y,overlayLayer.w,overlayLayer.h);mergeCtx.restore();}const al=activeLayer==='overlay'?overlayLayer:baseLayer;mergeCtx.save();mergeCtx.strokeStyle='rgba(17,89,63,0.7)';mergeCtx.lineWidth=3;mergeCtx.setLineDash([8,4]);mergeCtx.strokeRect(al.x,al.y,al.w,al.h);mergeCtx.setLineDash([]);mergeCtx.restore();}
-function downloadMergedImage(){if(!mergeBaseImg.src){alert('먼저 배경 이미지를 업로드해주세요!');return;}mergeCanvas.toBlob(blob=>{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`지망생_${getFmtDate()}_겹치기.png`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);},'image/png');}
+function downloadMergedImage(){if(!mergeBaseImg.src){alert('먼저 배경 이미지를 업로드해주세요!');return;}downloadCanvas(mergeCanvas,`지망생_${getFmtDate()}_겹치기.png`);}
 function shareMergedImage(){if(!mergeBaseImg.src){alert('먼저 배경 이미지를 업로드해주세요!');return;}shareImage(mergeCanvas,'겹치기_이미지.png');}
 
 // ══════════════════════════════════════════
@@ -1196,7 +1270,7 @@ function createCollage(){
     else if(collageMode==='t_shape'){const cs=800;cv.width=cs;cv.height=cs;ctx.fillStyle='#fff';ctx.fillRect(0,0,cs,cs);const th=(cs-gap*3)*0.35,bh=(cs-gap*3)*0.65,tw2=(cs-gap*4)/3;collageImages_arr.forEach((it,i)=>{let x,y,w,h;if(i<3){w=tw2;h=th;x=gap+i*(tw2+gap);y=gap;}else{w=cs-gap*2;h=bh;x=gap;y=gap*2+th;}cover(it,x,y,w,h);hl(it,i,x,y,w,h);});}
     else if(collageMode==='stairs'){const cs=800;cv.width=cs;cv.height=cs;ctx.fillStyle='#fff';ctx.fillRect(0,0,cs,cs);const cell=(cs-gap*4)/3;collageImages_arr.forEach((it,i)=>{if(i>=3)return;const w=cell,h=cell,x=gap+i*(cell+gap),y=gap+i*(cell+gap);const is=Math.max(w/it.img.width,h/it.img.height);ctx.drawImage(it.img,x+(w-it.img.width*is)/2,y+(h-it.img.height*is)/2,it.img.width*is,it.img.height*is);hl(it,i,x,y,w,h);});}
 }
-function downloadCollageImage(){if(!collageImages_arr.length){alert('먼저 이미지를 추가해주세요!');return;}collageCanvas.toBlob(blob=>{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`지망생_${getFmtDate()}_콜라주.png`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);},'image/png');}
+function downloadCollageImage(){if(!collageImages_arr.length){alert('먼저 이미지를 추가해주세요!');return;}downloadCanvas(collageCanvas,`지망생_${getFmtDate()}_콜라주.png`);}
 function shareCollageImage(){if(!collageImages_arr.length){alert('먼저 이미지를 추가해주세요!');return;}shareImage(collageCanvas,'콜라주_이미지.png');}
 
 // ══════════════════════════════════════════
@@ -1210,7 +1284,58 @@ let texts=[],stickers=[],selectedTextIndex=-1,selectedStickerIndex=-1;
 let decorateHistory=[],decorateHistoryIndex=-1;
 const MAX_HISTORY=50;
 const SNAP_DIST=15;
+const EDGE_SNAP_DIST=18;
+const DRAG_THRESHOLD=8; // 드래그 시작 임계값 (px)
+let pendingSelect=null,pendingStartX=0,pendingStartY=0,pendingDragStarted=false;
+// 변환 핸들 상태
+let transformHandle=null; // 'nw','ne','sw','se','rotate' or null
+let transformStartScale=1,transformStartAngle=0,transformAnchorX=0,transformAnchorY=0;
 let currentTextStyle={font:"'Noto Sans KR',sans-serif",bold:false,italic:false,align:'left',effect:'none',bgColor:'transparent'};
+
+// ── 아코디언 ──
+function toggleAccordion(id,header){const body=document.getElementById(id);const isOpen=body.classList.contains('open');body.classList.toggle('open',!isOpen);header.classList.toggle('open',!isOpen);}
+
+// ── 컬러픽커 ──
+let _iroPicker=null,_colorTarget=null,_colorBtnEl=null;
+function openColorPicker(targetId,title,btnEl){
+    _colorTarget=targetId;_colorBtnEl=btnEl;
+    const overlay=document.getElementById('colorPopupOverlay');
+    overlay.classList.add('active');
+    document.getElementById('colorPopupTitle').textContent=title;
+    const currentVal=document.getElementById(targetId)?.value||'#ffffff';
+    // iro 초기화
+    const wrap=document.getElementById('iroPickerWrap');
+    wrap.innerHTML='';
+    _iroPicker=new iro.ColorPicker(wrap,{
+        width:240,color:currentVal,
+        layout:[{component:iro.ui.Box},{component:iro.ui.Slider,options:{sliderType:'hue'}},{component:iro.ui.Slider,options:{sliderType:'alpha'}}]
+    });
+    _iroPicker.on('color:change',c=>{
+        document.getElementById('colorPopupPreview').style.background=c.hexString;
+        document.getElementById('colorHexInput').value=c.hexString;
+    });
+    document.getElementById('colorPopupPreview').style.background=currentVal;
+    document.getElementById('colorHexInput').value=currentVal;
+}
+function closeColorPicker(){document.getElementById('colorPopupOverlay').classList.remove('active');_iroPicker=null;}
+function confirmColorPicker(){
+    if(!_colorTarget||!_iroPicker)return;
+    const hex=_iroPicker.color.hexString;
+    const el=document.getElementById(_colorTarget);
+    if(el){el.value=hex;}
+    if(_colorBtnEl){_colorBtnEl.style.background=hex;_colorBtnEl.style.border='2px solid #ddd';}
+    // textBgColor 특수 처리
+    if(_colorTarget==='textBgColor'){currentTextStyle.bgColor=hex;}
+    liveUpdateSelectedText();
+    closeColorPicker();
+}
+// hex input 직접 입력
+document.addEventListener('DOMContentLoaded',()=>{
+    document.getElementById('colorHexInput').addEventListener('input',e=>{
+        let v=e.target.value;if(v.length===7&&v.startsWith('#')&&_iroPicker){try{_iroPicker.color.hexString=v;document.getElementById('colorPopupPreview').style.background=v;}catch(err){}}
+    });
+    document.getElementById('colorPopupOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('colorPopupOverlay'))closeColorPicker();});
+});
 
 function initDecorate(){
     if(decorateInitialized)return;decorateInitialized=true;
@@ -1219,7 +1344,7 @@ function initDecorate(){
 }
 function setupDecorateEvents(){
     document.getElementById('decorateUpload').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{decorateImg.src=ev.target.result;decorateImg.onload=()=>{const mx=800;if(decorateImg.width>decorateImg.height){decorateCanvas.width=mx;decorateCanvas.height=mx*(decorateImg.height/decorateImg.width);}else{decorateCanvas.height=mx;decorateCanvas.width=mx*(decorateImg.width/decorateImg.height);}decorateOriginX=0;decorateOriginY=0;decorateScale=Math.min(decorateCanvas.width/decorateImg.width,decorateCanvas.height/decorateImg.height);texts=[];stickers=[];decorateHistory=[];decorateHistoryIndex=-1;saveHistory();drawDecorate();};};r.readAsDataURL(f);};
-    document.getElementById('stickerUpload').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const sd=await new Promise((res,rej)=>{const r=new FileReader();r.onload=ev=>{const si=new Image();si.onload=()=>res({img:si,x:decorateCanvas.width/2,y:decorateCanvas.height/2,width:si.width,height:si.height,scale:0.5,borderColor:'#000',borderWidth:0});si.onerror=rej;si.src=ev.target.result;};r.onerror=rej;r.readAsDataURL(f);});stickers.push(sd);saveHistory();drawDecorate();}catch(err){alert('스티커를 불러올 수 없습니다.');}e.target.value='';};
+    document.getElementById('stickerUpload').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const sd=await new Promise((res,rej)=>{const r=new FileReader();r.onload=ev=>{const si=new Image();si.onload=()=>res({img:si,x:decorateCanvas.width/2,y:decorateCanvas.height/2,width:si.width,height:si.height,scale:0.5,rotation:0,borderColor:'#000',borderWidth:0});si.onerror=rej;si.src=ev.target.result;};r.onerror=rej;r.readAsDataURL(f);});stickers.push(sd);saveHistory();drawDecorate();}catch(err){alert('스티커를 불러올 수 없습니다.');}e.target.value='';};
     ['overlaySelect','radiusSlider','shadowSlider','opacitySlider'].forEach(id=>document.getElementById(id).oninput=drawDecorate);
     decorateCanvas.addEventListener('mousedown',decorateStartInteract);decorateCanvas.addEventListener('touchstart',decorateStartInteract,{passive:false});
     ['mousemove','touchmove'].forEach(ev=>decorateCanvas.addEventListener(ev,decorateMove,{passive:false}));
@@ -1242,7 +1367,64 @@ window.addText=function(){
     texts.push({content,x:decorateCanvas.width/2,y:decorateCanvas.height/2,scale:1,...st});
     input.value='';saveHistory();drawDecorate();
 };
-function applySnap(x,y){const cx=decorateCanvas.width/2,cy=decorateCanvas.height/2;let nx=x,ny=y,snapX=false,snapY=false;if(Math.abs(x-cx)<SNAP_DIST){nx=cx;snapX=true;}if(Math.abs(y-cy)<SNAP_DIST){ny=cy;snapY=true;}return{x:nx,y:ny,snapX,snapY};}
+function applySnap(x,y,hw,hh){
+    const cx=decorateCanvas.width/2,cy=decorateCanvas.height/2;
+    const cw=decorateCanvas.width,ch=decorateCanvas.height;
+    let nx=x,ny=y;
+    const guides={x:[],y:[]};
+    // 캔버스 중앙 스냅
+    if(Math.abs(x-cx)<SNAP_DIST){nx=cx;guides.x.push(cx);}
+    if(Math.abs(y-cy)<SNAP_DIST){ny=cy;guides.y.push(cy);}
+    // 캔버스 가장자리 스냅 (반 크기 기반)
+    const ex=[0,cw],ey=[0,ch];
+    if(hw){
+        ex.forEach(ex=>{if(Math.abs(x-hw-ex)<EDGE_SNAP_DIST){nx=ex+hw;guides.x.push(ex);}else if(Math.abs(x+hw-ex)<EDGE_SNAP_DIST){nx=ex-hw;guides.x.push(ex);}});
+        ey.forEach(ey=>{if(Math.abs(y-hh-ey)<EDGE_SNAP_DIST){ny=ey+hh;guides.y.push(ey);}else if(Math.abs(y+hh-ey)<EDGE_SNAP_DIST){ny=ey-hh;guides.y.push(ey);}});
+    }
+    return{x:nx,y:ny,guides};
+}
+function drawGuides(guides){
+    if(!guides)return;
+    decorateCtx.save();
+    decorateCtx.strokeStyle='rgba(255,60,0,0.85)';
+    decorateCtx.lineWidth=1.5;
+    decorateCtx.setLineDash([6,5]);
+    guides.x.forEach(gx=>{decorateCtx.beginPath();decorateCtx.moveTo(gx,0);decorateCtx.lineTo(gx,decorateCanvas.height);decorateCtx.stroke();});
+    guides.y.forEach(gy=>{decorateCtx.beginPath();decorateCtx.moveTo(0,gy);decorateCtx.lineTo(decorateCanvas.width,gy);decorateCtx.stroke();});
+    decorateCtx.setLineDash([]);decorateCtx.restore();
+}
+function drawTransformHandles(item,isSticker){
+    const ctx=decorateCtx;
+    const hw=isSticker?item.width*item.scale/2:getTextHalfSize(item);
+    const hh=isSticker?item.height*item.scale/2:(getTextLineHeight(item)*getTextLines(item).length/2+10);
+    const x=item.x,y=item.y;
+    const corners=[[x-hw,y-hh],[x+hw,y-hh],[x-hw,y+hh],[x+hw,y+hh]];
+    ctx.save();
+    // 선택 박스
+    ctx.strokeStyle='#F27405';ctx.lineWidth=2.5;ctx.setLineDash([]);
+    ctx.strokeRect(x-hw,y-hh,hw*2,hh*2);
+    // 코너 핸들
+    corners.forEach(([hx,hy])=>{ctx.beginPath();ctx.arc(hx,hy,7,0,Math.PI*2);ctx.fillStyle='white';ctx.fill();ctx.strokeStyle='#F27405';ctx.lineWidth=2;ctx.stroke();});
+    // 회전 핸들
+    const rx=x,ry=y-hh-28;
+    ctx.beginPath();ctx.moveTo(x,y-hh);ctx.lineTo(x,ry+7);ctx.strokeStyle='#F27405';ctx.lineWidth=2;ctx.setLineDash([3,3]);ctx.stroke();ctx.setLineDash([]);
+    ctx.beginPath();ctx.arc(rx,ry,8,0,Math.PI*2);ctx.fillStyle='#F27405';ctx.fill();ctx.strokeStyle='white';ctx.lineWidth=2;ctx.stroke();
+    // 회전 아이콘
+    ctx.fillStyle='white';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('↻',rx,ry);
+    ctx.restore();
+}
+function getTextHalfSize(t){
+    decorateCtx.save();
+    const fw=t.bold?'900':'400',fi=t.italic?'italic ':'',fs=t.size||40;
+    decorateCtx.font=`${fi}${fw} ${fs}px ${t.font||"'Noto Sans KR',sans-serif"}`;
+    const lines=(t.content||'').split('\n');
+    const maxW=Math.max(...lines.map(l=>decorateCtx.measureText(l).width))/2+10;
+    decorateCtx.restore();
+    return maxW*(t.scale||1);
+}
+function getTextLineHeight(t){return((t.size||40)*1.35)*(t.scale||1);}
+function getTextLines(t){return(t.content||'').split('\n');}
+
 function drawDecorate(exportMode){
     if(!decorateCanvas.width)return;
     decorateCtx.fillStyle='#f0f0f0';decorateCtx.fillRect(0,0,decorateCanvas.width,decorateCanvas.height);
@@ -1256,16 +1438,23 @@ function drawDecorate(exportMode){
         drawOverlayEffect(decorateImg.width,decorateImg.height);
     }
     stickers.forEach((s,i)=>{
-        decorateCtx.save();decorateCtx.translate(s.x,s.y);decorateCtx.scale(s.scale,s.scale);const ox=-s.width/2,oy=-s.height/2;
+        decorateCtx.save();decorateCtx.translate(s.x,s.y);
+        if(s.rotation){decorateCtx.rotate(s.rotation);}
+        decorateCtx.scale(s.scale,s.scale);const ox=-s.width/2,oy=-s.height/2;
         if(s.borderWidth>0){decorateCtx.strokeStyle=s.borderColor;decorateCtx.lineWidth=s.borderWidth/s.scale;decorateCtx.strokeRect(ox,oy,s.width,s.height);}
         decorateCtx.drawImage(s.img,ox,oy,s.width,s.height);
-        if(!exportMode&&i===selectedStickerIndex){decorateCtx.strokeStyle='#FF5722';decorateCtx.lineWidth=3/s.scale;decorateCtx.setLineDash([6,4]);decorateCtx.strokeRect(ox-6/s.scale,oy-6/s.scale,s.width+12/s.scale,s.height+12/s.scale);decorateCtx.setLineDash([]);}
         decorateCtx.restore();
+        if(!exportMode&&i===selectedStickerIndex){drawTransformHandles(s,true);}
     });
     texts.forEach((t,i)=>drawTextItem(t,i,exportMode));
-    if(!exportMode&&decorateIsDragging&&(selectedTextIndex!==-1||selectedStickerIndex!==-1)){
-        const item=selectedTextIndex!==-1?texts[selectedTextIndex]:stickers[selectedStickerIndex];
-        if(item){const{snapX,snapY}=applySnap(item.x,item.y);const cx=decorateCanvas.width/2,cy=decorateCanvas.height/2;decorateCtx.save();decorateCtx.strokeStyle='rgba(255,80,0,0.7)';decorateCtx.lineWidth=1;decorateCtx.setLineDash([6,4]);if(snapX){decorateCtx.beginPath();decorateCtx.moveTo(cx,0);decorateCtx.lineTo(cx,decorateCanvas.height);decorateCtx.stroke();}if(snapY){decorateCtx.beginPath();decorateCtx.moveTo(0,cy);decorateCtx.lineTo(decorateCanvas.width,cy);decorateCtx.stroke();}decorateCtx.setLineDash([]);decorateCtx.restore();}
+    if(!exportMode&&decorateIsDragging){
+        const item=selectedTextIndex!==-1?texts[selectedTextIndex]:selectedStickerIndex!==-1?stickers[selectedStickerIndex]:null;
+        if(item){
+            const hw=selectedStickerIndex!==-1?item.width*item.scale/2:getTextHalfSize(item);
+            const hh=selectedStickerIndex!==-1?item.height*item.scale/2:getTextLineHeight(item)*getTextLines(item).length/2;
+            const snapped=applySnap(item.x,item.y,hw,hh);
+            drawGuides(snapped.guides);
+        }
     }
 }
 function drawTextItem(t,i,exportMode){
@@ -1283,27 +1472,102 @@ function drawTextItem(t,i,exportMode){
         else if(ef==='glow'){ctx.shadowColor=col;ctx.shadowBlur=25;ctx.fillStyle=col;ctx.fillText(line,0,ly);ctx.shadowBlur=12;ctx.fillText(line,0,ly);ctx.shadowBlur=0;ctx.fillText(line,0,ly);}
         else{if(t.shadowBlur>0){ctx.shadowColor=t.shadowColor||'#000';ctx.shadowBlur=t.shadowBlur;ctx.shadowOffsetX=t.shadowDist||4;ctx.shadowOffsetY=t.shadowDist||4;}if(ef==='outline'||sw>0){ctx.strokeStyle=ef==='outline'?'#000':sc2;ctx.lineWidth=ef==='outline'?fs/10:sw;ctx.lineJoin='round';ctx.strokeText(line,0,ly);}if(ef==='shadow'){ctx.shadowColor=t.shadowColor||'rgba(0,0,0,0.7)';ctx.shadowBlur=t.shadowBlur||8;ctx.shadowOffsetX=t.shadowDist||4;ctx.shadowOffsetY=t.shadowDist||4;}ctx.shadowBlur=0;ctx.shadowOffsetX=0;ctx.shadowOffsetY=0;ctx.fillStyle=col;ctx.fillText(line,0,ly);}
     });
-    if(!exportMode&&i===selectedTextIndex){ctx.globalAlpha=1;const longestLine=lines.reduce((a,b)=>ctx.measureText(a).width>ctx.measureText(b).width?a:b,'');const bw=ctx.measureText(longestLine).width+20,bh=lines.length*lineH+10;const bx=t.align==='center'?-bw/2:t.align==='right'?-bw:-10,by=-fs*0.7-5;ctx.strokeStyle='#F27405';ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.strokeRect(bx,by,bw,bh);ctx.setLineDash([]);}
     ctx.restore();
+    if(!exportMode&&i===selectedTextIndex){drawTransformHandles(t,false);}
 }
 function drawOverlayEffect(w,h){const om=document.getElementById('overlaySelect').value;if(om==='none')return;const op=parseInt(document.getElementById('opacitySlider').value)/100;decorateCtx.save();decorateCtx.globalAlpha=op;decorateCtx.translate(decorateOriginX,decorateOriginY);decorateCtx.scale(decorateScale,decorateScale);if(om.includes('gradient')){const g=decorateCtx.createLinearGradient(0,0,0,h);const c=om==='gradient-black'?'0,0,0':'255,255,255';g.addColorStop(0,`rgba(${c},0)`);g.addColorStop(1,`rgba(${c},1)`);decorateCtx.fillStyle=g;}else{decorateCtx.fillStyle=om==='black'?'#000':'#fff';}decorateCtx.fillRect(0,0,w,h);decorateCtx.restore();}
-function centerAlignSelected(){if(selectedTextIndex!==-1){texts[selectedTextIndex].x=decorateCanvas.width/2;texts[selectedTextIndex].y=decorateCanvas.height/2;saveHistory();drawDecorate();}else if(selectedStickerIndex!==-1){stickers[selectedStickerIndex].x=decorateCanvas.width/2;stickers[selectedStickerIndex].y=decorateCanvas.height/2;saveHistory();drawDecorate();}else{alert('텍스트 또는 스티커를 먼저 선택해주세요.');}}
+function centerAlignSelected(){if(selectedTextIndex!==-1){texts[selectedTextIndex].x=decorateCanvas.width/2;saveHistory();drawDecorate();}else if(selectedStickerIndex!==-1){stickers[selectedStickerIndex].x=decorateCanvas.width/2;saveHistory();drawDecorate();}else{alert('텍스트 또는 스티커를 먼저 선택해주세요.');}}
 function getDecoratePos(e){const r=decorateCanvas.getBoundingClientRect();let cx,cy;if(e.type.startsWith('touch')){const t=e.touches[0]||e.changedTouches[0];cx=t.clientX;cy=t.clientY;}else{cx=e.clientX;cy=e.clientY;}return{x:(cx-r.left)*(decorateCanvas.width/r.width),y:(cy-r.top)*(decorateCanvas.height/r.height)};}
+
+function getHandleAt(item,isSticker,px,py){
+    const hw=isSticker?item.width*item.scale/2:getTextHalfSize(item);
+    const hh=isSticker?item.height*item.scale/2:getTextLineHeight(item)*getTextLines(item).length/2;
+    const x=item.x,y=item.y;
+    const HTOL=18;
+    const rotX=x,rotY=y-hh-28;
+    if(Math.hypot(px-rotX,py-rotY)<HTOL)return'rotate';
+    const corners=[['nw',x-hw,y-hh],['ne',x+hw,y-hh],['sw',x-hw,y+hh],['se',x+hw,y+hh]];
+    for(const[name,cx2,cy2]of corners){if(Math.hypot(px-cx2,py-cy2)<HTOL)return name;}
+    return null;
+}
+
 function decorateStartInteract(e){
     if(e.type==='touchstart'){e.preventDefault();if(e.touches&&e.touches.length===2){isPinching=true;const t1=e.touches[0],t2=e.touches[1];lastPinchDistance=Math.hypot(t2.clientX-t1.clientX,t2.clientY-t1.clientY);return;}}
-    const{x,y}=getDecoratePos(e);let hit=false;
-    for(let i=stickers.length-1;i>=0;i--){const s=stickers[i];const w=s.width*s.scale,h=s.height*s.scale;if(x>=s.x-w/2&&x<=s.x+w/2&&y>=s.y-h/2&&y<=s.y+h/2){selectedStickerIndex=i;selectedTextIndex=-1;decorateIsDragging=true;decorateStartX=x-s.x;decorateStartY=y-s.y;hit=true;document.getElementById('selectedItemPanel').style.display='block';document.getElementById('itemBorderColor').value=s.borderColor;document.getElementById('itemBorderColorBtn').style.background=s.borderColor;document.getElementById('itemBorderWidth').value=s.borderWidth;document.getElementById('itemScale').value=Math.round(s.scale*100);document.getElementById('itemScaleVal').textContent=Math.round(s.scale*100)+'%';break;}}
-    if(!hit){for(let i=texts.length-1;i>=0;i--){const t=texts[i];const hw=120*t.scale,hh=60*t.scale;if(Math.abs(x-t.x)<hw&&Math.abs(y-t.y)<hh){selectedTextIndex=i;selectedStickerIndex=-1;decorateIsDragging=true;decorateStartX=x-t.x;decorateStartY=y-t.y;hit=true;document.getElementById('selectedItemPanel').style.display='block';document.getElementById('itemScale').value=Math.round(t.scale*100);document.getElementById('itemScaleVal').textContent=Math.round(t.scale*100)+'%';syncTextPanelToSelected(t);break;}}}
-    if(!hit){document.getElementById('selectedItemPanel').style.display='none';selectedStickerIndex=-1;selectedTextIndex=-1;}
-    drawDecorate();
+    const{x,y}=getDecoratePos(e);
+    // 변환 핸들 검사 (현재 선택된 아이템)
+    if(selectedStickerIndex!==-1){
+        const s=stickers[selectedStickerIndex];
+        const h=getHandleAt(s,true,x,y);
+        if(h){transformHandle=h;transformStartScale=s.scale;transformStartAngle=s.rotation||0;transformAnchorX=s.x;transformAnchorY=s.y;decorateStartX=x;decorateStartY=y;return;}
+    }
+    if(selectedTextIndex!==-1){
+        const t=texts[selectedTextIndex];
+        const h=getHandleAt(t,false,x,y);
+        if(h){transformHandle=h;transformStartScale=t.scale;transformStartAngle=t.rotation||0;transformAnchorX=t.x;transformAnchorY=t.y;decorateStartX=x;decorateStartY=y;return;}
+    }
+    transformHandle=null;
+    // 드래그 임계값 - 일단 pending으로
+    pendingDragStarted=false;pendingStartX=x;pendingStartY=y;
+    let hit=false;
+    for(let i=stickers.length-1;i>=0;i--){const s=stickers[i];const w=s.width*s.scale,h=s.height*s.scale;if(x>=s.x-w/2&&x<=s.x+w/2&&y>=s.y-h/2&&y<=s.y+h/2){pendingSelect={type:'sticker',index:i,offX:x-s.x,offY:y-s.y};hit=true;break;}}
+    if(!hit){for(let i=texts.length-1;i>=0;i--){const t=texts[i];const hw=getTextHalfSize(t),hh=getTextLineHeight(t)*getTextLines(t).length/2;if(Math.abs(x-t.x)<hw&&Math.abs(y-t.y)<hh){pendingSelect={type:'text',index:i,offX:x-t.x,offY:y-t.y};hit=true;break;}}}
+    if(!hit){pendingSelect=null;selectedStickerIndex=-1;selectedTextIndex=-1;document.getElementById('selectedItemPanel').style.display='none';drawDecorate();}
 }
 function decorateMove(e){
     if(e.type==='touchmove'){e.preventDefault();if(isPinching&&e.touches&&e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);if(lastPinchDistance>0){const sd=d/lastPinchDistance;if(selectedStickerIndex!==-1){stickers[selectedStickerIndex].scale=Math.max(0.1,Math.min(5,stickers[selectedStickerIndex].scale*sd));document.getElementById('itemScale').value=Math.round(stickers[selectedStickerIndex].scale*100);}else if(selectedTextIndex!==-1){texts[selectedTextIndex].scale=Math.max(0.1,Math.min(5,texts[selectedTextIndex].scale*sd));document.getElementById('itemScale').value=Math.round(texts[selectedTextIndex].scale*100);}drawDecorate();}lastPinchDistance=d;return;}}
-    if(!decorateIsDragging)return;const{x,y}=getDecoratePos(e);let rawX=x-decorateStartX,rawY=y-decorateStartY;const snapped=applySnap(rawX,rawY);rawX=snapped.x;rawY=snapped.y;
-    if(selectedStickerIndex!==-1){stickers[selectedStickerIndex].x=rawX;stickers[selectedStickerIndex].y=rawY;}else if(selectedTextIndex!==-1){texts[selectedTextIndex].x=rawX;texts[selectedTextIndex].y=rawY;}
+    const{x,y}=getDecoratePos(e);
+    // 변환 핸들 조작
+    if(transformHandle){
+        const item=selectedStickerIndex!==-1?stickers[selectedStickerIndex]:selectedTextIndex!==-1?texts[selectedTextIndex]:null;
+        if(!item)return;
+        if(transformHandle==='rotate'){
+            const angle=Math.atan2(y-transformAnchorY,x-transformAnchorX)+Math.PI/2;
+            // 45도 스냅
+            const snappedAngle=Math.abs(angle%(Math.PI/2))<0.1?Math.round(angle/(Math.PI/2))*(Math.PI/2):angle;
+            item.rotation=snappedAngle;
+        } else {
+            // 크기 조절
+            const dist=Math.hypot(x-transformAnchorX,y-transformAnchorY);
+            const startDist=Math.hypot(decorateStartX-transformAnchorX,decorateStartY-transformAnchorY);
+            if(startDist>0){item.scale=Math.max(0.1,Math.min(5,transformStartScale*(dist/startDist)));document.getElementById('itemScale').value=Math.round(item.scale*100);document.getElementById('itemScaleVal').textContent=Math.round(item.scale*100)+'%';}
+        }
+        drawDecorate();return;
+    }
+    // 드래그 임계값 체크
+    if(pendingSelect&&!decorateIsDragging){
+        if(Math.hypot(x-pendingStartX,y-pendingStartY)>DRAG_THRESHOLD){
+            decorateIsDragging=true;
+            if(pendingSelect.type==='sticker'){selectedStickerIndex=pendingSelect.index;selectedTextIndex=-1;document.getElementById('selectedItemPanel').style.display='block';const s=stickers[selectedStickerIndex];document.getElementById('itemBorderColor').value=s.borderColor;document.getElementById('itemBorderColorBtn').style.background=s.borderColor;document.getElementById('itemBorderWidth').value=s.borderWidth;document.getElementById('itemScale').value=Math.round(s.scale*100);document.getElementById('itemScaleVal').textContent=Math.round(s.scale*100)+'%';}
+            else{selectedTextIndex=pendingSelect.index;selectedStickerIndex=-1;document.getElementById('selectedItemPanel').style.display='block';document.getElementById('itemScale').value=Math.round(texts[selectedTextIndex].scale*100);document.getElementById('itemScaleVal').textContent=Math.round(texts[selectedTextIndex].scale*100)+'%';syncTextPanelToSelected(texts[selectedTextIndex]);}
+            decorateStartX=pendingSelect.offX;decorateStartY=pendingSelect.offY;
+        }
+    }
+    if(!decorateIsDragging)return;
+    let rawX=x-decorateStartX,rawY=y-decorateStartY;
+    const item=selectedStickerIndex!==-1?stickers[selectedStickerIndex]:selectedTextIndex!==-1?texts[selectedTextIndex]:null;
+    if(!item)return;
+    const hw=selectedStickerIndex!==-1?item.width*item.scale/2:getTextHalfSize(item);
+    const hh=selectedStickerIndex!==-1?item.height*item.scale/2:getTextLineHeight(item)*getTextLines(item).length/2;
+    const snapped=applySnap(rawX,rawY,hw,hh);
+    rawX=snapped.x;rawY=snapped.y;
+    if(selectedStickerIndex!==-1){stickers[selectedStickerIndex].x=rawX;stickers[selectedStickerIndex].y=rawY;}
+    else if(selectedTextIndex!==-1){texts[selectedTextIndex].x=rawX;texts[selectedTextIndex].y=rawY;}
     drawDecorate();
 }
-function decorateEndInteract(e){if(decorateIsDragging){decorateIsDragging=false;saveHistory();}if(e&&e.type==='touchend'&&(!e.touches||e.touches.length===0)){if(isPinching){isPinching=false;lastPinchDistance=0;saveHistory();}}if(e&&e.type!=='touchend'){isPinching=false;lastPinchDistance=0;}drawDecorate();}
+function decorateEndInteract(e){
+    if(pendingSelect&&!pendingDragStarted&&!decorateIsDragging){
+        // 단순 탭 → 선택만
+        if(pendingSelect.type==='sticker'){selectedStickerIndex=pendingSelect.index;selectedTextIndex=-1;const s=stickers[selectedStickerIndex];document.getElementById('selectedItemPanel').style.display='block';document.getElementById('itemBorderColor').value=s.borderColor;document.getElementById('itemBorderColorBtn').style.background=s.borderColor;document.getElementById('itemBorderWidth').value=s.borderWidth;document.getElementById('itemScale').value=Math.round(s.scale*100);document.getElementById('itemScaleVal').textContent=Math.round(s.scale*100)+'%';}
+        else if(pendingSelect.type==='text'){selectedTextIndex=pendingSelect.index;selectedStickerIndex=-1;document.getElementById('selectedItemPanel').style.display='block';document.getElementById('itemScale').value=Math.round(texts[selectedTextIndex].scale*100);document.getElementById('itemScaleVal').textContent=Math.round(texts[selectedTextIndex].scale*100)+'%';syncTextPanelToSelected(texts[selectedTextIndex]);}
+        drawDecorate();
+    }
+    pendingSelect=null;
+    if(decorateIsDragging){decorateIsDragging=false;saveHistory();}
+    if(transformHandle){transformHandle=null;saveHistory();}
+    if(e&&e.type==='touchend'&&(!e.touches||e.touches.length===0)){if(isPinching){isPinching=false;lastPinchDistance=0;saveHistory();}}
+    if(e&&e.type!=='touchend'){isPinching=false;lastPinchDistance=0;}
+    drawDecorate();
+}
 function decorateDoubleClick(e){const{x,y}=getDecoratePos(e);for(let i=texts.length-1;i>=0;i--){const t=texts[i];if(Math.abs(x-t.x)<120*t.scale&&Math.abs(y-t.y)<60*t.scale){const newContent=prompt('텍스트 수정 (엔터로 줄바꿈):',t.content);if(newContent!==null&&newContent.trim()){texts[i].content=newContent;saveHistory();drawDecorate();}return;}}}
 function syncTextPanelToSelected(t){
     if(t.font)document.getElementById('textFont').value=t.font;
@@ -1336,27 +1600,33 @@ function applyItemScale(val){document.getElementById('itemScaleVal').textContent
 function applyStickerBorder(){if(selectedStickerIndex!==-1){stickers[selectedStickerIndex].borderColor=document.getElementById('itemBorderColor').value;stickers[selectedStickerIndex].borderWidth=parseInt(document.getElementById('itemBorderWidth').value);drawDecorate();}}
 window.createWidget=function(){const tp=document.getElementById('widgetType').value,t1=document.getElementById('widgetInput1').value,t2=document.getElementById('widgetInput2').value;const wc=document.createElement('canvas');const wct=wc.getContext('2d');let w=300,h=80;if(tp==='noti'){w=340;h=80;wc.width=w;wc.height=h;wct.fillStyle='rgba(255,255,255,0.95)';wct.roundRect(0,0,w,h,16);wct.fill();wct.font='28px serif';wct.fillText('🔔',18,50);wct.fillStyle='#000';wct.font="bold 15px 'Noto Sans KR',sans-serif";wct.fillText(t1||'알림',58,35);wct.fillStyle='#555';wct.font="14px 'Noto Sans KR',sans-serif";wct.fillText(t2||'내용 없음',58,58);}else if(tp==='music'){w=300;h=90;wc.width=w;wc.height=h;wct.fillStyle='rgba(0,0,0,0.75)';wct.roundRect(0,0,w,h,16);wct.fill();wct.font='28px serif';wct.fillText('💿',22,55);wct.fillStyle='#fff';wct.font="bold 16px 'Noto Sans KR',sans-serif";wct.fillText(t2||'노래 제목',80,38);wct.fillStyle='#ccc';wct.font="13px sans-serif";wct.fillText(t1||'가수명',80,58);}else if(tp==='location'){w=240;h=44;wc.width=w;wc.height=h;wct.fillStyle='rgba(255,255,255,0.95)';wct.roundRect(0,0,w,h,10);wct.fill();wct.font='20px serif';wct.fillText('📍',10,30);wct.fillStyle='#0091ea';wct.font="bold 16px 'Noto Sans KR',sans-serif";wct.fillText(t1||'위치',38,28);}const si=new Image();si.onload=()=>{stickers.push({img:si,x:decorateCanvas.width/2,y:decorateCanvas.height/2,width:w,height:h,scale:0.7,borderColor:'#000',borderWidth:0});saveHistory();drawDecorate();};si.src=wc.toDataURL();document.getElementById('widgetInput1').value='';document.getElementById('widgetInput2').value='';};
 window.updateWidgetPlaceholder=function(){const tp=document.getElementById('widgetType').value,i1=document.getElementById('widgetInput1'),i2=document.getElementById('widgetInput2');if(tp==='noti'){i1.placeholder='보낸이';i2.style.display='block';i2.placeholder='내용';}else if(tp==='music'){i1.placeholder='가수';i2.style.display='block';i2.placeholder='제목';}else{i1.placeholder='장소명';i2.style.display='none';}};
-// 꾸미기 내보내기 헬퍼: 선택 점선 없이 캔버스를 오프스크린에 그린 후 Blob 반환
+// 꾸미기 내보내기 헬퍼: 원본 해상도로 합성
 function getDecorateExportCanvas(){
-    const oc=document.createElement('canvas');
-    oc.width=decorateCanvas.width; oc.height=decorateCanvas.height;
-    const saved=decorateCtx;
-    decorateCtx=oc.getContext('2d');
-    drawDecorate(true); // exportMode=true → 점선 제외
-    decorateCtx=saved;
+    if(!decorateImg.src||!decorateImg.naturalWidth){
+        const oc=document.createElement('canvas');oc.width=decorateCanvas.width;oc.height=decorateCanvas.height;
+        const octx=oc.getContext('2d');const savedCtx=decorateCtx;decorateCtx=octx;drawDecorate(true);decorateCtx=savedCtx;return oc;
+    }
+    const origW=decorateImg.naturalWidth,origH=decorateImg.naturalHeight;
+    const dispW=decorateCanvas.width;
+    const ratio=origW/dispW;
+    const oc=document.createElement('canvas');oc.width=origW;oc.height=origH;
+    const octx=oc.getContext('2d');
+    const sv=parseInt(document.getElementById('shadowSlider').value),rv=parseInt(document.getElementById('radiusSlider').value);
+    octx.save();
+    if(sv>0){octx.shadowColor='rgba(0,0,0,0.3)';octx.shadowBlur=sv*ratio;octx.shadowOffsetX=sv*ratio/2;octx.shadowOffsetY=sv*ratio/2;}
+    if(rv>0){octx.beginPath();octx.roundRect(0,0,origW,origH,rv*ratio);octx.clip();}
+    octx.drawImage(decorateImg,0,0,origW,origH);octx.restore();
+    const om=document.getElementById('overlaySelect').value;
+    if(om!=='none'){const op=parseInt(document.getElementById('opacitySlider').value)/100;octx.save();octx.globalAlpha=op;if(om.includes('gradient')){const g=octx.createLinearGradient(0,0,0,origH);const c=om==='gradient-black'?'0,0,0':'255,255,255';g.addColorStop(0,`rgba(${c},0)`);g.addColorStop(1,`rgba(${c},1)`);octx.fillStyle=g;}else{octx.fillStyle=om==='black'?'#000':'#fff';}octx.fillRect(0,0,origW,origH);octx.restore();}
+    stickers.forEach(s=>{octx.save();octx.translate(s.x*ratio,s.y*ratio);if(s.rotation)octx.rotate(s.rotation);octx.scale(s.scale*ratio,s.scale*ratio);if(s.borderWidth>0){octx.strokeStyle=s.borderColor;octx.lineWidth=s.borderWidth/(s.scale*ratio);octx.strokeRect(-s.width/2,-s.height/2,s.width,s.height);}octx.drawImage(s.img,-s.width/2,-s.height/2,s.width,s.height);octx.restore();});
+    texts.forEach(t=>{octx.save();octx.translate(t.x*ratio,t.y*ratio);octx.scale(t.scale,t.scale);octx.globalAlpha=t.opacity||1;const fw=t.bold?'900':'400',fi=t.italic?'italic ':'',fs=(t.size||40)*ratio;octx.font=`${fi}${fw} ${fs}px ${t.font||"'Noto Sans KR',sans-serif"}`;octx.textAlign=t.align||'left';octx.textBaseline='middle';const lines=(t.content||'').split('\n'),lineH=fs*1.35;const col=t.color||'#fff',ef=t.effect||'none',sw=t.strokeWidth||0,sc2=t.strokeColor||'#000';if(t.bgColor&&t.bgColor!=='transparent'){lines.forEach((line,li)=>{const metrics=octx.measureText(line),lw=metrics.width;const lx=t.align==='center'?-lw/2:t.align==='right'?-lw:0;const ly=li*lineH-fs*0.6;octx.fillStyle=t.bgColor;octx.fillRect(lx-4,ly,lw+8,lineH);});}lines.forEach((line,li)=>{const ly=li*lineH;octx.shadowBlur=0;octx.shadowOffsetX=0;octx.shadowOffsetY=0;if(ef==='neon'){octx.strokeStyle=col;octx.lineWidth=fs/5;octx.lineJoin='round';octx.shadowColor=col;octx.shadowBlur=25*ratio;octx.strokeText(line,0,ly);octx.shadowBlur=50*ratio;octx.strokeText(line,0,ly);octx.shadowBlur=0;octx.fillStyle='#fff';octx.fillText(line,0,ly);}else if(ef==='emboss'){octx.fillStyle='rgba(255,255,255,0.5)';octx.fillText(line,-1,-1+ly);octx.fillStyle='rgba(0,0,0,0.5)';octx.fillText(line,1,1+ly);octx.fillStyle=col;octx.fillText(line,0,ly);}else if(ef==='glow'){octx.shadowColor=col;octx.shadowBlur=25*ratio;octx.fillStyle=col;octx.fillText(line,0,ly);octx.shadowBlur=12*ratio;octx.fillText(line,0,ly);octx.shadowBlur=0;octx.fillText(line,0,ly);}else{if(t.shadowBlur>0){octx.shadowColor=t.shadowColor||'#000';octx.shadowBlur=t.shadowBlur*ratio;octx.shadowOffsetX=(t.shadowDist||4)*ratio;octx.shadowOffsetY=(t.shadowDist||4)*ratio;}if(ef==='outline'||sw>0){octx.strokeStyle=ef==='outline'?'#000':sc2;octx.lineWidth=ef==='outline'?fs/10:sw*ratio;octx.lineJoin='round';octx.strokeText(line,0,ly);}if(ef==='shadow'){octx.shadowColor=t.shadowColor||'rgba(0,0,0,0.7)';octx.shadowBlur=(t.shadowBlur||8)*ratio;octx.shadowOffsetX=(t.shadowDist||4)*ratio;octx.shadowOffsetY=(t.shadowDist||4)*ratio;}octx.shadowBlur=0;octx.shadowOffsetX=0;octx.shadowOffsetY=0;octx.fillStyle=col;octx.fillText(line,0,ly);}});octx.restore();});
     return oc;
 }
 function downloadDecorateImage(){
     if(!decorateImg.src&&!stickers.length&&!texts.length){alert('저장할 내용이 없습니다!');return;}
-    getDecorateExportCanvas().toBlob(blob=>{
-        const url=URL.createObjectURL(blob);const a=document.createElement('a');
-        a.href=url;a.download=`지망생_${getFmtDate()}_꾸미기.png`;
-        document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
-    },'image/png');
+    downloadCanvas(getDecorateExportCanvas(),`지망생_${getFmtDate()}_꾸미기.png`);
 }
-function shareDecorateImage(){
-    shareImage(getDecorateExportCanvas(),'꾸민_이미지.png');
-}
+function shareDecorateImage(){shareImage(getDecorateExportCanvas(),'꾸민_이미지.png');}
 
 // ══════════════════════════════════════════
 // 5. 분할
@@ -1373,9 +1643,9 @@ async function splitAndDownload(){if(!splitImg.src){alert('먼저 이미지를 �
 let cropImg=new Image(),cropCanvas,cropCtx,cropInitialized=false,croppedCanvas=null;
 function initCrop(){if(cropInitialized)return;cropInitialized=true;cropCanvas=document.getElementById('cropCanvas');cropCtx=cropCanvas.getContext('2d');cropCanvas.width=500;cropCanvas.height=500;document.getElementById('cropUpload').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{cropImg.src=ev.target.result;cropImg.onload=()=>{const ms=500,sc=Math.min(ms/cropImg.width,ms/cropImg.height);cropCanvas.width=cropImg.width*sc;cropCanvas.height=cropImg.height*sc;cropCtx.drawImage(cropImg,0,0,cropCanvas.width,cropCanvas.height);croppedCanvas=null;};};r.readAsDataURL(f);};}
 function cropBorder(){if(!cropImg.src){alert('먼저 이미지를 업로드해주세요!');return;}const ca=parseInt(document.getElementById('cropAmount').value);const btn=document.getElementById('cropBtn');btn.textContent='⏳ 처리 중...';btn.disabled=true;requestAnimationFrame(()=>requestAnimationFrame(()=>runCropBorder(ca,btn)));}
-function runCropBorder(cropAmount,btn){const MAX_SIZE=1500;let pw=cropImg.width,ph=cropImg.height,sc=1;if(pw>MAX_SIZE||ph>MAX_SIZE){sc=MAX_SIZE/Math.max(pw,ph);pw=Math.floor(pw*sc);ph=Math.floor(ph*sc);}const tc=document.createElement('canvas');tc.width=pw;tc.height=ph;const tx=tc.getContext('2d',{willReadFrequently:true});tx.drawImage(cropImg,0,0,pw,ph);let imgData=tx.getImageData(0,0,pw,ph),data=imgData.data;const iters=Math.min(Math.ceil(cropAmount*sc),30);let curIter=0;function processChunk(){if(curIter>=iters){tx.putImageData(imgData,0,0);let finalCanvas=tc;if(sc<1){const fc=document.createElement('canvas');fc.width=cropImg.width;fc.height=cropImg.height;fc.getContext('2d').drawImage(tc,0,0,cropImg.width,cropImg.height);finalCanvas=fc;}const trimmed=trimTransparent(finalCanvas);croppedCanvas=trimmed.canvas;const ms=500,ps=Math.min(ms/croppedCanvas.width,ms/croppedCanvas.height);cropCanvas.width=croppedCanvas.width*ps;cropCanvas.height=croppedCanvas.height*ps;cropCtx.clearRect(0,0,cropCanvas.width,cropCanvas.height);const cs=10;for(let y=0;y<cropCanvas.height;y+=cs)for(let x=0;x<cropCanvas.width;x+=cs){cropCtx.fillStyle=((x/cs+y/cs)%2===0)?'#ffffff':'#e0e0e0';cropCtx.fillRect(x,y,cs,cs);}cropCtx.drawImage(croppedCanvas,0,0,cropCanvas.width,cropCanvas.height);btn.textContent='✂️ 테두리 깎기';btn.disabled=false;return;}const nd=tx.createImageData(pw,ph);const ndata=nd.data;for(let y=0;y<ph;y++){for(let x=0;x<pw;x++){const idx=(y*pw+x)*4;if(data[idx+3]<10){ndata[idx+3]=0;continue;}let hasT=false;for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){const cx=x+dx,cy=y+dy;if(cx<0||cx>=pw||cy<0||cy>=ph){hasT=true;break;}if(data[(cy*pw+cx)*4+3]<10){hasT=true;break;}}if(!hasT){ndata[idx]=data[idx];ndata[idx+1]=data[idx+1];ndata[idx+2]=data[idx+2];ndata[idx+3]=data[idx+3];}else ndata[idx+3]=0;}}imgData=nd;data=ndata;curIter++;requestAnimationFrame(processChunk);}processChunk();}
+function runCropBorder(cropAmount,btn){const MAX_SIZE=1500;let pw=cropImg.width,ph=cropImg.height,sc=1;if(pw>MAX_SIZE||ph>MAX_SIZE){sc=MAX_SIZE/Math.max(pw,ph);pw=Math.floor(pw*sc);ph=Math.floor(ph*sc);}const tc=document.createElement('canvas');tc.width=pw;tc.height=ph;const tx=tc.getContext('2d',{willReadFrequently:true});tx.drawImage(cropImg,0,0,pw,ph);let imgData=tx.getImageData(0,0,pw,ph),data=imgData.data;const iters=Math.min(Math.ceil(cropAmount*sc),30);let curIter=0;function processChunk(){if(curIter>=iters){tx.putImageData(imgData,0,0);let finalCanvas=tc;if(sc<1){const fc=document.createElement('canvas');fc.width=cropImg.width;fc.height=cropImg.height;fc.getContext('2d').drawImage(tc,0,0,cropImg.width,cropImg.height);finalCanvas=fc;}const trimmed=trimTransparent(finalCanvas);croppedCanvas=trimmed.canvas;const ms=500,ps=Math.min(ms/croppedCanvas.width,ms/croppedCanvas.height);cropCanvas.width=croppedCanvas.width*ps;cropCanvas.height=croppedCanvas.height*ps;cropCtx.clearRect(0,0,cropCanvas.width,cropCanvas.height);const cs=10;for(let y=0;y<cropCanvas.height;y+=cs)for(let x=0;x<cropCanvas.width;x+=cs){cropCtx.fillStyle=((x/cs+y/cs)%2===0)?'#ffffff':'#e0e0e0';cropCtx.fillRect(x,y,cs,cs);}cropCtx.drawImage(croppedCanvas,0,0,cropCanvas.width,cropCanvas.height);btn.textContent='테두리 깎기';btn.disabled=false;return;}const nd=tx.createImageData(pw,ph);const ndata=nd.data;for(let y=0;y<ph;y++){for(let x=0;x<pw;x++){const idx=(y*pw+x)*4;if(data[idx+3]<10){ndata[idx+3]=0;continue;}let hasT=false;for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){const cx=x+dx,cy=y+dy;if(cx<0||cx>=pw||cy<0||cy>=ph){hasT=true;break;}if(data[(cy*pw+cx)*4+3]<10){hasT=true;break;}}if(!hasT){ndata[idx]=data[idx];ndata[idx+1]=data[idx+1];ndata[idx+2]=data[idx+2];ndata[idx+3]=data[idx+3];}else ndata[idx+3]=0;}}imgData=nd;data=ndata;curIter++;requestAnimationFrame(processChunk);}processChunk();}
 function trimTransparent(cv){const ctx=cv.getContext('2d'),imgData=ctx.getImageData(0,0,cv.width,cv.height),d=imgData.data;let mnx=cv.width,mny=cv.height,mxx=0,mxy=0;for(let y=0;y<cv.height;y++)for(let x=0;x<cv.width;x++){if(d[(y*cv.width+x)*4+3]>10){mnx=Math.min(mnx,x);mny=Math.min(mny,y);mxx=Math.max(mxx,x);mxy=Math.max(mxy,y);}}const w=mxx-mnx+1,h=mxy-mny+1;const nc=document.createElement('canvas');nc.width=w;nc.height=h;nc.getContext('2d').drawImage(cv,mnx,mny,w,h,0,0,w,h);return{canvas:nc};}
-function downloadCroppedImage(){if(!croppedCanvas){alert('먼저 테두리 깎기를 실행해주세요!');return;}croppedCanvas.toBlob(blob=>{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`지망생_${getFmtDate()}_테두리컷.png`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);},'image/png');}
+function downloadCroppedImage(){if(!croppedCanvas){alert('먼저 테두리 깎기를 실행해주세요!');return;}downloadCanvas(croppedCanvas,`지망생_${getFmtDate()}_테두리컷.png`);}
 function shareCroppedImage(){if(!croppedCanvas){alert('먼저 테두리 깎기를 실행해주세요!');return;}shareImage(croppedCanvas,'테두리컷_이미지.png');}
 
 // ══════════════════════════════════════════
@@ -1389,7 +1659,7 @@ function prvDrag(e){if(e.type==='touchmove')e.preventDefault();if(e.type==='touc
 function prvEndDrag(e){previewIsDragging=false;if(e&&e.type==='touchend'&&(!e.touches||e.touches.length===0)){previewPinching=false;previewInitialDistance=0;}}
 function selectPreviewMode(m,el){previewMode=m;document.querySelectorAll('#previewScreen .ratio-btn').forEach(b=>b.classList.remove('selected'));if(el)el.classList.add('selected');if(previewImg.src)drawPreview();}
 function drawPreview(){if(!previewImg.src)return;if(previewMode==='profile'){previewCanvas.width=500;previewCanvas.height=500;}else if(previewMode==='youtube'){previewCanvas.width=500;previewCanvas.height=500*(1440/2560);}else if(previewMode==='twitter'){previewCanvas.width=500;previewCanvas.height=500*(500/1500);}else{previewCanvas.width=500;previewCanvas.height=500*(312/820);}previewCtx.fillStyle='#e0e0e0';previewCtx.fillRect(0,0,previewCanvas.width,previewCanvas.height);const s=Math.min(previewCanvas.width/previewImg.width,previewCanvas.height/previewImg.height)*previewScl;previewCtx.drawImage(previewImg,(previewCanvas.width-previewImg.width*s)/2+previewOffsetX,(previewCanvas.height-previewImg.height*s)/2+previewOffsetY,previewImg.width*s,previewImg.height*s);if(previewMode==='profile'){previewCtx.save();previewCtx.globalCompositeOperation='destination-in';previewCtx.beginPath();previewCtx.arc(previewCanvas.width/2,previewCanvas.height/2,previewCanvas.width/2,0,Math.PI*2);previewCtx.fill();previewCtx.restore();previewCtx.strokeStyle='#11593F';previewCtx.lineWidth=4;previewCtx.beginPath();previewCtx.arc(previewCanvas.width/2,previewCanvas.height/2,previewCanvas.width/2-2,0,Math.PI*2);previewCtx.stroke();}}
-function downloadPreviewImage(){if(!previewImg.src){alert('먼저 이미지를 업로드해주세요!');return;}let dw,dh;if(previewMode==='profile'){dw=dh=1080;}else if(previewMode==='youtube'){dw=2560;dh=1440;}else if(previewMode==='twitter'){dw=1500;dh=500;}else{dw=820;dh=312;}const dc=document.createElement('canvas');dc.width=dw;dc.height=dh;const dx=dc.getContext('2d');const s=Math.min(dw/previewImg.width,dh/previewImg.height);dx.drawImage(previewImg,(dw-previewImg.width*s)/2,(dh-previewImg.height*s)/2,previewImg.width*s,previewImg.height*s);dc.toBlob(blob=>{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`지망생_미리보기_${previewMode}_${getFmtDate()}.png`;a.click();URL.revokeObjectURL(url);},'image/png');}
+function downloadPreviewImage(){if(!previewImg.src){alert('먼저 이미지를 업로드해주세요!');return;}let dw,dh;if(previewMode==='profile'){dw=dh=1080;}else if(previewMode==='youtube'){dw=2560;dh=1440;}else if(previewMode==='twitter'){dw=1500;dh=500;}else{dw=820;dh=312;}const dc=document.createElement('canvas');dc.width=dw;dc.height=dh;const dx=dc.getContext('2d');const s=Math.min(dw/previewImg.width,dh/previewImg.height);dx.drawImage(previewImg,(dw-previewImg.width*s)/2,(dh-previewImg.height*s)/2,previewImg.width*s,previewImg.height*s);downloadCanvas(dc,`지망생_미리보기_${previewMode}_${getFmtDate()}.png`);}
 function sharePreviewImage(){if(!previewImg.src){alert('먼저 이미지를 업로드해주세요!');return;}shareImage(previewCanvas,`미리보기_${previewMode}.png`);}
 
 // ══════════════════════════════════════════
@@ -1410,7 +1680,7 @@ function resetTrimArea(){if(!trimImg.src)return;trimArea={x:0,y:0,width:trimCanv
 function setSquareTrim(){if(!trimImg.src)return;const sz=Math.min(trimCanvas.width,trimCanvas.height);trimArea={x:(trimCanvas.width-sz)/2,y:(trimCanvas.height-sz)/2,width:sz,height:sz};trimmedResultCanvas=null;drawTrimCanvas();}
 function resetTrimAll(){if(!trimImg.src){alert('업로드된 이미지가 없습니다.');return;}if(confirm('초기화하시겠습니까?'))resetTrimArea();}
 function executeTrim(){if(!trimImg.src){alert('먼저 이미지를 업로드해주세요!');return;}const sx=trimImg.width/trimCanvas.width,sy=trimImg.height/trimCanvas.height;const rc=document.createElement('canvas');rc.width=trimArea.width*sx;rc.height=trimArea.height*sy;rc.getContext('2d').drawImage(trimImg,trimArea.x*sx,trimArea.y*sy,rc.width,rc.height,0,0,rc.width,rc.height);trimmedResultCanvas=rc;drawTrimCanvas();}
-function downloadTrimmedImage(){if(!trimmedResultCanvas){alert('먼저 "자르기 실행" 버튼을 눌러주세요!');return;}trimmedResultCanvas.toBlob(blob=>{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`지망생_자르기_${getFmtDate()}.png`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);},'image/png');}
+function downloadTrimmedImage(){if(!trimmedResultCanvas){alert('먼저 "자르기 실행" 버튼을 눌러주세요!');return;}downloadCanvas(trimmedResultCanvas,`지망생_자르기_${getFmtDate()}.png`);}
 function shareTrimmedImage(){if(!trimmedResultCanvas){alert('먼저 "자르기 실행" 버튼을 눌러주세요!');return;}shareImage(trimmedResultCanvas,'자르기_이미지.png');}
 
 // ══════════════════════════════════════════
@@ -1453,8 +1723,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     } catch(e) {}
 });
-if(typeof lucide !== 'undefined') lucide.createIcons();
 </script>
 <footer style="text-align:center;padding:20px;background:#f8f9fa;"><p style="margin:0;font-size:13px;color:#666;">© 2026 인플루언서 지망생 에디터 by 김쌔랭.</p></footer>
+
+<!-- 컬러픽커 팝업 -->
+<div class="color-popup-overlay" id="colorPopupOverlay">
+    <div class="color-popup">
+        <div class="color-popup-title" id="colorPopupTitle">색상 선택</div>
+        <div class="color-popup-preview" id="colorPopupPreview"></div>
+        <div id="iroPickerWrap"></div>
+        <div class="color-popup-hex">
+            <label>HEX</label>
+            <input type="text" id="colorHexInput" maxlength="7" placeholder="#ffffff">
+        </div>
+        <div class="color-popup-btns">
+            <button class="btn-cancel" onclick="closeColorPicker()">취소</button>
+            <button class="btn-ok" onclick="confirmColorPicker()">확인</button>
+        </div>
+    </div>
+</div>
+<!-- 숨겨진 색상값 저장용 input -->
+<input type="hidden" id="textColor" value="#ffffff">
+<input type="hidden" id="textBgColor" value="#000000">
+<input type="hidden" id="textStrokeColor" value="#000000">
+<input type="hidden" id="textShadowColor" value="#000000">
 </body>
 </html>
