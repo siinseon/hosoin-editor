@@ -181,23 +181,6 @@
         }
         .edit-mode-banner.visible { display: block; }
 
-        /* 워크플로우 시작 버튼 */
-        .workflow-start-btn {
-            margin: 16px 0 0;
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #11593F, #1a7a55);
-            color: white;
-            border: none;
-            border-radius: 14px;
-            font-size: 15px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 16px rgba(17,89,63,0.3);
-        }
-        .workflow-start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(17,89,63,0.4); }
-
         .feature-screen { display: none; }
         .feature-screen.active { display: block; }
 
@@ -290,6 +273,15 @@
         .collage-mode-btn.selected .cm-icon > div,
         .collage-mode-btn.selected .cm-icon > div > div { background: white !important; }
         .cm-label { text-align: center; font-size: 11px; margin-top: 6px; font-weight: 700; color: #333; }
+        .collage-bg-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+        .collage-bg-row label { font-size: 12px; color: #555; min-width: 52px; font-weight: 600; }
+        .collage-bg-preview {
+            width: 48px; height: 48px; border-radius: 10px; border: 2px dashed #cfcfcf;
+            background: #fff; flex-shrink: 0; background-size: cover; background-position: center;
+        }
+        .collage-bg-preview.has-image { border-style: solid; border-color: var(--primary); }
+        .collage-layer-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .collage-layer-row .btn { flex: 1; min-width: 120px; }
 
         .image-preview-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
         .image-preview-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: #f9f9f9; border-radius: 8px; border: 1px solid var(--border); }
@@ -376,9 +368,6 @@
         </div>
         <div class="menu-grid" id="menuGrid" style="padding: 16px 20px 0;">
             <!-- 카드는 JS로 렌더링 -->
-        </div>
-        <div style="padding: 12px 20px 20px;">
-            <button class="workflow-start-btn" onclick="startWorkflow()">설정한 순서대로 편집 시작</button>
         </div>
     </div>
 
@@ -544,6 +533,32 @@
                     </div>
                 </div>
                 <div class="slider-row"><label>간격</label><input type="range" id="collageGap" min="0" max="50" value="10" oninput="document.getElementById('collageGapValue').textContent=this.value+'px';createCollage()"><span class="val" id="collageGapValue">10px</span></div>
+            </div>
+            <div class="tool-section">
+                <div class="section-title">캔버스 배경</div>
+                <div class="collage-bg-row">
+                    <label for="collageBgColor">배경색</label>
+                    <input type="color" id="collageBgColor" value="#ffffff" style="width:48px;height:40px;border:1px solid #ddd;border-radius:8px;background:white;cursor:pointer;">
+                </div>
+                <div class="collage-bg-row" style="margin-bottom:0;">
+                    <label>배경 이미지</label>
+                    <div id="collageBgPreview" class="collage-bg-preview" title="배경 미리보기"></div>
+                    <label for="collageBgImageUpload" class="btn secondary small" style="margin:0;">이미지 선택</label>
+                    <input type="file" id="collageBgImageUpload" accept="image/*">
+                    <button class="btn secondary small" type="button" onclick="clearCollageBgImage()">해제</button>
+                </div>
+            </div>
+            <div class="selected-item-panel" id="collageSelectedPanel" style="display:none;">
+                <div class="section-title" style="color:#f57c00;margin-bottom:10px;">선택된 사진</div>
+                <div class="slider-row">
+                    <label>회전</label>
+                    <input type="range" id="collageRotate" min="-180" max="180" value="0" oninput="applyCollageRotation(this.value)">
+                    <span class="val" id="collageRotateValue">0°</span>
+                </div>
+                <div class="collage-layer-row">
+                    <button class="btn secondary small" type="button" onclick="bringCollageToFront()">맨 앞으로</button>
+                    <button class="btn secondary small" type="button" onclick="sendCollageToBack()">맨 뒤로</button>
+                </div>
             </div>
             <div class="action-row">
                 <button class="btn primary" onclick="downloadCollageImage()" style="flex:1;margin-top:0;">저장</button>
@@ -1000,13 +1015,14 @@ function renderMenuGrid() {
     if(typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-function startWorkflow() {
+function initializeWorkflowFromFeature(featureId) {
     currentWorkflow = menuOrder.map(i => MENU_DATA[i].id);
-    workflowStep = 0;
-    // 세션 스토리지에 저장
-    sessionStorage.setItem('jm_workflow', JSON.stringify(currentWorkflow));
-    sessionStorage.setItem('jm_step', '0');
-    openFeatureByWorkflow();
+    const idx = currentWorkflow.indexOf(featureId);
+    workflowStep = idx >= 0 ? idx : 0;
+    try {
+        sessionStorage.setItem('jm_workflow', JSON.stringify(currentWorkflow));
+        sessionStorage.setItem('jm_step', String(workflowStep));
+    } catch(e) {}
 }
 
 function openFeatureByWorkflow() {
@@ -1025,8 +1041,7 @@ function openFeatureByWorkflow() {
 // ══════════════════════════════════════════
 function passToNext(canvasId) {
     if(workflowStep < 0 || currentWorkflow.length === 0) {
-        alert('워크플로우 모드가 아닙니다.\n메인 메뉴에서 [설정한 순서대로 편집 시작]을 눌러 시작하세요.');
-        return;
+        initializeWorkflowFromFeature(currentFeature);
     }
 
     let dataUrl = null;
@@ -1119,7 +1134,7 @@ function openFeature(f, fromWorkflow) {
     document.getElementById('featureHeader').classList.remove('hidden');
     document.querySelectorAll('.feature-screen').forEach(s => s.classList.remove('active'));
     document.getElementById(featureMap[f]).classList.add('active');
-    if(!fromWorkflow) { workflowStep = -1; }
+    if(!fromWorkflow) { initializeWorkflowFromFeature(f); }
     renderWorkflowIndicator();
     if(initMap[f]) initMap[f]();
     if(typeof lucide !== 'undefined') lucide.createIcons();
@@ -1127,6 +1142,13 @@ function openFeature(f, fromWorkflow) {
 
 function goToMainMenu() {
     currentFeature = null;
+    workflowStep = -1;
+    currentWorkflow = [];
+    try {
+        sessionStorage.removeItem('jm_workflow');
+        sessionStorage.removeItem('jm_step');
+        sessionStorage.removeItem('jm_passImg');
+    } catch(e) {}
     document.getElementById('mainMenu').style.display = 'block';
     document.getElementById('mainHeader').classList.remove('hidden');
     document.getElementById('featureHeader').classList.add('hidden');
@@ -1212,16 +1234,27 @@ function shareMergedImage(){if(!mergeBaseImg.src){alert('먼저 배경 이미지
 // ══════════════════════════════════════════
 // 3. 콜라주
 // ══════════════════════════════════════════
-let collageImages_arr=[],collageCanvas,collageCtx,collageInitialized=false,collageMode='horizontal';
+let collageImages_arr=[],collageCanvas,collageCtx,collageInitialized=false,collageMode='freeform';
 let collageSelectedImageIndex=-1,collagePinchStartDistance=0,collageIsPinching=false,collageDragging=false,collageDragStartX=0,collageDragStartY=0;
+let collageBgColor='#ffffff',collageBgImage=null;
 function initCollage(){
     if(collageInitialized)return;collageInitialized=true;
     collageCanvas=document.getElementById('collageCanvas');collageCtx=collageCanvas.getContext('2d');collageCanvas.width=500;collageCanvas.height=500;
-    selectCollageMode('horizontal');
-    document.getElementById('collageUpload').onchange=async e=>{const files=Array.from(e.target.files);if(collageImages_arr.length+files.length>10){alert('최대 10개까지!');return;}const proms=files.map(f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=ev=>{const img=new Image();img.onload=()=>res({img,name:f.name,size:(f.size/1024).toFixed(1)+' KB',scale:1,x:0,y:0});img.onerror=rej;img.src=ev.target.result;};r.onerror=rej;r.readAsDataURL(f);}));try{const loaded=await Promise.all(proms);collageImages_arr.push(...loaded);updateCollagePreview();}catch(err){alert('일부 이미지를 불러올 수 없습니다.');}e.target.value='';};
+    selectCollageMode('freeform');
+    document.getElementById('collageUpload').onchange=async e=>{const files=Array.from(e.target.files);if(collageImages_arr.length+files.length>10){alert('최대 10개까지!');return;}const proms=files.map(f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=ev=>{const img=new Image();img.onload=()=>res({img,name:f.name,size:(f.size/1024).toFixed(1)+' KB',scale:1,x:0,y:0,rotation:0,placed:false});img.onerror=rej;img.src=ev.target.result;};r.onerror=rej;r.readAsDataURL(f);}));try{const loaded=await Promise.all(proms);collageImages_arr.push(...loaded);updateCollagePreview();}catch(err){alert('일부 이미지를 불러올 수 없습니다.');}e.target.value='';};
     document.getElementById('collageGap').oninput=()=>{document.getElementById('collageGapValue').textContent=document.getElementById('collageGap').value+'px';createCollage();};
+    const bgColorEl=document.getElementById('collageBgColor');if(bgColorEl){bgColorEl.oninput=e=>{collageBgColor=e.target.value;createCollage();};}
+    const bgUploadEl=document.getElementById('collageBgImageUpload');if(bgUploadEl){bgUploadEl.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const img=new Image();img.onload=()=>{collageBgImage=img;setCollageBgPreview();createCollage();};img.src=ev.target.result;};r.readAsDataURL(f);e.target.value='';};}
+    setCollageBgPreview();
     setupCollageTouch();
 }
+function setCollageBgPreview(){const p=document.getElementById('collageBgPreview');if(!p)return;if(collageBgImage&&collageBgImage.src){p.style.backgroundImage=`url(${collageBgImage.src})`;p.classList.add('has-image');}else{p.style.backgroundImage='none';p.classList.remove('has-image');}}
+function clearCollageBgImage(){collageBgImage=null;setCollageBgPreview();createCollage();}
+function updateCollageSelectedPanel(){const panel=document.getElementById('collageSelectedPanel');const rot=document.getElementById('collageRotate');const rotVal=document.getElementById('collageRotateValue');if(!panel||!rot||!rotVal)return;if(collageSelectedImageIndex<0||!collageImages_arr[collageSelectedImageIndex]){panel.style.display='none';return;}const item=collageImages_arr[collageSelectedImageIndex];const deg=Math.round(((item.rotation||0)*180/Math.PI));rot.value=String(deg);rotVal.textContent=deg+'°';panel.style.display='block';}
+function applyCollageRotation(value){const idx=collageSelectedImageIndex;if(idx<0||!collageImages_arr[idx])return;const deg=parseFloat(value)||0;collageImages_arr[idx].rotation=(deg*Math.PI)/180;document.getElementById('collageRotateValue').textContent=Math.round(deg)+'°';createCollage();}
+function moveCollageLayer(toFront){const idx=collageSelectedImageIndex;if(idx<0||!collageImages_arr[idx])return;const item=collageImages_arr.splice(idx,1)[0];if(toFront){collageImages_arr.push(item);collageSelectedImageIndex=collageImages_arr.length-1;}else{collageImages_arr.unshift(item);collageSelectedImageIndex=0;}updateCollagePreview();}
+function bringCollageToFront(){moveCollageLayer(true);}
+function sendCollageToBack(){moveCollageLayer(false);}
 function selectCollageMode(mode){
     collageMode=mode;
     ['collageFreeform','collageHorizontal','collageVertical','collageGrid','collageMain_sub','collageHalf_vertical','collageL_shape','collageT_shape','collageStairs'].forEach(id=>{const b=document.getElementById(id);if(b)b.classList.remove('selected');});
@@ -1229,49 +1262,68 @@ function selectCollageMode(mode){
     const sel=document.getElementById('collage'+cap);if(sel)sel.classList.add('selected');
     createCollage();
 }
+function getCollagePointerPos(e){const rect=collageCanvas.getBoundingClientRect();const sx=collageCanvas.width/rect.width,sy=collageCanvas.height/rect.height;const p=e.touches&&e.touches[0]?e.touches[0]:e.changedTouches&&e.changedTouches[0]?e.changedTouches[0]:e;return{x:(p.clientX-rect.left)*sx,y:(p.clientY-rect.top)*sy};}
+function isPointOnCollageItem(px,py,item){
+    const w=item.displayW||(item.img.width*(item.scale||0.3)),h=item.displayH||(item.img.height*(item.scale||0.3));
+    const x=item.x,y=item.y,ang=item.rotation||0;
+    const cx=x+w/2,cy=y+h/2,dx=px-cx,dy=py-cy,cos=Math.cos(-ang),sin=Math.sin(-ang);
+    const lx=dx*cos-dy*sin+w/2,ly=dx*sin+dy*cos+h/2;
+    return lx>=0&&lx<=w&&ly>=0&&ly<=h;
+}
+function getCollageHitIndex(px,py){for(let i=collageImages_arr.length-1;i>=0;i--){if(isPointOnCollageItem(px,py,collageImages_arr[i]))return i;}return -1;}
 function setupCollageTouch(){
     const cv=collageCanvas;
     cv.addEventListener('touchstart',e=>{
         if(!collageImages_arr.length)return;
-        if(e.touches.length===1){const rect=cv.getBoundingClientRect();const sx=cv.width/rect.width,sy=cv.height/rect.height;const tx=(e.touches[0].clientX-rect.left)*sx,ty=(e.touches[0].clientY-rect.top)*sy;let fi=-1;for(let i=collageImages_arr.length-1;i>=0;i--){const it=collageImages_arr[i];if(tx>=it.x&&tx<=it.x+(it.displayW||0)&&ty>=it.y&&ty<=it.y+(it.displayH||0)){fi=i;break;}}if(fi!==-1){collageSelectedImageIndex=fi;collageDragging=true;collageDragStartX=tx;collageDragStartY=ty;createCollage();}}
-        else if(e.touches.length===2&&collageSelectedImageIndex!==-1&&collageMode==='freeform'){e.preventDefault();collageDragging=false;collageIsPinching=true;collagePinchStartDistance=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);}
+        if(e.touches.length===1){
+            const pt=getCollagePointerPos(e),fi=getCollageHitIndex(pt.x,pt.y);
+            if(fi!==-1){collageSelectedImageIndex=fi;collageDragging=true;collageDragStartX=pt.x;collageDragStartY=pt.y;updateCollageSelectedPanel();createCollage();}
+            else{collageSelectedImageIndex=-1;collageDragging=false;updateCollageSelectedPanel();createCollage();}
+        }else if(e.touches.length===2&&collageSelectedImageIndex!==-1&&collageMode==='freeform'){e.preventDefault();collageDragging=false;collageIsPinching=true;collagePinchStartDistance=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);}
     },{passive:false});
     cv.addEventListener('touchmove',e=>{
         if(collageIsPinching&&e.touches.length===2&&collageMode==='freeform'){e.preventDefault();const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);if(collagePinchStartDistance>0&&collageSelectedImageIndex!==-1){const it=collageImages_arr[collageSelectedImageIndex];it.scale=Math.max(0.3,Math.min(3,(it.scale||1)*(d/collagePinchStartDistance)));collagePinchStartDistance=d;createCollage();}return;}
-        if(collageDragging&&e.touches.length===1&&collageSelectedImageIndex!==-1&&collageMode==='freeform'){e.preventDefault();const rect=cv.getBoundingClientRect();const sx=cv.width/rect.width,sy=cv.height/rect.height;const tx=(e.touches[0].clientX-rect.left)*sx,ty=(e.touches[0].clientY-rect.top)*sy;const it=collageImages_arr[collageSelectedImageIndex];it.x+=tx-collageDragStartX;it.y+=ty-collageDragStartY;collageDragStartX=tx;collageDragStartY=ty;createCollage();}
+        if(collageDragging&&e.touches.length===1&&collageSelectedImageIndex!==-1&&collageMode==='freeform'){e.preventDefault();const pt=getCollagePointerPos(e),it=collageImages_arr[collageSelectedImageIndex];it.x+=pt.x-collageDragStartX;it.y+=pt.y-collageDragStartY;collageDragStartX=pt.x;collageDragStartY=pt.y;createCollage();}
     },{passive:false});
     cv.addEventListener('touchend',e=>{if(!e.touches||e.touches.length<2){collageIsPinching=false;collagePinchStartDistance=0;}if(!e.touches||e.touches.length===0)collageDragging=false;});
-    cv.addEventListener('mousedown',e=>{if(!collageImages_arr.length)return;const rect=cv.getBoundingClientRect();const sx=cv.width/rect.width,sy=cv.height/rect.height;const mx=(e.clientX-rect.left)*sx,my=(e.clientY-rect.top)*sy;let fi=-1;for(let i=collageImages_arr.length-1;i>=0;i--){const it=collageImages_arr[i];if(mx>=it.x&&mx<=it.x+(it.displayW||0)&&my>=it.y&&my<=it.y+(it.displayH||0)){fi=i;break;}}if(fi!==-1){collageSelectedImageIndex=fi;collageDragging=true;collageDragStartX=mx;collageDragStartY=my;createCollage();}});
-    cv.addEventListener('mousemove',e=>{if(collageDragging&&collageSelectedImageIndex!==-1&&collageMode==='freeform'){const rect=cv.getBoundingClientRect();const sx=cv.width/rect.width,sy=cv.height/rect.height;const mx=(e.clientX-rect.left)*sx,my=(e.clientY-rect.top)*sy;const it=collageImages_arr[collageSelectedImageIndex];it.x+=mx-collageDragStartX;it.y+=my-collageDragStartY;collageDragStartX=mx;collageDragStartY=my;createCollage();}});
+    cv.addEventListener('mousedown',e=>{if(!collageImages_arr.length)return;const pt=getCollagePointerPos(e),fi=getCollageHitIndex(pt.x,pt.y);if(fi!==-1){collageSelectedImageIndex=fi;collageDragging=true;collageDragStartX=pt.x;collageDragStartY=pt.y;}else{collageSelectedImageIndex=-1;collageDragging=false;}updateCollageSelectedPanel();createCollage();});
+    cv.addEventListener('mousemove',e=>{if(collageDragging&&collageSelectedImageIndex!==-1&&collageMode==='freeform'){const pt=getCollagePointerPos(e),it=collageImages_arr[collageSelectedImageIndex];it.x+=pt.x-collageDragStartX;it.y+=pt.y-collageDragStartY;collageDragStartX=pt.x;collageDragStartY=pt.y;createCollage();}});
     cv.addEventListener('mouseup',()=>collageDragging=false);
+    cv.addEventListener('mouseleave',()=>collageDragging=false);
     cv.addEventListener('wheel',e=>{if(collageSelectedImageIndex!==-1&&collageMode==='freeform'){e.preventDefault();const it=collageImages_arr[collageSelectedImageIndex];it.scale=Math.max(0.3,Math.min(3,(it.scale||1)*(e.deltaY>0?0.95:1.05)));createCollage();}},{passive:false});
 }
 function updateCollagePreview(){
     const list=document.getElementById('collagePreviewList');list.innerHTML='';
-    collageImages_arr.forEach((item,idx)=>{const div=document.createElement('div');div.className='image-preview-item';div.innerHTML=`<img src="${item.img.src}" class="preview-thumb"><div class="preview-info"><div class="preview-name">${item.name}</div><div class="preview-size">${item.size}</div></div><button class="delete-preview-btn" onclick="deleteCollageImage(${idx})">삭제</button>`;list.appendChild(div);});
+    collageImages_arr.forEach((item,idx)=>{const div=document.createElement('div');div.className='image-preview-item';if(idx===collageSelectedImageIndex)div.style.border='2px solid var(--primary)';div.innerHTML=`<img src="${item.img.src}" class="preview-thumb"><div class="preview-info"><div class="preview-name">${item.name}</div><div class="preview-size">${item.size}</div></div><button class="delete-preview-btn" onclick="deleteCollageImage(${idx})">삭제</button>`;list.appendChild(div);});
+    updateCollageSelectedPanel();
     createCollage();
 }
-function deleteCollageImage(idx){collageImages_arr.splice(idx,1);updateCollagePreview();}
-function createCollage(){
-    if(!collageImages_arr.length)return;
-    const gap=parseInt(document.getElementById('collageGap').value);
-    const ctx=collageCtx,cv=collageCanvas;
+function deleteCollageImage(idx){collageImages_arr.splice(idx,1);if(collageSelectedImageIndex===idx)collageSelectedImageIndex=-1;else if(collageSelectedImageIndex>idx)collageSelectedImageIndex--;updateCollagePreview();}
+function drawCollageBackground(ctx,cv){ctx.fillStyle=collageBgColor||'#ffffff';ctx.fillRect(0,0,cv.width,cv.height);if(collageBgImage&&collageBgImage.complete&&collageBgImage.naturalWidth>0){const s=Math.max(cv.width/collageBgImage.width,cv.height/collageBgImage.height);const dw=collageBgImage.width*s,dh=collageBgImage.height*s;ctx.drawImage(collageBgImage,(cv.width-dw)/2,(cv.height-dh)/2,dw,dh);}}
+function drawCollageGuide(ctx,x,y,w,h,rotation){ctx.save();ctx.translate(x+w/2,y+h/2);if(rotation)ctx.rotate(rotation);ctx.strokeStyle='rgba(17,89,63,0.9)';ctx.lineWidth=3;ctx.setLineDash([8,5]);ctx.strokeRect(-w/2,-h/2,w,h);ctx.setLineDash([]);ctx.restore();}
+function drawCollageImageCover(ctx,it,x,y,w,h){const is=Math.max(w/it.img.width,h/it.img.height),dw=it.img.width*is,dh=it.img.height*is;ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();ctx.translate(x+w/2,y+h/2);if(it.rotation)ctx.rotate(it.rotation);ctx.drawImage(it.img,-dw/2,-dh/2,dw,dh);ctx.restore();}
+function drawCollageImageFreeform(ctx,it,x,y,w,h){ctx.save();ctx.translate(x+w/2,y+h/2);if(it.rotation)ctx.rotate(it.rotation);ctx.drawImage(it.img,-w/2,-h/2,w,h);ctx.restore();}
+function createCollage(exportMode=false,targetCanvas=collageCanvas,targetCtx=collageCtx){
+    const cv=targetCanvas,ctx=targetCtx;
+    if(!cv||!ctx)return;
+    const gap=parseInt(document.getElementById('collageGap').value)||0;
     const sel=collageSelectedImageIndex;
-    function hl(it,i,x,y,w,h){it.x=x;it.y=y;it.displayW=w;it.displayH=h;if(i===sel){ctx.strokeStyle='#11593F';ctx.lineWidth=4;ctx.strokeRect(x-2,y-2,w+4,h+4);}}
-    function cover(it,x,y,w,h){const is=Math.max(w/it.img.width,h/it.img.height);ctx.drawImage(it.img,x+(w-it.img.width*is)/2,y+(h-it.img.height*is)/2,it.img.width*is,it.img.height*is);}
-    ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
-    if(collageMode==='horizontal'){let tw=0,mh=0;collageImages_arr.forEach(it=>{const s=it.scale||1;tw+=it.img.width*s;mh=Math.max(mh,it.img.height*s);});tw+=gap*(collageImages_arr.length-1);cv.width=tw;cv.height=mh;ctx.fillStyle='#fff';ctx.fillRect(0,0,tw,mh);let x=0;collageImages_arr.forEach((it,i)=>{const s=it.scale||1,w=it.img.width*s,h=it.img.height*s,y=(mh-h)/2;ctx.drawImage(it.img,x,y,w,h);hl(it,i,x,y,w,h);x+=w+gap;});}
-    else if(collageMode==='vertical'){let mw=0,th=0;collageImages_arr.forEach(it=>{const s=it.scale||1;mw=Math.max(mw,it.img.width*s);th+=it.img.height*s;});th+=gap*(collageImages_arr.length-1);cv.width=mw;cv.height=th;ctx.fillStyle='#fff';ctx.fillRect(0,0,mw,th);let y=0;collageImages_arr.forEach((it,i)=>{const s=it.scale||1,w=it.img.width*s,h=it.img.height*s,x=(mw-w)/2;ctx.drawImage(it.img,x,y,w,h);hl(it,i,x,y,w,h);y+=h+gap;});}
-    else if(collageMode==='grid'){const cols=Math.ceil(Math.sqrt(collageImages_arr.length)),rows=Math.ceil(collageImages_arr.length/cols),cs=300;cv.width=cs*cols+gap*(cols-1);cv.height=cs*rows+gap*(rows-1);ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);collageImages_arr.forEach((it,idx)=>{const col=idx%cols,row=Math.floor(idx/cols),cx=col*(cs+gap),cy=row*(cs+gap);const ir=it.img.width/it.img.height;let sx=0,sy=0,sw=it.img.width,sh=it.img.height;if(ir>1){sw=it.img.height;sx=(it.img.width-sw)/2;}else{sh=it.img.width;sy=(it.img.height-sh)/2;}ctx.drawImage(it.img,sx,sy,sw,sh,cx,cy,cs,cs);hl(it,idx,cx,cy,cs,cs);});}
-    else if(collageMode==='freeform'){cv.width=800;cv.height=800;ctx.fillStyle='#fff';ctx.fillRect(0,0,800,800);collageImages_arr.forEach((it,i)=>{const s=it.scale||0.3,w=it.img.width*s,h=it.img.height*s;if(it.x===0&&it.y===0){it.x=Math.random()*(800-w);it.y=Math.random()*(800-h);}it.displayW=w;it.displayH=h;ctx.drawImage(it.img,it.x,it.y,w,h);if(i===sel){ctx.strokeStyle='#11593F';ctx.lineWidth=4;ctx.strokeRect(it.x-2,it.y-2,w+4,h+4);}});}
-    else if(collageMode==='main_sub'){const cs=800;cv.width=cs;cv.height=cs;ctx.fillStyle='#fff';ctx.fillRect(0,0,cs,cs);const ms=cs-gap,ss=(cs-gap*4)/3;collageImages_arr.forEach((it,i)=>{const sc=it.scale||1;let x,y,w,h;if(i===0){w=ms*0.65*sc;h=ms*sc;x=gap;y=gap;}else{w=ms*0.3*sc;h=ss*sc;x=gap+ms*0.65+gap;y=gap+(i-1)*(ss+gap);}cover(it,x,y,w,h);hl(it,i,x,y,w,h);});}
-    else if(collageMode==='half_vertical'){const cs=800;cv.width=cs;cv.height=cs;ctx.fillStyle='#fff';ctx.fillRect(0,0,cs,cs);const hw=(cs-gap*3)/2,hh=(cs-gap*3)/2;collageImages_arr.forEach((it,i)=>{let x,y,w,h;if(i===0){w=hw;h=cs-gap*2;x=gap;y=gap;}else if(i===1){w=hw;h=hh;x=gap*2+hw;y=gap;}else if(i===2){w=hw;h=hh;x=gap*2+hw;y=gap*2+hh;}else return;cover(it,x,y,w,h);hl(it,i,x,y,w,h);});}
-    else if(collageMode==='l_shape'){const cs=800;cv.width=cs;cv.height=cs;ctx.fillStyle='#fff';ctx.fillRect(0,0,cs,cs);const th=(cs-gap*3)*0.65,bh=(cs-gap*3)*0.35,hw=(cs-gap*3)/2;collageImages_arr.forEach((it,i)=>{let x,y,w,h;if(i===0){w=cs-gap*2;h=th;x=gap;y=gap;}else if(i===1){w=hw;h=bh;x=gap;y=gap*2+th;}else if(i===2){w=hw;h=bh;x=gap*2+hw;y=gap*2+th;}else return;cover(it,x,y,w,h);hl(it,i,x,y,w,h);});}
-    else if(collageMode==='t_shape'){const cs=800;cv.width=cs;cv.height=cs;ctx.fillStyle='#fff';ctx.fillRect(0,0,cs,cs);const th=(cs-gap*3)*0.35,bh=(cs-gap*3)*0.65,tw2=(cs-gap*4)/3;collageImages_arr.forEach((it,i)=>{let x,y,w,h;if(i<3){w=tw2;h=th;x=gap+i*(tw2+gap);y=gap;}else{w=cs-gap*2;h=bh;x=gap;y=gap*2+th;}cover(it,x,y,w,h);hl(it,i,x,y,w,h);});}
-    else if(collageMode==='stairs'){const cs=800;cv.width=cs;cv.height=cs;ctx.fillStyle='#fff';ctx.fillRect(0,0,cs,cs);const cell=(cs-gap*4)/3;collageImages_arr.forEach((it,i)=>{if(i>=3)return;const w=cell,h=cell,x=gap+i*(cell+gap),y=gap+i*(cell+gap);const is=Math.max(w/it.img.width,h/it.img.height);ctx.drawImage(it.img,x+(w-it.img.width*is)/2,y+(h-it.img.height*is)/2,it.img.width*is,it.img.height*is);hl(it,i,x,y,w,h);});}
+    function mark(it,i,x,y,w,h){it.x=x;it.y=y;it.displayW=w;it.displayH=h;if(!exportMode&&i===sel)drawCollageGuide(ctx,x,y,w,h,it.rotation||0);}
+    if(!collageImages_arr.length){cv.width=800;cv.height=800;drawCollageBackground(ctx,cv);if(!exportMode)updateCollageSelectedPanel();return;}
+    if(collageMode==='horizontal'){let tw=0,mh=0;collageImages_arr.forEach(it=>{const s=it.scale||1;tw+=it.img.width*s;mh=Math.max(mh,it.img.height*s);});tw+=gap*(collageImages_arr.length-1);cv.width=tw;cv.height=mh;drawCollageBackground(ctx,cv);let x=0;collageImages_arr.forEach((it,i)=>{const s=it.scale||1,w=it.img.width*s,h=it.img.height*s,y=(mh-h)/2;drawCollageImageCover(ctx,it,x,y,w,h);mark(it,i,x,y,w,h);x+=w+gap;});}
+    else if(collageMode==='vertical'){let mw=0,th=0;collageImages_arr.forEach(it=>{const s=it.scale||1;mw=Math.max(mw,it.img.width*s);th+=it.img.height*s;});th+=gap*(collageImages_arr.length-1);cv.width=mw;cv.height=th;drawCollageBackground(ctx,cv);let y=0;collageImages_arr.forEach((it,i)=>{const s=it.scale||1,w=it.img.width*s,h=it.img.height*s,x=(mw-w)/2;drawCollageImageCover(ctx,it,x,y,w,h);mark(it,i,x,y,w,h);y+=h+gap;});}
+    else if(collageMode==='grid'){const cols=Math.ceil(Math.sqrt(collageImages_arr.length)),rows=Math.ceil(collageImages_arr.length/cols),cs=300;cv.width=cs*cols+gap*(cols-1);cv.height=cs*rows+gap*(rows-1);drawCollageBackground(ctx,cv);collageImages_arr.forEach((it,idx)=>{const col=idx%cols,row=Math.floor(idx/cols),cx=col*(cs+gap),cy=row*(cs+gap);drawCollageImageCover(ctx,it,cx,cy,cs,cs);mark(it,idx,cx,cy,cs,cs);});}
+    else if(collageMode==='freeform'){cv.width=800;cv.height=800;drawCollageBackground(ctx,cv);collageImages_arr.forEach((it,i)=>{const s=it.scale||0.3,w=it.img.width*s,h=it.img.height*s;if(!it.placed){it.x=Math.max(0,Math.random()*(800-w));it.y=Math.max(0,Math.random()*(800-h));it.placed=true;}it.displayW=w;it.displayH=h;drawCollageImageFreeform(ctx,it,it.x,it.y,w,h);if(!exportMode&&i===sel)drawCollageGuide(ctx,it.x,it.y,w,h,it.rotation||0);});}
+    else if(collageMode==='main_sub'){const cs=800;cv.width=cs;cv.height=cs;drawCollageBackground(ctx,cv);const ms=cs-gap,ss=(cs-gap*4)/3;collageImages_arr.forEach((it,i)=>{const sc=it.scale||1;let x,y,w,h;if(i===0){w=ms*0.65*sc;h=ms*sc;x=gap;y=gap;}else{w=ms*0.3*sc;h=ss*sc;x=gap+ms*0.65+gap;y=gap+(i-1)*(ss+gap);}drawCollageImageCover(ctx,it,x,y,w,h);mark(it,i,x,y,w,h);});}
+    else if(collageMode==='half_vertical'){const cs=800;cv.width=cs;cv.height=cs;drawCollageBackground(ctx,cv);const hw=(cs-gap*3)/2,hh=(cs-gap*3)/2;collageImages_arr.forEach((it,i)=>{let x,y,w,h;if(i===0){w=hw;h=cs-gap*2;x=gap;y=gap;}else if(i===1){w=hw;h=hh;x=gap*2+hw;y=gap;}else if(i===2){w=hw;h=hh;x=gap*2+hw;y=gap*2+hh;}else return;drawCollageImageCover(ctx,it,x,y,w,h);mark(it,i,x,y,w,h);});}
+    else if(collageMode==='l_shape'){const cs=800;cv.width=cs;cv.height=cs;drawCollageBackground(ctx,cv);const th=(cs-gap*3)*0.65,bh=(cs-gap*3)*0.35,hw=(cs-gap*3)/2;collageImages_arr.forEach((it,i)=>{let x,y,w,h;if(i===0){w=cs-gap*2;h=th;x=gap;y=gap;}else if(i===1){w=hw;h=bh;x=gap;y=gap*2+th;}else if(i===2){w=hw;h=bh;x=gap*2+hw;y=gap*2+th;}else return;drawCollageImageCover(ctx,it,x,y,w,h);mark(it,i,x,y,w,h);});}
+    else if(collageMode==='t_shape'){const cs=800;cv.width=cs;cv.height=cs;drawCollageBackground(ctx,cv);const th=(cs-gap*3)*0.35,bh=(cs-gap*3)*0.65,tw2=(cs-gap*4)/3;collageImages_arr.forEach((it,i)=>{let x,y,w,h;if(i<3){w=tw2;h=th;x=gap+i*(tw2+gap);y=gap;}else{w=cs-gap*2;h=bh;x=gap;y=gap*2+th;}drawCollageImageCover(ctx,it,x,y,w,h);mark(it,i,x,y,w,h);});}
+    else if(collageMode==='stairs'){const cs=800;cv.width=cs;cv.height=cs;drawCollageBackground(ctx,cv);const cell=(cs-gap*4)/3;collageImages_arr.forEach((it,i)=>{if(i>=3)return;const w=cell,h=cell,x=gap+i*(cell+gap),y=gap+i*(cell+gap);drawCollageImageCover(ctx,it,x,y,w,h);mark(it,i,x,y,w,h);});}
+    if(!exportMode)updateCollageSelectedPanel();
 }
-function downloadCollageImage(){if(!collageImages_arr.length){alert('먼저 이미지를 추가해주세요!');return;}downloadCanvas(collageCanvas,`지망생_${getFmtDate()}_콜라주.png`);}
-function shareCollageImage(){if(!collageImages_arr.length){alert('먼저 이미지를 추가해주세요!');return;}shareImage(collageCanvas,'콜라주_이미지.png');}
+function getCollageExportCanvas(){const exp=document.createElement('canvas');exp.width=collageCanvas?.width||800;exp.height=collageCanvas?.height||800;const exCtx=exp.getContext('2d');createCollage(true,exp,exCtx);return exp;}
+function downloadCollageImage(){if(!collageImages_arr.length){alert('먼저 이미지를 추가해주세요!');return;}downloadCanvas(getCollageExportCanvas(),`지망생_${getFmtDate()}_콜라주.png`);}
+function shareCollageImage(){if(!collageImages_arr.length){alert('먼저 이미지를 추가해주세요!');return;}shareImage(getCollageExportCanvas(),'콜라주_이미지.png');}
 
 // ══════════════════════════════════════════
 // 4. 꾸미기
