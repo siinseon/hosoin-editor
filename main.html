@@ -352,6 +352,23 @@
         .color-popup-btns .btn-cancel { background: #3a3a4e; color: #ccc; }
         .color-popup-btns .btn-ok { background: var(--primary); color: white; }
         #iroPickerWrap { display: flex; justify-content: center; }
+        .text-edit-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+            z-index: 9100; align-items: center; justify-content: center; padding: 16px;
+        }
+        .text-edit-overlay.active { display: flex; }
+        .text-edit-modal {
+            width: min(520px, 100%); background: #fff; border-radius: 16px;
+            box-shadow: 0 18px 60px rgba(0,0,0,.35); padding: 16px;
+        }
+        .text-edit-title { font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 10px; }
+        .text-edit-area {
+            width: 100%; min-height: 140px; resize: vertical; border: 1.5px solid var(--border);
+            border-radius: 10px; padding: 10px; font-size: 14px; font-family: inherit; outline: none;
+        }
+        .text-edit-area:focus { border-color: var(--primary); }
+        .text-edit-actions { display: flex; gap: 8px; margin-top: 12px; }
+        .text-edit-actions .btn { flex: 1; }
 
         /* ── 변환 핸들 ── */
         .handle-cursor { cursor: nwse-resize; }
@@ -406,14 +423,11 @@
             </div>
             <div class="tool-section">
                 <div class="section-title">배경색</div>
-                <div class="input-group" style="justify-content:center;gap:15px;">
-                    <div style="width:40px;height:40px;border-radius:50%;background:#fff;border:2px solid #ddd;cursor:pointer;" id="bgWhite" onclick="selectBgColor('#ffffff','bgWhite')"></div>
-                    <div style="width:40px;height:40px;border-radius:50%;background:#000;border:2px solid #333;cursor:pointer;" id="bgBlack" onclick="selectBgColor('#000000','bgBlack')"></div>
-                    <div style="width:40px;height:40px;border-radius:50%;background:#11593F;border:2px solid #0a3a28;cursor:pointer;" id="bgGreen" onclick="selectBgColor('#11593F','bgGreen')"></div>
-                    <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#ff0000,#ff7f00,#ffff00,#00ff00,#0000ff,#9400d3);border:2px solid #999;cursor:pointer;position:relative;" id="bgCustom">
-                        <input type="color" id="customColorPicker" style="opacity:0;width:100%;height:100%;position:absolute;top:0;left:0;cursor:pointer;border:none;">
-                    </div>
+                <div class="input-group" style="justify-content:center;gap:10px;">
+                    <div class="color-picker-btn" id="ratioBgColorBtn" style="background:#ffffff;width:46px;height:46px;" onclick="openColorPicker('ratioBgColorValue','배경색',this)"></div>
+                    <button class="btn secondary small" type="button" onclick="openColorPicker('ratioBgColorValue','배경색',document.getElementById('ratioBgColorBtn'))">색상 선택</button>
                 </div>
+                <p style="font-size:11px;color:#666;margin:6px 0 0;text-align:center;">꾸미기 탭과 동일한 색상 팝업으로 선택</p>
             </div>
             <div class="tool-section">
                 <div style="display:flex;gap:8px;"><button class="btn secondary" onclick="alignRatioPosition('left')" style="flex:1;">◀ 좌측</button><button class="btn secondary" onclick="alignRatioPosition('center')" style="flex:1;">⬛ 가운데</button><button class="btn secondary" onclick="alignRatioPosition('right')" style="flex:1;">▶ 우측</button></div>
@@ -1064,6 +1078,8 @@ function passToNext(canvasId) {
         // 꾸미기 화면은 선택 점선 없이 오프스크린으로 추출
         if(canvasId === 'decorateCanvas') {
             dataUrl = getDecorateExportCanvas().toDataURL('image/png');
+        } else if(canvasId === 'ratioCanvas') {
+            dataUrl = buildRatioExportCanvas(ratioCanvas.width, ratioCanvas.height).toDataURL('image/png');
         } else {
             const canvas = document.getElementById(canvasId);
             if(canvas) dataUrl = canvas.toDataURL('image/png');
@@ -1335,7 +1351,8 @@ async function applyFeatureState(featureId, state, options){
                 ratioOffsetY = state.ratioOffsetY || 0;
                 ratioScale = state.ratioScale || 1;
                 if(state.ratioImgSrc){ const img = await loadImageFromSrc(state.ratioImgSrc); if(img) ratioImg = img; }
-                if(ratioImg.src) drawRatioImage();
+                selectBgColor(ratioBgColor);
+                drawRatioImage();
                 break;
             }
             case 'merge': {
@@ -1559,7 +1576,6 @@ function setupFeatureHistoryHooks(){
         el.addEventListener(ev, () => setTimeout(()=>pushFeatureHistory(fid), delay));
     };
     bind('ratioUpload','change','ratio');
-    bind('customColorPicker','change','ratio');
     bind('mergeBaseUpload','change','merge');
     bind('mergeOverlayUpload','change','merge');
     bind('collageUpload','change','collage');
@@ -1634,8 +1650,7 @@ let ratioInitialDistance=0,ratioInitialScale=1,ratioPinching=false;
 function initRatio(){
     if(ratioInitialized)return;ratioInitialized=true;
     ratioCanvas=document.getElementById('ratioCanvas');ratioCtx=ratioCanvas.getContext('2d');ratioCanvas.width=500;ratioCanvas.height=500;
-    selectBgColor('#ffffff','bgWhite');
-    document.getElementById('customColorPicker').onchange=e=>{selectBgColor(e.target.value,'bgCustom');drawRatioImage();};
+    selectBgColor('#ffffff');
     document.getElementById('ratioUpload').onchange=e=>{const f=e.target.files[0];if(!f)return;ratioOriginalFileName=f.name.replace(/\.[^/.]+$/,'');const r=new FileReader();r.onload=ev=>{ratioImg.src=ev.target.result;ratioImg.onload=()=>{ratioOffsetX=0;ratioOffsetY=0;ratioScale=1;drawRatioImage();pushFeatureHistory('ratio',true);};};r.readAsDataURL(f);};
     ratioCanvas.addEventListener('mousedown',ratioStartDrag);ratioCanvas.addEventListener('touchstart',ratioStartDrag,{passive:false});ratioCanvas.addEventListener('mousemove',ratioDrag);ratioCanvas.addEventListener('touchmove',ratioDrag,{passive:false});ratioCanvas.addEventListener('mouseup',ratioEndDrag);ratioCanvas.addEventListener('touchend',ratioEndDrag);ratioCanvas.addEventListener('mouseleave',ratioEndDrag);
     ratioCanvas.addEventListener('wheel',e=>{e.preventDefault();if(!ratioImg.src)return;ratioScale=Math.max(0.1,Math.min(5,ratioScale*(e.deltaY>0?0.9:1.1)));drawRatioImage();},{passive:false});
@@ -1644,11 +1659,24 @@ function ratioStartDrag(e){if(!ratioImg.src)return;if(e.type==='touchstart')e.pr
 function ratioDrag(e){if(e.type==='touchmove')e.preventDefault();if(e.type==='touchmove'&&e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);ratioScale=Math.max(0.1,Math.min(5,ratioInitialScale*(d/ratioInitialDistance)));drawRatioImage();return;}if(!ratioIsDragging||ratioPinching)return;const rect=ratioCanvas.getBoundingClientRect();const cx=e.type.startsWith('touch')?e.touches[0].clientX:e.clientX,cy=e.type.startsWith('touch')?e.touches[0].clientY:e.clientY;ratioOffsetX=cx-rect.left-ratioStartX;ratioOffsetY=cy-rect.top-ratioStartY;drawRatioImage();}
 function ratioEndDrag(e){ratioIsDragging=false;if(e&&e.type==='touchend'&&(!e.touches||e.touches.length===0)){ratioPinching=false;ratioInitialDistance=0;}}
 function alignRatioPosition(align){if(!ratioImg.src)return;ratioScale=1;ratioOffsetY=0;const s=Math.min(ratioCanvas.width/ratioImg.width,ratioCanvas.height/ratioImg.height),sw=ratioImg.width*s;if(align==='left')ratioOffsetX=-sw/2;else if(align==='center')ratioOffsetX=0;else ratioOffsetX=(ratioCanvas.width-sw)/2;drawRatioImage();}
-function selectBgColor(color,btnId){ratioBgColor=color;['bgWhite','bgBlack','bgGreen','bgCustom'].forEach(id=>{const b=document.getElementById(id);if(b)b.style.outline='none';});const b=document.getElementById(btnId);if(b)b.style.outline='3px solid var(--primary)';drawRatioImage();}
+function selectBgColor(color){ratioBgColor=color;const hidden=document.getElementById('ratioBgColorValue');if(hidden)hidden.value=color;const btn=document.getElementById('ratioBgColorBtn');if(btn){btn.style.background=color;btn.style.border='2px solid #ddd';}drawRatioImage();}
 function selectRatio(w,h,el){selectedRatioW=w;selectedRatioH=h;document.querySelectorAll('#ratioScreen .ratio-btn').forEach(b=>b.classList.remove('selected'));if(el)el.classList.add('selected');drawRatioImage();}
-function drawRatioImage(){if(!ratioImg.src)return;const maxSize=500;let cw,ch;if(selectedRatioW==='youtube'){cw=maxSize;ch=maxSize*(1440/2560);}else if(selectedRatioW==='twitter'){cw=maxSize;ch=maxSize*(500/1500);}else{cw=maxSize;ch=maxSize*(selectedRatioH/selectedRatioW);}ratioCanvas.width=cw;ratioCanvas.height=ch;ratioCtx.fillStyle=ratioBgColor;ratioCtx.fillRect(0,0,cw,ch);const s=Math.min(cw/ratioImg.width,ch/ratioImg.height)*ratioScale;ratioCtx.drawImage(ratioImg,(cw-ratioImg.width*s)/2+ratioOffsetX,(ch-ratioImg.height*s)/2+ratioOffsetY,ratioImg.width*s,ratioImg.height*s);}
-function downloadRatioImage(){if(!ratioImg.src){alert('먼저 이미지를 업로드해주세요!');return;}let dw,dh;if(selectedRatioW==='youtube'){dw=2560;dh=1440;}else if(selectedRatioW==='twitter'){dw=1500;dh=500;}else{const m=2048;if(selectedRatioW>=selectedRatioH){dw=m;dh=m*(selectedRatioH/selectedRatioW);}else{dh=m;dw=m*(selectedRatioW/selectedRatioH);}}const dc=document.createElement('canvas');dc.width=dw;dc.height=dh;const dx=dc.getContext('2d');dx.fillStyle=ratioBgColor;dx.fillRect(0,0,dw,dh);const ps=Math.min(ratioCanvas.width/ratioImg.width,ratioCanvas.height/ratioImg.height)*ratioScale,ds=Math.min(dw/ratioImg.width,dh/ratioImg.height)*ratioScale,osr=ds/ps,sw=ratioImg.width*ds,sh=ratioImg.height*ds;dx.drawImage(ratioImg,(dw-sw)/2+(ratioOffsetX*osr),(dh-sh)/2+(ratioOffsetY*osr),sw,sh);downloadCanvas(dc, ratioOriginalFileName?`${ratioOriginalFileName}_지망생편집.png`:`지망생_${getFmtDate()}.png`);}
-function shareRatioImage(){if(!ratioImg.src){alert('먼저 이미지를 업로드해주세요!');return;}shareImage(ratioCanvas,'비율변경_이미지.png');}
+function drawRatioSafeGuides(cw,ch){
+    if(selectedRatioW==='youtube'){
+        const drawRect=(rw,rh,color,label,offsetY=0)=>{const w=cw*(rw/2560),h=ch*(rh/1440),x=(cw-w)/2,y=(ch-h)/2+offsetY;ratioCtx.save();ratioCtx.strokeStyle=color;ratioCtx.lineWidth=2;ratioCtx.setLineDash([7,5]);ratioCtx.strokeRect(x,y,w,h);ratioCtx.setLineDash([]);ratioCtx.font='11px sans-serif';ratioCtx.fillStyle='rgba(0,0,0,0.65)';const tw=Math.max(78,ratioCtx.measureText(label).width+10);ratioCtx.fillRect(x+6,y+6,tw,18);ratioCtx.fillStyle='#fff';ratioCtx.fillText(label,x+11,y+19);ratioCtx.restore();};
+        drawRect(2560,423,'#7E57C2','데스크톱');
+        drawRect(1855,423,'#29B6F6','태블릿');
+        drawRect(1546,423,'#66BB6A','모바일 안전영역');
+    }else if(selectedRatioW==='twitter'){
+        const drawRect=(rw,color,label)=>{const w=cw*(rw/1500),x=(cw-w)/2;ratioCtx.save();ratioCtx.strokeStyle=color;ratioCtx.lineWidth=2;ratioCtx.setLineDash([7,5]);ratioCtx.strokeRect(x,0,w,ch);ratioCtx.setLineDash([]);ratioCtx.font='11px sans-serif';ratioCtx.fillStyle='rgba(0,0,0,0.65)';const tw=Math.max(82,ratioCtx.measureText(label).width+10);ratioCtx.fillRect(x+6,6,tw,18);ratioCtx.fillStyle='#fff';ratioCtx.fillText(label,x+11,19);ratioCtx.restore();};
+        drawRect(1500,'#42A5F5','데스크톱');
+        drawRect(1260,'#FF7043','모바일 안전영역');
+    }
+}
+function drawRatioImage(){const maxSize=500;let cw,ch;if(selectedRatioW==='youtube'){cw=maxSize;ch=maxSize*(1440/2560);}else if(selectedRatioW==='twitter'){cw=maxSize;ch=maxSize*(500/1500);}else{cw=maxSize;ch=maxSize*(selectedRatioH/selectedRatioW);}ratioCanvas.width=cw;ratioCanvas.height=ch;ratioCtx.fillStyle=ratioBgColor;ratioCtx.fillRect(0,0,cw,ch);if(ratioImg.src){const s=Math.min(cw/ratioImg.width,ch/ratioImg.height)*ratioScale;ratioCtx.drawImage(ratioImg,(cw-ratioImg.width*s)/2+ratioOffsetX,(ch-ratioImg.height*s)/2+ratioOffsetY,ratioImg.width*s,ratioImg.height*s);}if(selectedRatioW==='youtube'||selectedRatioW==='twitter')drawRatioSafeGuides(cw,ch);}
+function buildRatioExportCanvas(dw,dh){const dc=document.createElement('canvas');dc.width=dw;dc.height=dh;const dx=dc.getContext('2d');dx.fillStyle=ratioBgColor;dx.fillRect(0,0,dw,dh);if(ratioImg.src){const ps=Math.min(ratioCanvas.width/ratioImg.width,ratioCanvas.height/ratioImg.height)*ratioScale,ds=Math.min(dw/ratioImg.width,dh/ratioImg.height)*ratioScale,osr=ds/ps,sw=ratioImg.width*ds,sh=ratioImg.height*ds;dx.drawImage(ratioImg,(dw-sw)/2+(ratioOffsetX*osr),(dh-sh)/2+(ratioOffsetY*osr),sw,sh);}return dc;}
+function downloadRatioImage(){if(!ratioImg.src){alert('먼저 이미지를 업로드해주세요!');return;}let dw,dh;if(selectedRatioW==='youtube'){dw=2560;dh=1440;}else if(selectedRatioW==='twitter'){dw=1500;dh=500;}else{const m=2048;if(selectedRatioW>=selectedRatioH){dw=m;dh=m*(selectedRatioH/selectedRatioW);}else{dh=m;dw=m*(selectedRatioW/selectedRatioH);}}downloadCanvas(buildRatioExportCanvas(dw,dh), ratioOriginalFileName?`${ratioOriginalFileName}_지망생편집.png`:`지망생_${getFmtDate()}.png`);}
+function shareRatioImage(){if(!ratioImg.src){alert('먼저 이미지를 업로드해주세요!');return;}shareImage(buildRatioExportCanvas(ratioCanvas.width,ratioCanvas.height),'비율변경_이미지.png');}
 
 // ══════════════════════════════════════════
 // 2. 겹치기
@@ -1822,9 +1850,9 @@ function confirmColorPicker(){
     const el=document.getElementById(_colorTarget);
     if(el){el.value=hex;}
     if(_colorBtnEl){_colorBtnEl.style.background=hex;_colorBtnEl.style.border='2px solid #ddd';}
-    // textBgColor 특수 처리
-    if(_colorTarget==='textBgColor'){currentTextStyle.bgColor=hex;}
-    liveUpdateSelectedText();
+    if(_colorTarget==='textBgColor'){currentTextStyle.bgColor=hex;liveUpdateSelectedText();}
+    else if(_colorTarget==='ratioBgColorValue'){selectBgColor(hex);pushFeatureHistory('ratio');}
+    else if(_colorTarget==='textColor'||_colorTarget==='textStrokeColor'||_colorTarget==='textShadowColor'){liveUpdateSelectedText();}
     closeColorPicker();
 }
 // hex input 직접 입력
@@ -1833,6 +1861,8 @@ document.addEventListener('DOMContentLoaded',()=>{
         let v=e.target.value;if(v.length===7&&v.startsWith('#')&&_iroPicker){try{_iroPicker.color.hexString=v;document.getElementById('colorPopupPreview').style.background=v;}catch(err){}}
     });
     document.getElementById('colorPopupOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('colorPopupOverlay'))closeColorPicker();});
+    document.getElementById('textEditOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('textEditOverlay'))closeTextEditModal();});
+    document.getElementById('textEditTextarea').addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveTextEditModal();}});
 });
 
 function initDecorate(){
@@ -2066,7 +2096,26 @@ function decorateEndInteract(e){
     if(e&&e.type!=='touchend'){isPinching=false;lastPinchDistance=0;}
     drawDecorate();
 }
-function decorateDoubleClick(e){const{x,y}=getDecoratePos(e);for(let i=texts.length-1;i>=0;i--){const t=texts[i];if(Math.abs(x-t.x)<120*t.scale&&Math.abs(y-t.y)<60*t.scale){const newContent=prompt('텍스트 수정 (엔터로 줄바꿈):',t.content);if(newContent!==null&&newContent.trim()){texts[i].content=newContent;saveHistory();drawDecorate();}return;}}}
+let textEditTargetIndex=-1;
+function openTextEditModal(textIdx){
+    const ov=document.getElementById('textEditOverlay'),ta=document.getElementById('textEditTextarea');
+    if(!ov||!ta||!texts[textIdx])return;
+    textEditTargetIndex=textIdx;
+    ta.value=texts[textIdx].content||'';
+    ov.classList.add('active');
+    requestAnimationFrame(()=>ta.focus());
+}
+function closeTextEditModal(){const ov=document.getElementById('textEditOverlay');if(ov)ov.classList.remove('active');textEditTargetIndex=-1;}
+function saveTextEditModal(){
+    if(textEditTargetIndex<0||!texts[textEditTargetIndex]){closeTextEditModal();return;}
+    const ta=document.getElementById('textEditTextarea');const val=(ta?.value||'');
+    if(!val.trim())return;
+    texts[textEditTargetIndex].content=val;
+    closeTextEditModal();
+    saveHistory();
+    drawDecorate();
+}
+function decorateDoubleClick(e){const{x,y}=getDecoratePos(e);for(let i=texts.length-1;i>=0;i--){const t=texts[i];if(Math.abs(x-t.x)<120*t.scale&&Math.abs(y-t.y)<60*t.scale){openTextEditModal(i);return;}}}
 function syncTextPanelToSelected(t){
     if(t.font)document.getElementById('textFont').value=t.font;
     if(t.size){document.getElementById('textSize').value=t.size;document.getElementById('textSizeVal').textContent=t.size+'px';}
@@ -2242,7 +2291,18 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
     </div>
 </div>
+<div class="text-edit-overlay" id="textEditOverlay">
+    <div class="text-edit-modal">
+        <div class="text-edit-title">텍스트 수정</div>
+        <textarea id="textEditTextarea" class="text-edit-area" placeholder="텍스트를 입력하세요 (엔터 줄바꿈)"></textarea>
+        <div class="text-edit-actions">
+            <button class="btn secondary" type="button" onclick="closeTextEditModal()">취소</button>
+            <button class="btn primary" type="button" onclick="saveTextEditModal()" style="margin-top:0;">적용</button>
+        </div>
+    </div>
+</div>
 <!-- 숨겨진 색상값 저장용 input -->
+<input type="hidden" id="ratioBgColorValue" value="#ffffff">
 <input type="hidden" id="textColor" value="#ffffff">
 <input type="hidden" id="textBgColor" value="#000000">
 <input type="hidden" id="textStrokeColor" value="#000000">
