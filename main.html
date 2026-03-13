@@ -1705,12 +1705,184 @@ function shareCroppedImage(){if(!croppedCanvas){alert('먼저 테두리 깎기�
 // ══════════════════════════════════════════
 let previewImg=new Image(),previewProfileImg=new Image(),previewCanvas,previewCtx,previewInitialized=false,previewMode='profile';
 let previewOffsetX=0,previewOffsetY=0,previewScl=1,previewIsDragging=false,previewStartX=0,previewStartY=0,previewInitialDistance=0,previewInitialScale=1,previewPinching=false;
-function initPreview(){if(previewInitialized)return;previewInitialized=true;previewCanvas=document.getElementById('previewCanvas');previewCtx=previewCanvas.getContext('2d');previewCanvas.width=500;previewCanvas.height=500;document.getElementById('previewUpload').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{previewImg.src=ev.target.result;previewImg.onload=()=>{previewOffsetX=0;previewOffsetY=0;previewScl=1;drawPreview();};};r.readAsDataURL(f);};document.getElementById('previewProfileUpload').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{previewProfileImg.src=ev.target.result;previewProfileImg.onload=()=>drawPreview();};r.readAsDataURL(f);};previewCanvas.addEventListener('mousedown',prvStartDrag);previewCanvas.addEventListener('touchstart',prvStartDrag,{passive:false});previewCanvas.addEventListener('mousemove',prvDrag);previewCanvas.addEventListener('touchmove',prvDrag,{passive:false});previewCanvas.addEventListener('mouseup',prvEndDrag);previewCanvas.addEventListener('touchend',prvEndDrag);previewCanvas.addEventListener('mouseleave',prvEndDrag);}
+function initPreview(){
+    if(previewInitialized)return;
+    previewInitialized=true;
+    previewCanvas=document.getElementById('previewCanvas');
+    previewCtx=previewCanvas.getContext('2d');
+    previewCanvas.width=500;
+    previewCanvas.height=500;
+
+    document.getElementById('previewUpload').onchange=e=>{
+        const f=e.target.files[0];if(!f)return;
+        const r=new FileReader();
+        r.onload=ev=>{
+            previewImg.src=ev.target.result;
+            previewImg.onload=()=>{
+                previewOffsetX=0;previewOffsetY=0;previewScl=1;
+                drawPreview();
+            };
+        };
+        r.readAsDataURL(f);
+    };
+
+    document.getElementById('previewProfileUpload').onchange=e=>{
+        const f=e.target.files[0];if(!f)return;
+        const r=new FileReader();
+        r.onload=ev=>{
+            previewProfileImg.src=ev.target.result;
+            previewProfileImg.onload=()=>drawPreview();
+        };
+        r.readAsDataURL(f);
+    };
+
+    previewCanvas.addEventListener('mousedown',prvStartDrag);
+    previewCanvas.addEventListener('touchstart',prvStartDrag,{passive:false});
+    previewCanvas.addEventListener('mousemove',prvDrag);
+    previewCanvas.addEventListener('touchmove',prvDrag,{passive:false});
+    previewCanvas.addEventListener('mouseup',prvEndDrag);
+    previewCanvas.addEventListener('touchend',prvEndDrag);
+    previewCanvas.addEventListener('mouseleave',prvEndDrag);
+
+    // 마우스 휠로도 크기 조절 가능하도록 추가
+    previewCanvas.addEventListener('wheel',e=>{
+        e.preventDefault();
+        if(!previewImg.src)return;
+        const delta=e.deltaY>0?0.9:1.1;
+        previewScl=Math.max(0.1,Math.min(5,previewScl*delta));
+        drawPreview();
+    },{passive:false});
+}
 function prvStartDrag(e){if(!previewImg.src)return;if(e.type==='touchstart')e.preventDefault();if(e.type==='touchstart'&&e.touches.length===2){previewInitialDistance=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);previewInitialScale=previewScl;previewPinching=true;previewIsDragging=false;return;}previewPinching=false;const rect=previewCanvas.getBoundingClientRect();const cx=e.type.startsWith('touch')?e.touches[0].clientX:e.clientX,cy=e.type.startsWith('touch')?e.touches[0].clientY:e.clientY;previewIsDragging=true;previewStartX=cx-rect.left-previewOffsetX;previewStartY=cy-rect.top-previewOffsetY;}
 function prvDrag(e){if(e.type==='touchmove')e.preventDefault();if(e.type==='touchmove'&&e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);previewScl=Math.max(0.1,Math.min(5,previewInitialScale*(d/previewInitialDistance)));drawPreview();return;}if(!previewIsDragging||previewPinching)return;const rect=previewCanvas.getBoundingClientRect();const cx=e.type.startsWith('touch')?e.touches[0].clientX:e.clientX,cy=e.type.startsWith('touch')?e.touches[0].clientY:e.clientY;previewOffsetX=cx-rect.left-previewStartX;previewOffsetY=cy-rect.top-previewStartY;drawPreview();}
 function prvEndDrag(e){previewIsDragging=false;if(e&&e.type==='touchend'&&(!e.touches||e.touches.length===0)){previewPinching=false;previewInitialDistance=0;}}
 function selectPreviewMode(m,el){previewMode=m;document.querySelectorAll('#previewScreen .ratio-btn').forEach(b=>b.classList.remove('selected'));if(el)el.classList.add('selected');if(previewImg.src)drawPreview();}
-function drawPreview(){if(!previewImg.src)return;if(previewMode==='profile'){previewCanvas.width=500;previewCanvas.height=500;}else if(previewMode==='youtube'){previewCanvas.width=500;previewCanvas.height=500*(1440/2560);}else if(previewMode==='twitter'){previewCanvas.width=500;previewCanvas.height=500*(500/1500);}else{previewCanvas.width=500;previewCanvas.height=500*(312/820);}previewCtx.fillStyle='#e0e0e0';previewCtx.fillRect(0,0,previewCanvas.width,previewCanvas.height);const s=Math.min(previewCanvas.width/previewImg.width,previewCanvas.height/previewImg.height)*previewScl;previewCtx.drawImage(previewImg,(previewCanvas.width-previewImg.width*s)/2+previewOffsetX,(previewCanvas.height-previewImg.height*s)/2+previewOffsetY,previewImg.width*s,previewImg.height*s);if(previewMode==='profile'){previewCtx.save();previewCtx.globalCompositeOperation='destination-in';previewCtx.beginPath();previewCtx.arc(previewCanvas.width/2,previewCanvas.height/2,previewCanvas.width/2,0,Math.PI*2);previewCtx.fill();previewCtx.restore();previewCtx.strokeStyle='#11593F';previewCtx.lineWidth=4;previewCtx.beginPath();previewCtx.arc(previewCanvas.width/2,previewCanvas.height/2,previewCanvas.width/2-2,0,Math.PI*2);previewCtx.stroke();}}
+function drawPreview(){
+    if(!previewImg.src)return;
+
+    // 캔버스 비율 설정
+    if(previewMode==='profile'){
+        previewCanvas.width=500;previewCanvas.height=500;
+    }else if(previewMode==='youtube'){
+        previewCanvas.width=500;previewCanvas.height=500*(1440/2560);
+    }else if(previewMode==='twitter'){
+        previewCanvas.width=500;previewCanvas.height=500*(500/1500);
+    }else{
+        // facebook
+        previewCanvas.width=500;previewCanvas.height=500*(312/820);
+    }
+
+    const cw=previewCanvas.width,ch=previewCanvas.height;
+    previewCtx.fillStyle='#e0e0e0';
+    previewCtx.fillRect(0,0,cw,ch);
+
+    // 배경 이미지(채널아트/헤더) 배치 + 드래그/확대 반영
+    const s=Math.min(cw/previewImg.width,ch/previewImg.height)*previewScl;
+    const bgW=previewImg.width*s,bgH=previewImg.height*s;
+    const bgX=(cw-bgW)/2+previewOffsetX;
+    const bgY=(ch-bgH)/2+previewOffsetY;
+    previewCtx.drawImage(previewImg,bgX,bgY,bgW,bgH);
+
+    if(previewMode==='profile'){
+        const cx=cw/2,cy=ch/2;
+        // 프로필 업로드가 있으면 별도 원형 영역에 렌더링
+        if(previewProfileImg && previewProfileImg.src){
+            const r=Math.min(cw,ch)*0.4;
+            const d=r*2;
+            const ps=Math.max(d/previewProfileImg.width,d/previewProfileImg.height);
+            const pw=previewProfileImg.width*ps,ph=previewProfileImg.height*ps;
+            const px=cx-pw/2,py=cy-ph/2;
+            previewCtx.save();
+            previewCtx.beginPath();
+            previewCtx.arc(cx,cy,r,0,Math.PI*2);
+            previewCtx.closePath();
+            previewCtx.clip();
+            previewCtx.drawImage(previewProfileImg,px,py,pw,ph);
+            previewCtx.restore();
+            previewCtx.strokeStyle='#11593F';
+            previewCtx.lineWidth=4;
+            previewCtx.beginPath();
+            previewCtx.arc(cx,cy,r-2,0,Math.PI*2);
+            previewCtx.stroke();
+        }else{
+            // 프로필 미지정 시 기존처럼 배경을 원형으로 보여주기
+            previewCtx.save();
+            previewCtx.globalCompositeOperation='destination-in';
+            previewCtx.beginPath();
+            previewCtx.arc(cx,cy,cw/2,0,Math.PI*2);
+            previewCtx.fill();
+            previewCtx.restore();
+            previewCtx.strokeStyle='#11593F';
+            previewCtx.lineWidth=4;
+            previewCtx.beginPath();
+            previewCtx.arc(cx,cy,cw/2-2,0,Math.PI*2);
+            previewCtx.stroke();
+        }
+    }else{
+        // 채널아트/헤더의 안전 영역 가이드라인
+        if(previewMode==='youtube'){
+            // 전체 2560x1440 중 중앙 1546x423 영역이 모든 디바이스 공통 안전 영역
+            const scaleX=cw/2560,scaleY=ch/1440;
+            const safeW=1546*scaleX,safeH=423*scaleY;
+            const sx=(cw-safeW)/2,sy=(ch-safeH)/2;
+            previewCtx.save();
+            previewCtx.strokeStyle='rgba(17,89,63,0.9)';
+            previewCtx.lineWidth=2;
+            previewCtx.setLineDash([8,4]);
+            previewCtx.strokeRect(sx,sy,safeW,safeH);
+            previewCtx.setLineDash([]);
+            previewCtx.fillStyle='rgba(17,89,63,0.12)';
+            previewCtx.fillRect(sx,sy,safeW,safeH);
+            previewCtx.fillStyle='rgba(0,0,0,0.7)';
+            previewCtx.font='bold 12px sans-serif';
+            previewCtx.textAlign='center';
+            previewCtx.fillText('YouTube 모든 디바이스 안전 영역',cw/2,sy+16);
+            previewCtx.restore();
+        }else if(previewMode==='twitter'){
+            // 전체 1500x500 기준 중앙 1350x350 영역을 안전 영역으로 표시
+            const scaleX=cw/1500,scaleY=ch/500;
+            const safeW=1350*scaleX,safeH=350*scaleY;
+            const sx=(cw-safeW)/2,sy=(ch-safeH)/2;
+            previewCtx.save();
+            previewCtx.strokeStyle='rgba(25,118,210,0.9)';
+            previewCtx.lineWidth=2;
+            previewCtx.setLineDash([8,4]);
+            previewCtx.strokeRect(sx,sy,safeW,safeH);
+            previewCtx.setLineDash([]);
+            previewCtx.fillStyle='rgba(25,118,210,0.10)';
+            previewCtx.fillRect(sx,sy,safeW,safeH);
+            previewCtx.fillStyle='rgba(0,0,0,0.7)';
+            previewCtx.font='bold 12px sans-serif';
+            previewCtx.textAlign='center';
+            previewCtx.fillText('Twitter/X 추천 안전 영역',cw/2,sy+16);
+            previewCtx.restore();
+        }
+
+        // 헤더 미리보기에도 프로필 이미지가 있다면 좌측 하단에 겹쳐서 표시
+        if(previewProfileImg && previewProfileImg.src){
+            const avatarSize=Math.min(ch*0.6,cw*0.2);
+            const r=avatarSize/2;
+            const ax=Math.max(r+8,cw*0.16);
+            const ay=ch-r-8;
+            const d=avatarSize;
+            const ps=Math.max(d/previewProfileImg.width,d/previewProfileImg.height);
+            const pw=previewProfileImg.width*ps,ph=previewProfileImg.height*ps;
+            const px=ax-pw/2,py=ay-ph/2;
+            previewCtx.save();
+            previewCtx.beginPath();
+            previewCtx.arc(ax,ay,r,0,Math.PI*2);
+            previewCtx.closePath();
+            previewCtx.clip();
+            previewCtx.drawImage(previewProfileImg,px,py,pw,ph);
+            previewCtx.restore();
+            previewCtx.strokeStyle='#ffffff';
+            previewCtx.lineWidth=3;
+            previewCtx.beginPath();
+            previewCtx.arc(ax,ay,r-1,0,Math.PI*2);
+            previewCtx.stroke();
+        }
+    }
+}
 function downloadPreviewImage(){if(!previewImg.src){alert('먼저 이미지를 업로드해주세요!');return;}let dw,dh;if(previewMode==='profile'){dw=dh=1080;}else if(previewMode==='youtube'){dw=2560;dh=1440;}else if(previewMode==='twitter'){dw=1500;dh=500;}else{dw=820;dh=312;}const dc=document.createElement('canvas');dc.width=dw;dc.height=dh;const dx=dc.getContext('2d');const s=Math.min(dw/previewImg.width,dh/previewImg.height);dx.drawImage(previewImg,(dw-previewImg.width*s)/2,(dh-previewImg.height*s)/2,previewImg.width*s,previewImg.height*s);downloadCanvas(dc,`지망생_미리보기_${previewMode}_${getFmtDate()}.png`);}
 function sharePreviewImage(){if(!previewImg.src){alert('먼저 이미지를 업로드해주세요!');return;}shareImage(previewCanvas,`미리보기_${previewMode}.png`);}
 
