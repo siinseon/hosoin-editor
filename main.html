@@ -581,8 +581,9 @@
             <div class="tool-section">
                 <div class="section-title">캔버스 배경</div>
                 <div class="collage-bg-row">
-                    <label for="collageBgColor">배경색</label>
-                    <input type="color" id="collageBgColor" value="#ffffff" style="width:48px;height:40px;border:1px solid #ddd;border-radius:8px;background:white;cursor:pointer;">
+                    <label>배경색</label>
+                    <div class="color-picker-btn" id="collageBgColorBtn" style="background:#ffffff;width:46px;height:46px;" onclick="openColorPicker('collageBgColorValue','배경색',this)"></div>
+                    <button class="btn secondary small" type="button" onclick="openColorPicker('collageBgColorValue','배경색',document.getElementById('collageBgColorBtn'))">색상 선택</button>
                 </div>
                 <div class="collage-bg-row" style="margin-bottom:0;">
                     <label>배경 이미지</label>
@@ -760,12 +761,10 @@
                     <button class="btn danger small" onclick="deleteSelectedItem()">삭제</button>
                 </div>
                 <div class="color-row-compact" style="margin-top:10px;">
-                <input type="range" id="itemScale" min="10" max="300" value="100" style="display:none;" oninput="applyItemScale(this.value)">
+                <input type="range" id="itemScale" min="1" max="5000" value="100" style="display:none;" oninput="applyItemScale(this.value)">
                 <span id="itemScaleVal" style="display:none;">100%</span>
                     <label>스티커 테두리</label>
-                    <div class="color-picker-btn" id="itemBorderColorBtn" style="background:#000000;">
-                        <input type="color" id="itemBorderColor" value="#000000" oninput="document.getElementById('itemBorderColorBtn').style.background=this.value;applyStickerBorder()">
-                    </div>
+                    <div class="color-picker-btn" id="itemBorderColorBtn" style="background:#000000;" onclick="openColorPicker('itemBorderColor','스티커 테두리색',this)"></div>
                     <input type="range" id="itemBorderWidth" min="0" max="20" value="0" style="flex:1;margin-left:8px;" oninput="applyStickerBorder()">
                 </div>
             </div>
@@ -1415,8 +1414,7 @@ async function applyFeatureState(featureId, state, options){
                 if(gapEl) gapEl.value = String(state.gap ?? 10);
                 const gapVal = document.getElementById('collageGapValue');
                 if(gapVal) gapVal.textContent = `${state.gap ?? 10}px`;
-                const bgColorEl = document.getElementById('collageBgColor');
-                if(bgColorEl) bgColorEl.value = collageBgColor;
+                setCollageBgColor(collageBgColor);
                 const loaded = await Promise.all((state.images||[]).map(async it => {
                     const img = await loadImageFromSrc(it.src);
                     if(!img) return null;
@@ -1616,7 +1614,6 @@ function setupFeatureHistoryHooks(){
     bind('mergeOverlayUpload','change','merge');
     bind('collageUpload','change','collage');
     bind('collageGap','input','collage',50);
-    bind('collageBgColor','input','collage',50);
     bind('collageBgImageUpload','change','collage',180);
     bind('decorateUpload','change','decorate',180);
     bind('stickerUpload','change','decorate',180);
@@ -1752,12 +1749,13 @@ function initCollage(){
     selectCollageMode('freeform');
     document.getElementById('collageUpload').onchange=async e=>{const files=Array.from(e.target.files);if(collageImages_arr.length+files.length>10){alert('최대 10개까지!');return;}showLoading('이미지 불러오는 중...');const proms=files.map(f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=ev=>{const img=new Image();img.onload=()=>res({img,name:f.name,size:(f.size/1024).toFixed(1)+' KB',scale:1,x:0,y:0,rotation:0,placed:false});img.onerror=rej;img.src=ev.target.result;};r.onerror=rej;r.readAsDataURL(f);}));try{const loaded=await Promise.all(proms);collageImages_arr.push(...loaded);updateCollagePreview();}catch(err){alert('일부 이미지를 불러올 수 없습니다.');}finally{hideLoading(true);}e.target.value='';};
     document.getElementById('collageGap').oninput=()=>{document.getElementById('collageGapValue').textContent=document.getElementById('collageGap').value+'px';createCollage();};
-    const bgColorEl=document.getElementById('collageBgColor');if(bgColorEl){bgColorEl.oninput=e=>{collageBgColor=e.target.value;createCollage();};}
+    setCollageBgColor(collageBgColor);
     const bgUploadEl=document.getElementById('collageBgImageUpload');if(bgUploadEl){bgUploadEl.onchange=e=>{const f=e.target.files[0];if(!f)return;showLoading('이미지 불러오는 중...');const r=new FileReader();r.onload=ev=>{const img=new Image();img.onload=()=>{collageBgImage=img;setCollageBgPreview();createCollage();hideLoading();};img.onerror=()=>hideLoading(true);img.src=ev.target.result;};r.onerror=()=>hideLoading(true);r.readAsDataURL(f);e.target.value='';};}
     setCollageBgPreview();
     setupCollageTouch();
 }
 function setCollageBgPreview(){const p=document.getElementById('collageBgPreview');if(!p)return;if(collageBgImage&&collageBgImage.src){p.style.backgroundImage=`url(${collageBgImage.src})`;p.classList.add('has-image');}else{p.style.backgroundImage='none';p.classList.remove('has-image');}}
+function setCollageBgColor(color){collageBgColor=color||'#ffffff';const h=document.getElementById('collageBgColorValue');if(h)h.value=collageBgColor;const b=document.getElementById('collageBgColorBtn');if(b){b.style.background=collageBgColor;b.style.border='2px solid #ddd';}createCollage();}
 function clearCollageBgImage(){collageBgImage=null;setCollageBgPreview();createCollage();}
 function updateCollageSelectedPanel(){const panel=document.getElementById('collageSelectedPanel');const rot=document.getElementById('collageRotate');const rotVal=document.getElementById('collageRotateValue');if(!panel||!rot||!rotVal)return;if(collageSelectedImageIndex<0||!collageImages_arr[collageSelectedImageIndex]){panel.style.display='none';return;}const item=collageImages_arr[collageSelectedImageIndex];const deg=Math.round(((item.rotation||0)*180/Math.PI));rot.value=String(deg);rotVal.textContent=deg+'°';panel.style.display='block';}
 function applyCollageRotation(value){const idx=collageSelectedImageIndex;if(idx<0||!collageImages_arr[idx])return;const deg=parseFloat(value)||0;collageImages_arr[idx].rotation=(deg*Math.PI)/180;document.getElementById('collageRotateValue').textContent=Math.round(deg)+'°';createCollage();}
@@ -1841,7 +1839,7 @@ function shareCollageImage(){if(!collageImages_arr.length){alert('먼저 이미�
 let decorateCanvas,decorateCtx,decorateInitialized=false;
 let decorateImg=new Image(),decorateScale=1,decorateOriginX=0,decorateOriginY=0;
 let decorateIsDragging=false,decorateStartX=0,decorateStartY=0;
-let lastPinchDistance=0,isPinching=false;
+let lastPinchDistance=0,isPinching=false,pinchStartAngle=0,pinchStartScale=1,pinchStartRotation=0;
 let texts=[],stickers=[],selectedTextIndex=-1,selectedStickerIndex=-1;
 let decorateHistory=[],decorateHistoryIndex=-1;
 const MAX_HISTORY=50;
@@ -1888,6 +1886,8 @@ function confirmColorPicker(){
     if(_colorBtnEl){_colorBtnEl.style.background=hex;_colorBtnEl.style.border='2px solid #ddd';}
     if(_colorTarget==='textBgColor'){currentTextStyle.bgColor=hex;liveUpdateSelectedText();}
     else if(_colorTarget==='ratioBgColorValue'){selectBgColor(hex);pushFeatureHistory('ratio');}
+    else if(_colorTarget==='collageBgColorValue'){setCollageBgColor(hex);pushFeatureHistory('collage');}
+    else if(_colorTarget==='itemBorderColor'){applyStickerBorder();saveHistory();}
     else if(_colorTarget==='textColor'||_colorTarget==='textStrokeColor'||_colorTarget==='textShadowColor'){liveUpdateSelectedText();}
     closeColorPicker();
 }
@@ -2056,7 +2056,20 @@ function getHandleAt(item,isSticker,px,py){
 }
 
 function decorateStartInteract(e){
-    if(e.type==='touchstart'){e.preventDefault();if(e.touches&&e.touches.length===2){isPinching=true;const t1=e.touches[0],t2=e.touches[1];lastPinchDistance=Math.hypot(t2.clientX-t1.clientX,t2.clientY-t1.clientY);return;}}
+    if(e.type==='touchstart'){
+        e.preventDefault();
+        if(e.touches&&e.touches.length===2){
+            const item=selectedStickerIndex!==-1?stickers[selectedStickerIndex]:selectedTextIndex!==-1?texts[selectedTextIndex]:null;
+            if(!item){isPinching=false;lastPinchDistance=0;return;}
+            isPinching=true;
+            const t1=e.touches[0],t2=e.touches[1];
+            lastPinchDistance=Math.hypot(t2.clientX-t1.clientX,t2.clientY-t1.clientY);
+            pinchStartAngle=Math.atan2(t2.clientY-t1.clientY,t2.clientX-t1.clientX);
+            pinchStartScale=item.scale||1;
+            pinchStartRotation=item.rotation||0;
+            return;
+        }
+    }
     const{x,y}=getDecoratePos(e);
     // 변환 핸들 검사 (현재 선택된 아이템)
     if(selectedStickerIndex!==-1){
@@ -2078,7 +2091,24 @@ function decorateStartInteract(e){
     if(!hit){pendingSelect=null;selectedStickerIndex=-1;selectedTextIndex=-1;document.getElementById('selectedItemPanel').style.display='none';drawDecorate();}
 }
 function decorateMove(e){
-    if(e.type==='touchmove'){e.preventDefault();if(isPinching&&e.touches&&e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);if(lastPinchDistance>0){const sd=d/lastPinchDistance;if(selectedStickerIndex!==-1){stickers[selectedStickerIndex].scale=Math.max(0.1,Math.min(5,stickers[selectedStickerIndex].scale*sd));document.getElementById('itemScale').value=Math.round(stickers[selectedStickerIndex].scale*100);}else if(selectedTextIndex!==-1){texts[selectedTextIndex].scale=Math.max(0.1,Math.min(5,texts[selectedTextIndex].scale*sd));document.getElementById('itemScale').value=Math.round(texts[selectedTextIndex].scale*100);}drawDecorate();}lastPinchDistance=d;return;}}
+    if(e.type==='touchmove'){
+        e.preventDefault();
+        if(isPinching&&e.touches&&e.touches.length===2){
+            const item=selectedStickerIndex!==-1?stickers[selectedStickerIndex]:selectedTextIndex!==-1?texts[selectedTextIndex]:null;
+            if(!item)return;
+            const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+            const angle=Math.atan2(e.touches[1].clientY-e.touches[0].clientY,e.touches[1].clientX-e.touches[0].clientX);
+            if(lastPinchDistance>0){
+                const scaleFactor=d/lastPinchDistance;
+                item.scale=Math.max(0.01,(pinchStartScale||1)*scaleFactor);
+                item.rotation=(pinchStartRotation||0)+(angle-pinchStartAngle);
+                document.getElementById('itemScale').value=Math.min(5000,Math.max(1,Math.round(item.scale*100)));
+                document.getElementById('itemScaleVal').textContent=Math.round(item.scale*100)+'%';
+                drawDecorate();
+            }
+            return;
+        }
+    }
     const{x,y}=getDecoratePos(e);
     // 변환 핸들 조작
     if(transformHandle){
@@ -2093,7 +2123,7 @@ function decorateMove(e){
             // 크기 조절
             const dist=Math.hypot(x-transformAnchorX,y-transformAnchorY);
             const startDist=Math.hypot(decorateStartX-transformAnchorX,decorateStartY-transformAnchorY);
-            if(startDist>0){item.scale=Math.max(0.1,Math.min(5,transformStartScale*(dist/startDist)));document.getElementById('itemScale').value=Math.round(item.scale*100);document.getElementById('itemScaleVal').textContent=Math.round(item.scale*100)+'%';}
+            if(startDist>0){item.scale=Math.max(0.01,transformStartScale*(dist/startDist));document.getElementById('itemScale').value=Math.min(5000,Math.max(1,Math.round(item.scale*100)));document.getElementById('itemScaleVal').textContent=Math.round(item.scale*100)+'%';}
         }
         drawDecorate();return;
     }
@@ -2128,8 +2158,8 @@ function decorateEndInteract(e){
     pendingSelect=null;
     if(decorateIsDragging){decorateIsDragging=false;saveHistory();}
     if(transformHandle){transformHandle=null;saveHistory();}
-    if(e&&e.type==='touchend'&&(!e.touches||e.touches.length===0)){if(isPinching){isPinching=false;lastPinchDistance=0;saveHistory();}}
-    if(e&&e.type!=='touchend'){isPinching=false;lastPinchDistance=0;}
+    if(e&&e.type==='touchend'&&(!e.touches||e.touches.length===0)){if(isPinching){isPinching=false;lastPinchDistance=0;pinchStartAngle=0;saveHistory();}}
+    if(e&&e.type!=='touchend'){isPinching=false;lastPinchDistance=0;pinchStartAngle=0;}
     drawDecorate();
 }
 let textEditTargetIndex=-1;
@@ -2346,6 +2376,8 @@ document.addEventListener('DOMContentLoaded', () => {
 </div>
 <!-- 숨겨진 색상값 저장용 input -->
 <input type="hidden" id="ratioBgColorValue" value="#ffffff">
+<input type="hidden" id="collageBgColorValue" value="#ffffff">
+<input type="hidden" id="itemBorderColor" value="#000000">
 <input type="hidden" id="textColor" value="#ffffff">
 <input type="hidden" id="textBgColor" value="#000000">
 <input type="hidden" id="textStrokeColor" value="#000000">
