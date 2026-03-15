@@ -706,7 +706,7 @@
                     <!-- 글자색 / 배경색 -->
                     <div class="color-row-compact">
                         <label>글자색</label>
-                        <div class="color-picker-btn" id="textColorBtn" style="background:#ffffff;" onclick="openColorPicker('textColor','글자색',this)"></div>
+                        <div class="color-picker-btn" id="textColorBtn" style="background:#000000;" onclick="openColorPicker('textColor','글자색',this)"></div>
                         <label style="margin-left:8px;">배경색</label>
                         <div class="color-picker-btn" id="textBgColorBtn" style="background:transparent;border:2px dashed #aaa;" title="없음(투명)=클릭후 취소" onclick="openColorPicker('textBgColor','배경색',this)"></div>
                         <button class="btn small" onclick="clearTextBgColor()" style="background:#aaa;font-size:11px;padding:5px 8px;min-height:30px;">투명</button>
@@ -1966,6 +1966,7 @@ window.addText=function(){
     const input=document.getElementById('textInput');
     const content=input.value;if(!content.trim())return;
     const st=getTextStyleFromUI();
+    st.align='center';st.color='#000000';
     texts.push({content,x:decorateCanvas.width/2,y:decorateCanvas.height/2,scale:1,...st});
     input.value='';saveHistory();drawDecorate();
 };
@@ -2073,7 +2074,7 @@ function drawTextItem(t,i,exportMode){
     const ef=t.effect||'none',sw=t.strokeWidth||0,sc2=t.strokeColor||'#000',col=t.color||'#fff',useShadow=!!(t.shadowBlur>0);
     function lineWidth(line){if(ls!==0&&line.length){let w=0;for(let c=0;c<line.length;c++)w+=ctx.measureText(line[c]).width;return w+(line.length-1)*ls;}return ctx.measureText(line).width;}
     function drawLine(line,ly){const al=t.align||'center';const lw=lineWidth(line);const startX=al==='center'?-lw/2:al==='right'?-lw:0;
-        const drawStr=(str,ox,oy)=>{const y=ly+(oy||0);if(ls!==0&&str.length){const prevAlign=ctx.textAlign;ctx.textAlign='left';let px=ox;for(let c=0;c<str.length;c++){ctx.fillText(str[c],px,y);px+=ctx.measureText(str[c]).width+ls;}if(ef==='outline'||sw>0){let px2=ox;for(let c=0;c<str.length;c++){ctx.strokeText(str[c],px2,y);px2+=ctx.measureText(str[c]).width+ls;}}ctx.textAlign=prevAlign;}else{ctx.fillText(str,ox,y);if(ef==='outline'||sw>0)ctx.strokeText(str,ox,y);}};
+        const drawStr=(str,ox,oy)=>{const y=ly+(oy||0);if(ls!==0&&str.length){const prevAlign=ctx.textAlign;ctx.textAlign='left';let px=ox;for(let c=0;c<str.length;c++){ctx.fillText(str[c],px,y);px+=ctx.measureText(str[c]).width+ls;}if(ef==='outline'||sw>0){let px2=ox;for(let c=0;c<str.length;c++){ctx.strokeText(str[c],px2,y);px2+=ctx.measureText(str[c]).width+ls;}}ctx.textAlign=prevAlign;}else{ctx.fillText(str,0,y);if(ef==='outline'||sw>0)ctx.strokeText(str,0,y);}};
         ctx.shadowBlur=0;ctx.shadowOffsetX=0;ctx.shadowOffsetY=0;
         if(ef==='neon'){ctx.strokeStyle=col;ctx.lineWidth=fs/5;ctx.lineJoin='round';ctx.shadowColor=col;ctx.shadowBlur=25;drawStr(line,startX);ctx.shadowBlur=50;drawStr(line,startX);ctx.shadowBlur=0;ctx.fillStyle='#fff';drawStr(line,startX);}
         else if(ef==='emboss'){ctx.fillStyle='rgba(255,255,255,0.5)';drawStr(line,startX-1,-1);ctx.fillStyle='rgba(0,0,0,0.5)';drawStr(line,startX+1,1);ctx.fillStyle=col;drawStr(line,startX);}
@@ -2476,7 +2477,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <input type="hidden" id="ratioBgColorValue" value="#ffffff">
 <input type="hidden" id="collageBgColorValue" value="#ffffff">
 <input type="hidden" id="itemBorderColor" value="#000000">
-<input type="hidden" id="textColor" value="#ffffff">
+<input type="hidden" id="textColor" value="#000000">
 <input type="hidden" id="textBgColor" value="#000000">
 <input type="hidden" id="textStrokeColor" value="#000000">
 <input type="hidden" id="textShadowColor" value="#000000">
