@@ -23,24 +23,26 @@
         }
         html, body { overscroll-behavior: none; -webkit-overflow-scrolling: touch; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: rgba(45,90,39,0.1); touch-action: manipulation; }
-        body { font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg-gray); margin: 0; padding: 10px; color: var(--text-main); }
+        body { font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg-gray); margin: 0; padding: 10px; padding-bottom: 40px !important; color: var(--text-main); }
         @media (min-width: 768px) { body { padding: 20px; } }
 
         .app-container { max-width: 600px; margin: 0 auto; background: var(--surface); border-radius: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid rgba(0,0,0,0.05); }
         .app-footer {
+            display: block !important;
             max-width: 600px;
-            margin: 90px auto 0;
-            padding: 36px 20px 56px;
+            margin: 48px auto 0 !important;
+            padding: 6px 20px 8px !important;
             text-align: center;
             background: #f8f9fa;
             border-radius: 16px;
             border: 1px solid #eceff1;
         }
         .app-footer p {
-            margin: 0;
-            font-size: 13px;
-            color: #666;
-            line-height: 1.7;
+            display: block !important;
+            margin: 0 !important;
+            font-size: 11px !important;
+            color: #666 !important;
+            line-height: 1.35 !important;
         }
         .app-header { background: var(--primary); color: white; padding: 15px 20px; display: flex; align-items: center; justify-content: center; position: relative; }
         .app-header h1 { margin: 0; font-size: 20px; font-weight: 700; }
@@ -90,9 +92,9 @@
             font-weight: 700;
         }
 
-        #mainMenu { padding: 0; }
+        #mainMenu { padding: 0 0 100px 0 !important; min-height: 0; }
         .menu-title { text-align: center; font-size: clamp(18px,4.5vw,24px); font-weight: 800; color: var(--primary); margin-bottom: 30px; }
-        .menu-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
+        .menu-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin-bottom: 0; }
         @media (min-width: 768px) { .menu-grid { grid-template-columns: 1fr 1fr 1fr; } }
 
         /* 메뉴 카드 (순서 버튼 포함) */
@@ -428,7 +430,7 @@
             <div class="menu-title" style="margin:0; text-align:left;">기능 선택</div>
             <button class="sort-toggle-btn" id="sortToggleBtn" onclick="toggleEditMode()">순서 변경</button>
         </div>
-        <div class="menu-grid" id="menuGrid" style="padding: 16px 20px 0;">
+        <div class="menu-grid" id="menuGrid" style="padding: 16px 20px 32px;">
             <!-- 카드는 JS로 렌더링 -->
         </div>
     </div>

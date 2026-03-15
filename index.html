@@ -75,7 +75,7 @@
             font-weight: 700;
         }
 
-        #mainMenu { padding: 0; }
+        #mainMenu { padding: 0 0 100px 0 !important; }
         .menu-title { text-align: center; font-size: clamp(18px,4.5vw,24px); font-weight: 800; color: var(--primary); margin-bottom: 30px; }
         .menu-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
         @media (min-width: 768px) { .menu-grid { grid-template-columns: 1fr 1fr 1fr; } }
@@ -413,7 +413,7 @@
             <div class="menu-title" style="margin:0; text-align:left;">기능 선택</div>
             <button class="sort-toggle-btn" id="sortToggleBtn" onclick="toggleEditMode()">순서 변경</button>
         </div>
-        <div class="menu-grid" id="menuGrid" style="padding: 16px 20px 0;">
+        <div class="menu-grid" id="menuGrid" style="padding: 16px 20px 32px;">
             <!-- 카드는 JS로 렌더링 -->
         </div>
     </div>
@@ -2394,7 +2394,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch(e) {}
 });
 </script>
-<footer style="text-align:center;padding:20px;background:#f8f9fa;"><p style="margin:0;font-size:13px;color:#666;">© 2026 인플루언서 지망생 에디터 by 김쌔랭.</p></footer>
+<footer style="display:block;text-align:center;padding:6px 20px 8px;background:#f8f9fa;margin-top:48px;"><p style="margin:0;font-size:11px;color:#666;line-height:1.35;">© 2026 인플루언서 지망생 에디터 by 김쌔랭.</p></footer>
 
 <!-- 컬러픽커 팝업 -->
 <div class="color-popup-overlay" id="colorPopupOverlay">
