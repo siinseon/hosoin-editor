@@ -762,10 +762,12 @@
         }
         .preview-thumb {
             width: 60px;
-            height: 60px;
-            object-fit: cover;
+            height: auto;
+            max-height: 80px;
+            object-fit: contain;
             border-radius: 6px;
-            background: #eee;
+            background: #f0f0f0;
+            display: block;
         }
         .preview-info {
             flex: 1;
