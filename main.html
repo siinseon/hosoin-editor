@@ -275,7 +275,7 @@
         .ratio-bg-btns { display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap; }
         .ratio-bg-sq { width: 48px; height: 48px; border-radius: 10px; border: 2px solid #ddd; cursor: pointer; padding: 0; flex-shrink: 0; transition: transform 0.2s, box-shadow 0.2s; }
         .ratio-bg-sq:hover { transform: scale(1.05); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-        .ratio-bg-sq.ratio-bg-picker { font-size: 22px; background: linear-gradient(135deg,#f5f5f5,#e8e8e8) !important; color: #555; }
+        .ratio-bg-sq.ratio-bg-picker { font-size: 11px; font-weight: 700; background: linear-gradient(135deg,#f5f5f5,#e8e8e8) !important; color: #555; }
 
         .layer-select-btns { display: flex; gap: 8px; margin-bottom: 16px; }
         .layer-select-btn { flex: 1; padding: 12px; border: 2px solid var(--border); border-radius: 12px; background: white; cursor: pointer; font-size: 13px; font-weight: 700; color: #666; transition: all 0.2s; text-align: center; }
@@ -470,7 +470,7 @@
                     <button type="button" class="ratio-bg-sq" style="background:#ffffff;border:2px solid #e0e0e0;" onclick="selectBgColor('#ffffff')" title="흰색"></button>
                     <button type="button" class="ratio-bg-sq" style="background:#000000;" onclick="selectBgColor('#000000')" title="검은색"></button>
                     <button type="button" class="ratio-bg-sq" style="background:#11593F;" onclick="selectBgColor('#11593F')" title="초록색"></button>
-                    <button type="button" class="ratio-bg-sq ratio-bg-picker" id="ratioBgColorBtn" onclick="openColorPicker('ratioBgColorValue','배경색',this)" title="색상 선택">🎨</button>
+                    <button type="button" class="ratio-bg-sq ratio-bg-picker" id="ratioBgColorBtn" onclick="openColorPicker('ratioBgColorValue','배경색',this)" title="색상 선택">선택</button>
                 </div>
             </div>
             <div class="tool-section">
