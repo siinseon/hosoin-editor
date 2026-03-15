@@ -45,13 +45,15 @@
       background: var(--green);
       position: relative;
       overflow: hidden;
+      min-height: 100vh;
       min-height: 100svh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 60px 24px 80px;
+      padding: 40px 16px 70px;
+      box-sizing: border-box;
     }
 
     /* decorative shapes */
@@ -149,6 +151,7 @@
     .btn-primary {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
       background: var(--white);
       color: var(--green);
@@ -163,6 +166,8 @@
       box-shadow: 0 8px 32px rgba(0,0,0,.25);
       transition: transform .22s ease, box-shadow .22s ease, background .22s;
       animation: fadeDown .7s .45s ease both;
+      max-width: 100%;
+      min-width: 0;
     }
     .btn-primary:hover {
       transform: translateY(-3px) scale(1.03);
@@ -200,8 +205,9 @@
     /* ─── ADVANTAGES ────────────────────────────────────────────────────── */
     .advantages {
       background: var(--white);
-      padding: 80px 24px;
+      padding: 48px 16px;
       text-align: center;
+      box-sizing: border-box;
     }
 
     .section-eyebrow {
@@ -223,12 +229,13 @@
     }
 
     .adv-grid {
-      display: grid;
-      grid-template-columns: 1fr;
+      display: flex;
+      flex-wrap: wrap;
       gap: 20px;
-      max-width: 600px;
-      width: fit-content;
+      max-width: 960px;
+      width: 100%;
       margin: 0 auto 48px;
+      justify-content: center;
     }
 
     .adv-card {
@@ -240,6 +247,8 @@
       flex-direction: row;
       align-items: center;
       gap: 20px;
+      flex: 1 1 280px;
+      min-width: 0;
       transition: transform .22s ease, box-shadow .22s ease;
       text-align: left;
     }
@@ -250,6 +259,7 @@
 
     .adv-icon {
       width: 52px; height: 52px;
+      min-width: 52px;
       background: var(--green);
       border-radius: 14px;
       display: flex;
@@ -262,14 +272,13 @@
       font-size: 1.05rem;
       font-weight: 700;
       color: var(--green-dark);
-      white-space: nowrap;
     }
 
     .adv-desc {
       font-size: .88rem;
       color: var(--gray-text);
       line-height: 1.5;
-      white-space: nowrap;
+      min-width: 0;
     }
 
     .highlight-box {
@@ -278,38 +287,46 @@
       border-radius: 20px;
       padding: 24px 32px;
       max-width: 540px;
+      width: 100%;
       margin: 0 auto;
       font-size: 1.1rem;
       font-weight: 700;
       letter-spacing: -.01em;
       box-shadow: 0 8px 32px rgba(17,89,63,.25);
+      box-sizing: border-box;
     }
     /* ─── FEATURES ──────────────────────────────────────────────────────── */
     .features {
       background: var(--gray-bg);
-      padding: 80px 24px;
+      padding: 48px 16px;
       text-align: center;
+      box-sizing: border-box;
     }
 
     .feat-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
       max-width: 960px;
       margin: 0 auto;
+      justify-content: center;
     }
 
     .feat-card {
       background: var(--white);
       border: 1.5px solid #e0ece6;
       border-radius: 18px;
-      padding: 28px 20px 24px;
+      padding: 24px 16px 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 12px;
+      flex: 1 1 140px;
+      min-width: 0;
+      max-width: 240px;
       cursor: default;
       transition: transform .22s ease, box-shadow .22s ease, border-color .22s;
+      box-sizing: border-box;
     }
     .feat-card:hover {
       transform: translateY(-6px);
@@ -347,10 +364,11 @@
     /* ─── FOOTER CTA ────────────────────────────────────────────────────── */
     .footer-cta {
       background: var(--green);
-      padding: 80px 24px 40px;
+      padding: 48px 16px 32px;
       text-align: center;
       position: relative;
       overflow: hidden;
+      box-sizing: border-box;
     }
     .footer-cta::before {
       content: '';
@@ -394,6 +412,7 @@
     .btn-secondary {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
       background: transparent;
       color: var(--white);
@@ -406,6 +425,8 @@
       border: 2px solid rgba(255,255,255,.6);
       cursor: pointer;
       transition: background .22s, border-color .22s, transform .22s;
+      max-width: 100%;
+      min-width: 0;
     }
     .btn-secondary:hover {
       background: rgba(255,255,255,.12);
@@ -445,13 +466,63 @@
       transform: translateY(0);
     }
 
-    /* ─── RESPONSIVE ────────────────────────────────────────────────────── */
+    /* ─── RESPONSIVE: 모바일 / 태블릿 / PC ───────────────────────────────── */
     @media (max-width: 480px) {
-      .adv-grid { grid-template-columns: 1fr; }
-      .feat-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero {
+        padding: 32px 12px 56px;
+      }
+      .hero-badge { font-size: .85rem; padding: 6px 14px; }
+      .hero-title { font-size: clamp(1.75rem, 8vw, 2.4rem); }
+      .hero-sub { font-size: .95rem; margin-bottom: 32px; }
+      .btn-primary, .btn-secondary { width: 100%; max-width: 300px; padding: 14px 24px; }
+      .advantages { padding: 40px 12px; }
+      .section-title { margin-bottom: 32px; font-size: 1.5rem; }
+      .adv-grid { flex-direction: column; gap: 16px; margin-bottom: 32px; }
+      .adv-card { flex: none; flex-direction: column; text-align: center; padding: 20px 16px; }
+      .adv-icon { margin: 0 auto; }
+      .highlight-box { padding: 18px 20px; font-size: 1rem; margin: 0 12px; }
+      .features { padding: 40px 12px; }
+      .feat-grid { gap: 12px; }
+      .feat-card { flex: 1 1 calc(50% - 8px); min-width: 120px; max-width: none; padding: 20px 12px 16px; }
+      .feat-name { font-size: .88rem; }
+      .feat-desc { font-size: .75rem; }
+      .footer-cta { padding: 40px 12px 24px; }
+      .footer-cta h2 { font-size: 1.4rem; }
+      .footer-divider { margin: 32px 0 16px; }
     }
+
     @media (min-width: 481px) and (max-width: 768px) {
-      .feat-grid { grid-template-columns: repeat(3, 1fr); }
+      .hero { padding: 56px 20px 80px; }
+      .advantages { padding: 64px 20px; }
+      .section-title { margin-bottom: 40px; }
+      .adv-grid { gap: 20px; }
+      .adv-card { flex: 1 1 calc(50% - 10px); max-width: 100%; }
+      .features { padding: 64px 20px; }
+      .feat-grid { gap: 18px; }
+      .feat-card { flex: 1 1 calc(33.333% - 14px); min-width: 150px; max-width: 220px; padding: 24px 16px 20px; }
+      .footer-cta { padding: 64px 20px 36px; }
+    }
+
+    @media (min-width: 769px) {
+      .hero { padding: 60px 24px 80px; }
+      .advantages { padding: 80px 24px; }
+      .adv-card { flex: 1 1 280px; max-width: calc(33.333% - 14px); }
+      .features { padding: 80px 24px; }
+      .feat-card { flex: 1 1 180px; min-width: 160px; max-width: 240px; padding: 28px 20px 24px; }
+      .footer-cta { padding: 80px 24px 40px; }
+    }
+
+    @media (min-width: 1025px) {
+      .hero { padding: 80px 32px 100px; }
+      .advantages { padding: 96px 32px; }
+      .features { padding: 96px 32px; }
+      .footer-cta { padding: 96px 32px 48px; }
+    }
+
+    /* 세이프에리어(노치·홈 대응) */
+    @supports (padding: env(safe-area-inset-bottom)) {
+      .hero { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); padding-bottom: max(70px, env(safe-area-inset-bottom)); }
+      .hero-scroll { bottom: max(28px, env(safe-area-inset-bottom)); }
     }
   </style>
 </head>
