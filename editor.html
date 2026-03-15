@@ -2757,7 +2757,8 @@
                 if (collagePinchStartDistance > 0) {
                     const scaleChange = currentDistance / collagePinchStartDistance;
                     const item = collageImages_arr[collageSelectedImageIndex];
-                    const newScale = Math.max(0.3, Math.min(3.0, (item.scale || 1) * scaleChange));
+                    const minS = 20 / Math.max(item.img.width, item.img.height, 1);
+                    const newScale = Math.max(minS, Math.min(3.0, (item.scale || 1) * scaleChange));
                     item.scale = newScale;
                     
                     collagePinchStartDistance = currentDistance;
@@ -2869,7 +2870,8 @@
                 e.preventDefault();
                 const item = collageImages_arr[collageSelectedImageIndex];
                 const delta = e.deltaY > 0 ? 0.95 : 1.05;
-                const newScale = Math.max(0.3, Math.min(3.0, (item.scale || 1) * delta));
+                const minS = 20 / Math.max(item.img.width, item.img.height, 1);
+                const newScale = Math.max(minS, Math.min(3.0, (item.scale || 1) * delta));
                 item.scale = newScale;
                 createCollage();
             }
@@ -3066,14 +3068,16 @@
             collageCtx.fillRect(0, 0, collageCanvas.width, collageCanvas.height);
             
             collageImages_arr.forEach((item, idx) => {
-                const scale = item.scale || 0.3;
+                const initS = Math.min(240 / Math.max(item.img.width, item.img.height, 1), 1);
+                const scale = item.scale !== undefined ? item.scale : initS;
                 const w = item.img.width * scale;
                 const h = item.img.height * scale;
                 
                 // 위치 초기화 (처음 추가된 경우)
                 if (item.x === undefined || item.y === undefined) {
-                    item.x = Math.random() * (collageCanvas.width - w);
-                    item.y = Math.random() * (collageCanvas.height - h);
+                    item.scale = initS;
+                    item.x = Math.random() * (collageCanvas.width - item.img.width * initS);
+                    item.y = Math.random() * (collageCanvas.height - item.img.height * initS);
                 }
                 
                 item.displayW = w;
