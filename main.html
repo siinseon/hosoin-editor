@@ -233,6 +233,7 @@
         .btn.info { background: #2196F3; }
         .btn.danger { background: #ff4757; }
         .btn.small { padding: 7px 12px; font-size: 12px; min-height: 34px; }
+        .btn.secondary.active { border-color: var(--primary); background: var(--primary); color: white; }
         .btn.outline { background: white; color: var(--primary); border: 2px solid var(--primary); }
         .btn.outline.active { background: var(--primary); color: white; }
         /* 다음 단계 버튼 */
@@ -684,14 +685,12 @@
                         <input type="range" id="textSize" min="10" max="150" value="40" oninput="document.getElementById('textSizeVal').textContent=this.value+'px';liveUpdateSelectedText()">
                         <span class="val" id="textSizeVal">40px</span>
                     </div>
-                    <div class="row">
-                        <button class="weight-btn" id="boldBtn" onclick="toggleBold()"><b>B</b></button>
-                        <button class="weight-btn" id="italicBtn" onclick="toggleItalic()"><i>I</i></button>
-                        <div class="align-btns">
-                            <button class="align-btn" id="alignLeft" onclick="setAlign('left')" title="왼쪽">≡</button>
-                            <button class="align-btn active" id="alignCenter" onclick="setAlign('center')" title="가운데">≡≡</button>
-                            <button class="align-btn" id="alignRight" onclick="setAlign('right')" title="오른쪽">≣</button>
-                        </div>
+                    <div class="row" style="gap:6px;flex-wrap:wrap;">
+                        <button class="btn secondary small" id="boldBtn" onclick="toggleBold()" style="flex:1;min-width:0;">텍스트 두껍게</button>
+                        <button class="btn secondary small" id="italicBtn" onclick="toggleItalic()" style="flex:1;min-width:0;">기울임</button>
+                        <button class="btn secondary small" id="alignLeft" onclick="setAlign('left')" style="flex:1;min-width:0;">좌측 정렬</button>
+                        <button class="btn secondary small active" id="alignCenter" onclick="setAlign('center')" style="flex:1;min-width:0;">가운데 정렬</button>
+                        <button class="btn secondary small" id="alignRight" onclick="setAlign('right')" style="flex:1;min-width:0;">우측 정렬</button>
                     </div>
                     <div class="row" style="gap:6px;flex-wrap:wrap;">
                         <button class="btn secondary small" onclick="adjustLetterSpacing(-1)" style="flex:1;min-width:0;">자간 줄이기</button>
