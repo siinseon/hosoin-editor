@@ -1,20 +1,677 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>인플루언서 지망생 에디터 - 인플루언서 전용 이미지 편집기</title>
-    <meta name="description" content="유튜브 썸네일, 채널아트, 프로필 사진 등을 쉽게 만들고 편집하세요.">
-    <meta name="keywords" content="유튜브 썸네일, 채널아트 메이커, 이미지 편집, 김쌔랭">
-    <!-- Open Graph (카카오톡, 밴드 등 링크 미리보기) -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="인플루언서 지망생 에디터 - 인플루언서 전용 이미지 편집기">
-    <meta property="og:description" content="유튜브 썸네일, 채널아트, 프로필 사진 등을 쉽게 만들고 편집하세요.">
-    <meta property="og:locale" content="ko_KR">
-    <meta http-equiv="refresh" content="0;url=main.html">
-    <script>location.replace("main.html");</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>인플루언서 지망생 에디터 - 인플루언서 전용 이미지 편집기</title>
+  <meta name="description" content="유튜브 썸네일, 채널아트, 프로필 사진 등을 쉽게 만들고 편집하세요." />
+  <meta name="keywords" content="유튜브 썸네일, 채널아트 메이커, 이미지 편집, 김쌔랭" />
+  <!-- Open Graph (카카오톡, 밴드 등 링크 미리보기) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="인플루언서 지망생 에디터 - 인플루언서 전용 이미지 편집기" />
+  <meta property="og:description" content="유튜브 썸네일, 채널아트, 프로필 사진 등을 쉽게 만들고 편집하세요." />
+  <meta property="og:locale" content="ko_KR" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green: #11593F;
+      --green-dark: #0c4230;
+      --green-light: #e8f5ef;
+      --green-mid: #d0ece0;
+      --white: #ffffff;
+      --gray-bg: #f5f7f5;
+      --gray-text: #4a5550;
+      --gray-light: #8a9e96;
+      --accent: #2ec87a;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      color: var(--gray-text);
+      background: var(--white);
+      overflow-x: hidden;
+    }
+
+    /* ─── HERO ─────────────────────────────────────────────────────────── */
+    .hero {
+      background: var(--green);
+      position: relative;
+      overflow: hidden;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 24px 80px;
+    }
+
+    /* decorative shapes */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 80% 20%, rgba(46,200,122,.18) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 10% 80%, rgba(0,0,0,.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: .12;
+      pointer-events: none;
+    }
+    .hero-blob-1 {
+      width: 420px; height: 420px;
+      background: var(--accent);
+      top: -120px; right: -100px;
+    }
+    .hero-blob-2 {
+      width: 300px; height: 300px;
+      background: #fff;
+      bottom: -80px; left: -80px;
+    }
+
+    /* floating dots */
+    .hero-dots {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .dot {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,.15);
+      animation: float 6s ease-in-out infinite;
+    }
+    .dot:nth-child(1) { width:10px;height:10px; top:15%;left:12%; animation-delay:0s; }
+    .dot:nth-child(2) { width:16px;height:16px; top:30%;right:18%; animation-delay:1s; }
+    .dot:nth-child(3) { width:8px;height:8px; top:60%;left:8%; animation-delay:2s; }
+    .dot:nth-child(4) { width:12px;height:12px; bottom:20%;right:10%; animation-delay:3s; }
+    .dot:nth-child(5) { width:20px;height:20px; bottom:30%;left:30%; animation-delay:1.5s; }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-14px); }
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: #ffffff;
+      border: 1px solid rgba(255,255,255,.6);
+      color: var(--green-dark);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      padding: 8px 20px;
+      border-radius: 100px;
+      margin-bottom: 28px;
+      animation: fadeDown .7s ease both;
+    }
+
+    .hero-title {
+      font-family: 'Noto Serif KR', serif;
+      font-size: clamp(2.4rem, 7vw, 4.8rem);
+      font-weight: 900;
+      color: var(--white);
+      line-height: 1.15;
+      letter-spacing: -.02em;
+      margin-bottom: 16px;
+      animation: fadeDown .7s .15s ease both;
+    }
+    .hero-title span {
+      display: block;
+      background: linear-gradient(90deg, #a8f0cb, #2ec87a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: clamp(1.05rem, 3vw, 1.4rem);
+      color: rgba(255,255,255,.85);
+      font-weight: 500;
+      margin-bottom: 44px;
+      animation: fadeDown .7s .3s ease both;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--white);
+      color: var(--green);
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 16px 36px;
+      border-radius: 100px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 8px 32px rgba(0,0,0,.25);
+      transition: transform .22s ease, box-shadow .22s ease, background .22s;
+      animation: fadeDown .7s .45s ease both;
+    }
+    .btn-primary:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 14px 40px rgba(0,0,0,.32);
+      background: #e8ffe7;
+    }
+    .btn-primary svg { width:18px; height:18px; flex-shrink:0; }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,.5);
+      font-size: .7rem;
+      letter-spacing: .08em;
+      animation: fadeUp 1s 1.2s ease both;
+    }
+    .scroll-arrow {
+      width: 20px; height: 20px;
+      border-right: 2px solid rgba(255,255,255,.4);
+      border-bottom: 2px solid rgba(255,255,255,.4);
+      transform: rotate(45deg);
+      animation: bounce 1.8s ease-in-out infinite;
+    }
+    @keyframes bounce {
+      0%,100% { transform: rotate(45deg) translateY(0); }
+      50% { transform: rotate(45deg) translateY(5px); }
+    }
+
+    /* ─── ADVANTAGES ────────────────────────────────────────────────────── */
+    .advantages {
+      background: var(--white);
+      padding: 80px 24px;
+      text-align: center;
+    }
+
+    .section-eyebrow {
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: 'Noto Serif KR', serif;
+      font-size: clamp(1.7rem, 4.5vw, 2.6rem);
+      font-weight: 900;
+      color: var(--green);
+      margin-bottom: 48px;
+      line-height: 1.25;
+    }
+
+    .adv-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      max-width: 600px;
+      width: fit-content;
+      margin: 0 auto 48px;
+    }
+
+    .adv-card {
+      background: var(--green-light);
+      border: 1.5px solid var(--green-mid);
+      border-radius: 20px;
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 20px;
+      transition: transform .22s ease, box-shadow .22s ease;
+      text-align: left;
+    }
+    .adv-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 36px rgba(17,89,63,.12);
+    }
+
+    .adv-icon {
+      width: 52px; height: 52px;
+      background: var(--green);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .adv-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--green-dark);
+      white-space: nowrap;
+    }
+
+    .adv-desc {
+      font-size: .88rem;
+      color: var(--gray-text);
+      line-height: 1.5;
+      white-space: nowrap;
+    }
+
+    .highlight-box {
+      background: var(--green);
+      color: var(--white);
+      border-radius: 20px;
+      padding: 24px 32px;
+      max-width: 540px;
+      margin: 0 auto;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      box-shadow: 0 8px 32px rgba(17,89,63,.25);
+    }
+    .highlight-box .emoji { font-size: 1.4rem; }
+
+    /* ─── FEATURES ──────────────────────────────────────────────────────── */
+    .features {
+      background: var(--gray-bg);
+      padding: 80px 24px;
+      text-align: center;
+    }
+
+    .feat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .feat-card {
+      background: var(--white);
+      border: 1.5px solid #e0ece6;
+      border-radius: 18px;
+      padding: 28px 20px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      cursor: default;
+      transition: transform .22s ease, box-shadow .22s ease, border-color .22s;
+    }
+    .feat-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(17,89,63,.1);
+      border-color: var(--accent);
+    }
+
+    .feat-icon-wrap {
+      width: 58px; height: 58px;
+      border-radius: 16px;
+      background: var(--green-light);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .feat-icon-wrap svg {
+      width: 28px; height: 28px;
+      stroke: var(--green);
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .feat-name {
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--green-dark);
+    }
+
+    .feat-desc {
+      font-size: .8rem;
+      color: var(--gray-light);
+      line-height: 1.5;
+    }
+
+    /* ─── FOOTER CTA ────────────────────────────────────────────────────── */
+    .footer-cta {
+      background: var(--green);
+      padding: 80px 24px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .footer-cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 60% at 50% 0%, rgba(46,200,122,.2), transparent 70%);
+      pointer-events: none;
+    }
+
+    .footer-cta .tip-badge {
+      display: inline-block;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      color: rgba(255,255,255,.9);
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      padding: 6px 18px;
+      border-radius: 100px;
+      margin-bottom: 24px;
+    }
+
+    .footer-cta h2 {
+      font-family: 'Noto Serif KR', serif;
+      font-size: clamp(1.6rem, 4.5vw, 2.8rem);
+      font-weight: 900;
+      color: var(--white);
+      line-height: 1.3;
+      margin-bottom: 12px;
+    }
+    .footer-cta h2 .green-text {
+      color: #a8f0cb;
+    }
+
+    .footer-cta p {
+      color: rgba(255,255,255,.75);
+      font-size: 1rem;
+      margin-bottom: 40px;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--white);
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 15px 36px;
+      border-radius: 100px;
+      text-decoration: none;
+      border: 2px solid rgba(255,255,255,.6);
+      cursor: pointer;
+      transition: background .22s, border-color .22s, transform .22s;
+    }
+    .btn-secondary:hover {
+      background: rgba(255,255,255,.12);
+      border-color: var(--white);
+      transform: translateY(-2px);
+    }
+
+    .footer-divider {
+      width: 100%;
+      height: 1px;
+      background: rgba(255,255,255,.15);
+      margin: 48px 0 24px;
+    }
+
+    .footer-copy {
+      color: rgba(255,255,255,.45);
+      font-size: .78rem;
+    }
+
+    /* ─── FADE ANIMATIONS ───────────────────────────────────────────────── */
+    @keyframes fadeDown {
+      from { opacity:0; transform: translateY(-20px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateX(-50%) translateY(14px); }
+      to   { opacity:1; transform: translateX(-50%) translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── RESPONSIVE ────────────────────────────────────────────────────── */
+    @media (max-width: 480px) {
+      .adv-grid { grid-template-columns: 1fr; }
+      .feat-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 481px) and (max-width: 768px) {
+      .feat-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
 </head>
 <body>
-    <p>이동 중… <a href="main.html">여기를 클릭</a>하세요.</p>
+
+  <!-- ══════════════════════ HERO ══════════════════════ -->
+  <section class="hero">
+    <div class="hero-blob hero-blob-1"></div>
+    <div class="hero-blob hero-blob-2"></div>
+    <div class="hero-dots">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      <div class="dot"></div><div class="dot"></div>
+    </div>
+
+    <p class="hero-badge">이미지 비율 변경 한번에 광고 30초ㅠㅠ</p>
+    <h1 class="hero-title">
+      인플루언서 개인 연습생<br>필수 에디터<span>초간단 실전 콘텐츠 편집</span>
+    </h1>
+    <p class="hero-sub">광고도 로그인도 앱 설치도 없이 — 지금 바로 시작해요</p>
+    <a href="main.html" class="btn-primary" rel="noopener">
+      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><polyline points="12 8 16 12 12 16"/><line x1="8" y1="12" x2="16" y2="12"/>
+      </svg>
+      에디터 시작하기
+    </a>
+
+    <div class="hero-scroll">
+      <span>SCROLL</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════ ADVANTAGES ══════════════════════ -->
+  <section class="advantages">
+    <p class="section-eyebrow reveal">WHY THIS EDITOR</p>
+    <h2 class="section-title reveal">3가지 핵심 장점</h2>
+
+    <div class="adv-grid">
+      <div class="adv-card reveal">
+        <div class="adv-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+          </svg>
+        </div>
+        <div class="adv-title">광고 없음</div>
+        <div class="adv-desc">작업 도중 갑자기 튀어나오는 광고 없이 집중해서 편집하세요.</div>
+      </div>
+      <div class="adv-card reveal" style="transition-delay:.1s">
+        <div class="adv-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+            <line x1="9" y1="22" x2="15" y2="22"/>
+            <line x1="12" y1="18" x2="12" y2="18" stroke-width="3"/>
+            <line x1="5" y1="6" x2="19" y2="6"/>
+            <line x1="2" y1="2" x2="22" y2="22"/>
+          </svg>
+        </div>
+        <div class="adv-title">앱 설치 없음</div>
+        <div class="adv-desc">브라우저만 있으면 OK! 저장공간을 차지하지 않아요.</div>
+      </div>
+      <div class="adv-card reveal" style="transition-delay:.2s">
+        <div class="adv-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+            <line x1="2" y1="2" x2="22" y2="22"/>
+          </svg>
+        </div>
+        <div class="adv-title">로그인 없음</div>
+        <div class="adv-desc">이메일도, 비밀번호도 필요 없어요. 접속하면 바로 시작!</div>
+      </div>
+    </div>
+
+    <div class="highlight-box reveal">
+      <span class="emoji">💡</span> 실전 기능만 필요한 분께 딱!
+    </div>
+  </section>
+
+  <!-- ══════════════════════ FEATURES ══════════════════════ -->
+  <section class="features">
+    <p class="section-eyebrow reveal">CORE FEATURES</p>
+    <h2 class="section-title reveal">핵심 기능 풀세트</h2>
+
+    <div class="feat-grid">
+
+      <!-- 자르기 -->
+      <div class="feat-card reveal">
+        <div class="feat-icon-wrap">
+          <svg viewBox="0 0 24 24">
+            <circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/>
+            <line x1="20" y1="4" x2="8.12" y2="15.88"/>
+            <line x1="14.47" y1="14.48" x2="20" y2="20"/>
+            <line x1="8.12" y1="8.12" x2="12" y2="12"/>
+          </svg>
+        </div>
+        <div class="feat-name">자르기</div>
+        <div class="feat-desc">원하는 부분만<br>손쉽게 자르기</div>
+      </div>
+
+      <!-- 비율 변경 -->
+      <div class="feat-card reveal" style="transition-delay:.07s">
+        <div class="feat-icon-wrap">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <path d="M9 3v18M3 9h18"/>
+          </svg>
+        </div>
+        <div class="feat-name">비율 변경</div>
+        <div class="feat-desc">어떤 플랫폼이든<br>딱맞게 변경하기</div>
+      </div>
+
+      <!-- 겹치기 -->
+      <div class="feat-card reveal" style="transition-delay:.14s">
+        <div class="feat-icon-wrap">
+          <svg viewBox="0 0 24 24">
+            <rect x="4" y="4" width="12" height="12" rx="2"/>
+            <rect x="8" y="8" width="12" height="12" rx="2"/>
+          </svg>
+        </div>
+        <div class="feat-name">겹치기</div>
+        <div class="feat-desc">썸네일 프레임, 온갖<br>테두리 쉽게 올리기</div>
+      </div>
+
+      <!-- 꾸미기 -->
+      <div class="feat-card reveal" style="transition-delay:.21s">
+        <div class="feat-icon-wrap">
+          <svg viewBox="0 0 24 24">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </div>
+        <div class="feat-name">꾸미기</div>
+        <div class="feat-desc">가독성 200%,<br>텍스트 추가하기</div>
+      </div>
+
+      <!-- 분할 -->
+      <div class="feat-card reveal" style="transition-delay:.28s">
+        <div class="feat-icon-wrap">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <line x1="9" y1="3" x2="9" y2="21"/>
+            <line x1="15" y1="3" x2="15" y2="21"/>
+          </svg>
+        </div>
+        <div class="feat-name">분할</div>
+        <div class="feat-desc">사진 한장으로<br>고퀄 분할 피드</div>
+      </div>
+
+      <!-- 테두리컷 -->
+      <div class="feat-card reveal" style="transition-delay:.35s">
+        <div class="feat-icon-wrap">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="feat-name">테두리컷</div>
+        <div class="feat-desc">누끼 따고 지저분한<br>테두리, 1초만에 정리</div>
+      </div>
+
+      <!-- 미리보기 -->
+      <div class="feat-card reveal" style="transition-delay:.42s">
+        <div class="feat-icon-wrap">
+          <svg viewBox="0 0 24 24">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+        <div class="feat-name">미리보기</div>
+        <div class="feat-desc">프사 바꾸기 전<br>프로필 미리보기</div>
+      </div>
+
+      <!-- 콜라주 -->
+      <div class="feat-card reveal" style="transition-delay:.49s">
+        <div class="feat-icon-wrap">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="3" width="8" height="8" rx="1.5"/>
+            <rect x="13" y="3" width="8" height="8" rx="1.5"/>
+            <rect x="3" y="13" width="8" height="8" rx="1.5"/>
+            <rect x="13" y="13" width="8" height="8" rx="1.5"/>
+          </svg>
+        </div>
+        <div class="feat-name">콜라주</div>
+        <div class="feat-desc">모아보기 콘텐츠,<br>최적화 레이아웃</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════ FOOTER CTA ══════════════════════ -->
+  <section class="footer-cta">
+    <h2 class="reveal">
+      모바일이 <span class="green-text">더 편해요!</span>
+    </h2>
+    <p class="reveal">실제 쓰는 기능만 쏙쏙 뽑았어요!</p>
+    <a href="main.html" class="btn-secondary reveal" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><polyline points="12 8 16 12 12 16"/><line x1="8" y1="12" x2="16" y2="12"/>
+      </svg>
+      에디터 시작하기
+    </a>
+
+    <div class="footer-divider"></div>
+    <p class="footer-copy">© 2026 인플루언서 지망생 에디터 by 김쌔랭.</p>
+  </section>
+
+  <script>
+    // Intersection Observer for scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
 </body>
 </html>
