@@ -12,18 +12,12 @@
   <meta property="og:locale" content="ko_KR" />
   <meta name="google-site-verification" content="tDD81tB8clKV09toCYHYKsVAr6KBWFTaJtW82k5wv-w" />
   <meta name="naver-site-verification" content="44f8fa96ff1f1ece9c8bc1a153d49656a46975d5" />
-  <!-- 외부 라이브러리 (에디터용) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5/dist/iro.min.js"></script>
-  <!-- 폰트 (통합) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@700;900&family=Nanum+Pen+Script&family=Jua&family=Dokdo&family=Gaegu:wght@300;400;700&family=Hi+Melody&family=Nanum+Myeongjo:wght@400;700;800&family=Black+Han+Sans&family=Gugi&family=Do+Hyeon&family=East+Sea+Dokdo&family=Sunflower:wght@300;500;700&family=Gamja+Flower&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet" />
-  <style>
-    /* ════════════════════════════════════════════════════
-       랜딩 페이지 CSS (index.html)
-    ════════════════════════════════════════════════════ */
   <style>
     :root {
       --green: #11593F;
@@ -35,7 +29,17 @@
       --gray-text: #4a5550;
       --gray-light: #8a9e96;
       --accent: #2ec87a;
-    }
+    
+      /* 에디터 변수 */
+
+            --primary: #11593F;
+            --secondary: #9575CD;
+            --editor-accent: #F27405;
+            --bg-gray: #f4f6f8;
+            --surface: #ffffff;
+            --text-main: #333333;
+            --border: #e0e0e0;
+        }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -531,11 +535,10 @@
       .hero { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); padding-bottom: max(70px, env(safe-area-inset-bottom)); }
       .hero-scroll { bottom: max(28px, env(safe-area-inset-bottom)); }
     }
-  </style>
 
-    /* ════════════════════════════════════════════════════
+    /* ════════════════════════════════════════════════
        에디터 섹션 래퍼
-    ════════════════════════════════════════════════════ */
+    ════════════════════════════════════════════════ */
     .editor-section {
       background-color: #f4f6f8;
       padding: 40px 16px;
@@ -544,23 +547,14 @@
       .editor-section { padding: 48px 20px; }
     }
 
-    /* ════════════════════════════════════════════════════
-       에디터 CSS (main.html, 충돌 클래스 스코핑 적용)
-    ════════════════════════════════════════════════════ */
-    /* 에디터 내부 전체: 탭 하이라이트 및 터치 액션 */
+    /* ════════════════════════════════════════════════
+       에디터 CSS (충돌 클래스 스코핑 적용)
+    ════════════════════════════════════════════════ */
     .app-container, .app-container * {
       -webkit-tap-highlight-color: rgba(45,90,39,0.1);
       touch-action: manipulation;
     }
-        :root {
-            --primary: #11593F;
-            --secondary: #9575CD;
-            --editor-accent: #F27405;
-            --bg-gray: #f4f6f8;
-            --surface: #ffffff;
-            --text-main: #333333;
-            --border: #e0e0e0;
-        }
+        
 
         .app-container { max-width: 600px; margin: 0 auto; background: var(--surface); border-radius: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid rgba(0,0,0,0.05); }
         .app-footer {
@@ -959,7 +953,7 @@
 </head>
 <body>
 
-  <!-- ══════════════════════ 1. 히어로 (랜딩 최상단) ══════════════════════ -->
+  <!-- ══════════════════════ 1. 히어로 ══════════════════════ -->
   <section class="hero">
     <div class="hero-blob hero-blob-1"></div>
     <div class="hero-blob hero-blob-2"></div>
@@ -987,7 +981,7 @@
   </section>
 
 
-  <!-- ══════════════════════ 2. 에디터 영역 ══════════════════════ -->
+  <!-- ══════════════════════ 2. 에디터 ══════════════════════ -->
   <section id="editor-section" class="editor-section">
 <div class="app-container">
     <header class="app-header" id="mainHeader">
@@ -1537,7 +1531,7 @@
 
   </section>
 
-  <!-- ══════════════════════ 3. WHY THIS EDITOR / 핵심 기능 / 푸터 CTA ══════════════════════ -->
+  <!-- ══════════════════════ 3. 랜딩 나머지 섹션 ══════════════════════ -->
   <!-- ══════════════════════ ADVANTAGES ══════════════════════ -->
   <section class="advantages">
     <p class="section-eyebrow reveal">WHY THIS EDITOR</p>
@@ -1715,7 +1709,7 @@
   </section>
 
 
-  <!-- ══════════════════════ 에디터 JavaScript ══════════════════════ -->
+  <!-- ══════════════════════ 에디터 JS ══════════════════════ -->
 <script>
 if(!CanvasRenderingContext2D.prototype.roundRect){
     CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){if(w<2*r)r=w/2;if(h<2*r)r=h/2;this.beginPath();this.moveTo(x+r,y);this.arcTo(x+w,y,x+w,y+h,r);this.arcTo(x+w,y+h,x,y+h,r);this.arcTo(x,y+h,x,y,r);this.arcTo(x,y,x+w,y,r);this.closePath();return this;};
@@ -3234,9 +3228,8 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 
-  <!-- ══════════════════════ 랜딩 페이지 JavaScript ══════════════════════ -->
+  <!-- ══════════════════════ 랜딩 JS ══════════════════════ -->
   <script>
-    // 스크롤 리빌 애니메이션
     const reveals = document.querySelectorAll('.reveal');
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
