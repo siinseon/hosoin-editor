@@ -1960,7 +1960,61 @@ function getFmtDate(){const n=new Date();return`${n.getFullYear()}-${String(n.ge
 
 // 공통 다운로드 헬퍼
 function downloadCanvas(canvas, filename) {
-    canvas.toBlob(blob=>{const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);},'image/png');
+    const isIOS = /iP(hone|od|ad)/.test(navigator.userAgent);
+
+    // ── iOS Safari: a.download 미지원 → 새 탭에서 길게 눌러 저장 ──
+    if (isIOS) {
+        try {
+            const dataURL = canvas.toDataURL('image/png');
+            const w = window.open('', '_blank');
+            if (w) {
+                w.document.write(
+                    '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+                    '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+                    '<title>이미지 저장</title>' +
+                    '<style>*{box-sizing:border-box;margin:0;padding:0}' +
+                    'body{background:#111;min-height:100vh;display:flex;flex-direction:column;' +
+                    'align-items:center;justify-content:center;gap:20px;padding:20px}' +
+                    'img{max-width:100%;border-radius:10px}' +
+                    '.tip{color:#fff;font-size:14px;font-family:sans-serif;text-align:center;' +
+                    'background:rgba(255,255,255,.13);padding:14px 22px;border-radius:20px;line-height:1.7}' +
+                    '</style></head><body>' +
+                    '<img src="' + dataURL + '" alt="' + filename + '">' +
+                    '<p class="tip">📥 이미지를 <strong>길게 눌러</strong><br>사진 앱에 저장하세요</p>' +
+                    '</body></html>'
+                );
+            } else {
+                // 팝업 차단된 경우 → Web Share API 시도
+                canvas.toBlob(async function(blob) {
+                    if (navigator.share && blob) {
+                        try {
+                            const file = new File([blob], filename, { type: 'image/png' });
+                            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                                await navigator.share({ files: [file], title: filename });
+                                return;
+                            }
+                        } catch(e) { if (e.name === 'AbortError') return; }
+                    }
+                    alert('팝업이 차단되었습니다.\n브라우저 설정에서 팝업을 허용하거나\n[공유] 버튼을 이용해 주세요.');
+                }, 'image/png');
+            }
+        } catch(e) {
+            alert('[공유] 버튼을 이용해 저장해 주세요.');
+        }
+        return;
+    }
+
+    // ── Android / Desktop: a.click() 방식 ──
+    canvas.toBlob(function(blob) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function() { URL.revokeObjectURL(url); }, 3000);
+    }, 'image/png');
 }
 let _loadingDepth=0;
 function showLoading(msg){
