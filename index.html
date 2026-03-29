@@ -3214,7 +3214,6 @@ window.addText=function(){
     const input=document.getElementById('textInput');
     const content=input.value;if(!content.trim())return;
     const st=getTextStyleFromUI();
-    st.align='center';st.color='#000000';
     texts.push({content,x:decorateCanvas.width/2,y:decorateCanvas.height/2,scale:1,...st});
     input.value='';saveHistory();drawDecorate();
 };
@@ -3525,7 +3524,10 @@ function getDecorateExportCanvas(){
     const om=document.getElementById('overlaySelect').value;
     if(om!=='none'){const op=parseInt(document.getElementById('opacitySlider').value)/100;octx.save();octx.globalAlpha=op;if(om.includes('gradient')){const g=octx.createLinearGradient(0,0,0,origH);const c=om==='gradient-black'?'0,0,0':'255,255,255';g.addColorStop(0,`rgba(${c},0)`);g.addColorStop(1,`rgba(${c},1)`);octx.fillStyle=g;}else{octx.fillStyle=om==='black'?'#000':'#fff';}octx.fillRect(0,0,origW,origH);octx.restore();}
     stickers.forEach(s=>{octx.save();octx.translate(s.x*ratio,s.y*ratio);if(s.rotation)octx.rotate(s.rotation);octx.scale(s.scale*ratio,s.scale*ratio);if(s.borderWidth>0){octx.strokeStyle=s.borderColor;octx.lineWidth=s.borderWidth/(s.scale*ratio);octx.strokeRect(-s.width/2,-s.height/2,s.width,s.height);}octx.drawImage(s.img,-s.width/2,-s.height/2,s.width,s.height);octx.restore();});
-    texts.forEach(t=>{octx.save();octx.translate(t.x*ratio,t.y*ratio);octx.scale(t.scale,t.scale);octx.globalAlpha=t.opacity||1;const fw=t.bold?'900':'400',fi=t.italic?'italic ':'',fs=(t.size||40)*ratio;octx.font=`${fi}${fw} ${fs}px ${t.font||"'Noto Sans KR',sans-serif"}`;octx.textAlign=t.align||'center';octx.textBaseline='middle';const lines=(t.content||'').split('\n'),lineH=fs*(t.lineHeight||1.35);const col=t.color||'#fff',ef=t.effect||'none',sw=t.strokeWidth||0,sc2=t.strokeColor||'#000';if(t.bgColor&&t.bgColor!=='transparent'){lines.forEach((line,li)=>{const metrics=octx.measureText(line),lw=metrics.width;const lx=t.align==='center'?-lw/2:t.align==='right'?-lw:0;const ly=li*lineH-fs*0.6;octx.fillStyle=t.bgColor;octx.fillRect(lx-4,ly,lw+8,lineH);});}lines.forEach((line,li)=>{const ly=li*lineH;octx.shadowBlur=0;octx.shadowOffsetX=0;octx.shadowOffsetY=0;if(ef==='neon'){octx.strokeStyle=col;octx.lineWidth=fs/5;octx.lineJoin='round';octx.shadowColor=col;octx.shadowBlur=25*ratio;octx.strokeText(line,0,ly);octx.shadowBlur=50*ratio;octx.strokeText(line,0,ly);octx.shadowBlur=0;octx.fillStyle='#fff';octx.fillText(line,0,ly);}else if(ef==='emboss'){octx.fillStyle='rgba(255,255,255,0.5)';octx.fillText(line,-1,-1+ly);octx.fillStyle='rgba(0,0,0,0.5)';octx.fillText(line,1,1+ly);octx.fillStyle=col;octx.fillText(line,0,ly);}else if(ef==='glow'){octx.shadowColor=col;octx.shadowBlur=25*ratio;octx.fillStyle=col;octx.fillText(line,0,ly);octx.shadowBlur=12*ratio;octx.fillText(line,0,ly);octx.shadowBlur=0;octx.fillText(line,0,ly);}else{const useSh=(t.shadowEnabled||t.shadowBlur>0);if(useSh){octx.shadowColor=t.shadowColor||'#000';octx.shadowBlur=(t.shadowBlur||8)*ratio;octx.shadowOffsetX=(t.shadowDist||4)*ratio;octx.shadowOffsetY=(t.shadowDist||4)*ratio;}octx.fillStyle=col;octx.fillText(line,0,ly);octx.shadowBlur=0;octx.shadowOffsetX=0;octx.shadowOffsetY=0;if(ef==='outline'||sw>0){octx.strokeStyle=ef==='outline'?'#000':sc2;octx.lineWidth=ef==='outline'?fs/10:sw*ratio;octx.lineJoin='round';octx.strokeText(line,0,ly);}}});octx.restore();});
+    texts.forEach(t=>{octx.save();octx.translate(t.x*ratio,t.y*ratio);octx.scale(t.scale,t.scale);octx.globalAlpha=t.opacity||1;const fw=t.bold?'900':'400',fi=t.italic?'italic ':'',fs=(t.size||40)*ratio;octx.font=`${fi}${fw} ${fs}px ${t.font||"'Noto Sans KR',sans-serif"}`;octx.textAlign=t.align||'center';octx.textBaseline='middle';const lines=(t.content||'').split('\n'),lineH=fs*(t.lineHeight||1.35);const col=t.color||'#fff',ef=t.effect||'none',sw=t.strokeWidth||0,sc2=t.strokeColor||'#000';if(t.bgColor&&t.bgColor!=='transparent'){lines.forEach((line,li)=>{const metrics=octx.measureText(line),lw=metrics.width;const lx=t.align==='center'?-lw/2:t.align==='right'?-lw:0;const ly=li*lineH-fs*0.6;octx.fillStyle=t.bgColor;octx.fillRect(lx-4,ly,lw+8,lineH);});}const ls=t.letterSpacing||0;
+function expDrawStr(str,startX,baseY){if(ls!==0&&str.length){const pAlign=octx.textAlign;octx.textAlign='left';let px=startX;for(let c=0;c<str.length;c++){octx.fillText(str[c],px,baseY);px+=octx.measureText(str[c]).width+ls*ratio;}if(ef==='outline'||sw>0){let px2=startX;for(let c=0;c<str.length;c++){octx.strokeText(str[c],px2,baseY);px2+=octx.measureText(str[c]).width+ls*ratio;}}octx.textAlign=pAlign;}else{octx.fillText(str,startX,baseY);if(ef==='outline'||sw>0)octx.strokeText(str,startX,baseY);}}
+function expLineW(str){if(ls!==0&&str.length){let w=0;for(let c=0;c<str.length;c++)w+=octx.measureText(str[c]).width;return w+(str.length-1)*ls*ratio;}return octx.measureText(str).width;}
+lines.forEach((line,li)=>{const ly=li*lineH;octx.shadowBlur=0;octx.shadowOffsetX=0;octx.shadowOffsetY=0;const lw=expLineW(line);const al=t.align||'center';const startX=al==='center'?-lw/2:al==='right'?-lw:0;if(ef==='neon'){octx.strokeStyle=col;octx.lineWidth=fs/5;octx.lineJoin='round';octx.shadowColor=col;octx.shadowBlur=25*ratio;expDrawStr(line,startX,ly);octx.shadowBlur=50*ratio;expDrawStr(line,startX,ly);octx.shadowBlur=0;octx.fillStyle='#fff';expDrawStr(line,startX,ly);}else if(ef==='emboss'){octx.fillStyle='rgba(255,255,255,0.5)';expDrawStr(line,startX-1,-1+ly);octx.fillStyle='rgba(0,0,0,0.5)';expDrawStr(line,startX+1,1+ly);octx.fillStyle=col;expDrawStr(line,startX,ly);}else if(ef==='glow'){octx.shadowColor=col;octx.shadowBlur=25*ratio;octx.fillStyle=col;expDrawStr(line,startX,ly);octx.shadowBlur=12*ratio;expDrawStr(line,startX,ly);octx.shadowBlur=0;expDrawStr(line,startX,ly);}else{const useSh=(t.shadowEnabled||t.shadowBlur>0);if(useSh){octx.shadowColor=t.shadowColor||'#000';octx.shadowBlur=(t.shadowBlur||8)*ratio;octx.shadowOffsetX=(t.shadowDist||4)*ratio;octx.shadowOffsetY=(t.shadowDist||4)*ratio;}octx.fillStyle=col;expDrawStr(line,startX,ly);octx.shadowBlur=0;octx.shadowOffsetX=0;octx.shadowOffsetY=0;if(ef==='outline'||sw>0){octx.strokeStyle=ef==='outline'?'#000':sc2;octx.lineWidth=ef==='outline'?fs/10:sw*ratio;octx.lineJoin='round';expDrawStr(line,startX,ly);}}});octx.restore();});
     return oc;
 }
 function downloadDecorateImage(){
@@ -3634,7 +3636,7 @@ function drawTrimCanvas(){if(!trimImg.src)return;trimCtx.clearRect(0,0,trimCanva
 function getTrimCoords(e){const rect=trimCanvas.getBoundingClientRect();const sx=trimCanvas.width/rect.width,sy=trimCanvas.height/rect.height;let cx,cy;if(e.touches&&e.touches.length>0){cx=e.touches[0].clientX;cy=e.touches[0].clientY;}else{cx=e.clientX;cy=e.clientY;}return{x:(cx-rect.left)*sx,y:(cy-rect.top)*sy};}
 function getTrimHandle(x,y){const ts=50,{x:ax,y:ay,width:aw,height:ah}=trimArea;if(Math.abs(x-ax)<ts&&Math.abs(y-ay)<ts)return'nw';if(Math.abs(x-(ax+aw))<ts&&Math.abs(y-ay)<ts)return'ne';if(Math.abs(x-ax)<ts&&Math.abs(y-(ay+ah))<ts)return'sw';if(Math.abs(x-(ax+aw))<ts&&Math.abs(y-(ay+ah))<ts)return'se';if(Math.abs(x-(ax+aw/2))<ts&&Math.abs(y-ay)<ts)return'n';if(Math.abs(x-(ax+aw/2))<ts&&Math.abs(y-(ay+ah))<ts)return's';if(Math.abs(x-ax)<ts&&Math.abs(y-(ay+ah/2))<ts)return'w';if(Math.abs(x-(ax+aw))<ts&&Math.abs(y-(ay+ah/2))<ts)return'e';if(x>ax&&x<ax+aw&&y>ay&&y<ay+ah)return'move';return null;}
 function startTrimDrag(e){if(trimmedResultCanvas)return;e.preventDefault();const c=getTrimCoords(e);trimDragHandle=getTrimHandle(c.x,c.y);if(trimDragHandle){trimDragging=true;trimDragStartX=c.x;trimDragStartY=c.y;}}
-function doTrimDrag(e){if(!trimDragging||trimmedResultCanvas)return;e.preventDefault();const c=getTrimCoords(e),dx=c.x-trimDragStartX,dy=c.y-trimDragStartY,mn=50,{x:ax,y:ay,width:aw,height:ah}=trimArea;if(trimLockedRatio&&trimDragHandle!=='move'){const parts=trimLockedRatio.split(':');const rw=parseInt(parts[0]),rh=parseInt(parts[1]);if(['nw','ne','sw','se'].includes(trimDragHandle)){let delta=['nw','sw'].includes(trimDragHandle)?-dx:dx;let nw=Math.max(mn,aw+delta),nh=nw*(rh/rw);if(trimDragHandle==='nw'){trimArea.x=Math.max(0,ax+(aw-nw));trimArea.y=Math.max(0,ay+(ah-nh));trimArea.width=nw;trimArea.height=nh;}else if(trimDragHandle==='ne'){trimArea.y=Math.max(0,ay+(ah-nh));trimArea.width=nw;trimArea.height=nh;}else if(trimDragHandle==='sw'){trimArea.x=Math.max(0,ax+(aw-nw));trimArea.width=nw;trimArea.height=nh;}else{trimArea.width=nw;trimArea.height=nh;}}}else{if(trimDragHandle==='move'){trimArea.x=Math.max(0,Math.min(trimCanvas.width-aw,ax+dx));trimArea.y=Math.max(0,Math.min(trimCanvas.height-ah,ay+dy));}else if(trimDragHandle==='nw'){const nx=Math.max(0,ax+dx),ny=Math.max(0,ay+dy),nw=aw+(ax-nx),nh=ah+(ay-ny);if(nw>=mn&&nh>=mn){trimArea.x=nx;trimArea.y=ny;trimArea.width=nw;trimArea.height=nh;}}else if(trimDragHandle==='ne'){const ny=Math.max(0,ay+dy),nw=Math.max(mn,aw+dx),nh=ah+(ay-ny);if(nh>=mn&&ax+nw<=trimCanvas.width){trimArea.y=ny;trimArea.width=nw;trimArea.height=nh;}}else if(trimDragHandle==='sw'){const nx=Math.max(0,ax+dx),nw=aw+(ax-nx),nh=Math.max(mn,ah+dy);if(nw>=mn&&ay+nh<=trimCanvas.height){trimArea.x=nx;trimArea.width=nw;trimArea.height=nh;}}else if(trimDragHandle==='se'){const nw=Math.max(mn,aw+dx),nh=Math.max(mn,ah+dy);if(ax+nw<=trimCanvas.width&&ay+nh<=trimCanvas.height){trimArea.width=nw;trimArea.height=nh;}}else if(trimDragHandle==='n'){const ny=Math.max(0,ay+dy),nh=ah+(ay-ny);if(nh>=mn){trimArea.y=ny;trimArea.height=nh;}}else if(trimDragHandle==='s'){const nh=Math.max(mn,ah+dy);if(ay+nh<=trimCanvas.height)trimArea.height=nh;}else if(trimDragHandle==='w'){const nx=Math.max(0,ax+dx),nw=aw+(ax-nx);if(nw>=mn){trimArea.x=nx;trimArea.width=nw;}}else if(trimDragHandle==='e'){const nw=Math.max(mn,aw+dx);if(ax+nw<=trimCanvas.width)trimArea.width=nw;}}trimDragStartX=c.x;trimDragStartY=c.y;drawTrimCanvas();}
+function doTrimDrag(e){if(!trimDragging||trimmedResultCanvas)return;e.preventDefault();const c=getTrimCoords(e),dx=c.x-trimDragStartX,dy=c.y-trimDragStartY,mn=50,{x:ax,y:ay,width:aw,height:ah}=trimArea;if(trimLockedRatio&&trimDragHandle!=='move'){const parts=trimLockedRatio.split(':');const rw=parseInt(parts[0]),rh=parseInt(parts[1]);if(['nw','ne','sw','se'].includes(trimDragHandle)){let delta=['nw','sw'].includes(trimDragHandle)?-dx:dx;let nw=Math.max(mn,aw+delta),nh=nw*(rh/rw);if(trimDragHandle==='nw'){trimArea.x=Math.max(0,ax+(aw-nw));trimArea.y=Math.max(0,ay+(ah-nh));trimArea.width=nw;trimArea.height=nh;}else if(trimDragHandle==='ne'){trimArea.y=Math.max(0,ay+(ah-nh));trimArea.width=nw;trimArea.height=nh;}else if(trimDragHandle==='sw'){trimArea.x=Math.max(0,ax+(aw-nw));trimArea.width=nw;trimArea.height=nh;}else{trimArea.width=nw;trimArea.height=nh;}}else if(trimDragHandle==='n'||trimDragHandle==='s'){const delta=trimDragHandle==='n'?-dy:dy;let nh=Math.max(mn,ah+delta),nw=nh*(rw/rh);if(trimDragHandle==='n'){trimArea.x=ax+(aw-nw)/2;trimArea.y=Math.max(0,ay+(ah-nh));trimArea.width=nw;trimArea.height=nh;}else{trimArea.x=ax+(aw-nw)/2;trimArea.width=nw;trimArea.height=nh;}}else if(trimDragHandle==='e'||trimDragHandle==='w'){const delta=trimDragHandle==='w'?-dx:dx;let nw=Math.max(mn,aw+delta),nh=nw*(rh/rw);if(trimDragHandle==='w'){trimArea.x=Math.max(0,ax+(aw-nw));trimArea.y=ay+(ah-nh)/2;trimArea.width=nw;trimArea.height=nh;}else{trimArea.y=ay+(ah-nh)/2;trimArea.width=nw;trimArea.height=nh;}}}else{if(trimDragHandle==='move'){trimArea.x=Math.max(0,Math.min(trimCanvas.width-aw,ax+dx));trimArea.y=Math.max(0,Math.min(trimCanvas.height-ah,ay+dy));}else if(trimDragHandle==='nw'){const nx=Math.max(0,ax+dx),ny=Math.max(0,ay+dy),nw=aw+(ax-nx),nh=ah+(ay-ny);if(nw>=mn&&nh>=mn){trimArea.x=nx;trimArea.y=ny;trimArea.width=nw;trimArea.height=nh;}}else if(trimDragHandle==='ne'){const ny=Math.max(0,ay+dy),nw=Math.max(mn,aw+dx),nh=ah+(ay-ny);if(nh>=mn&&ax+nw<=trimCanvas.width){trimArea.y=ny;trimArea.width=nw;trimArea.height=nh;}}else if(trimDragHandle==='sw'){const nx=Math.max(0,ax+dx),nw=aw+(ax-nx),nh=Math.max(mn,ah+dy);if(nw>=mn&&ay+nh<=trimCanvas.height){trimArea.x=nx;trimArea.width=nw;trimArea.height=nh;}}else if(trimDragHandle==='se'){const nw=Math.max(mn,aw+dx),nh=Math.max(mn,ah+dy);if(ax+nw<=trimCanvas.width&&ay+nh<=trimCanvas.height){trimArea.width=nw;trimArea.height=nh;}}else if(trimDragHandle==='n'){const ny=Math.max(0,ay+dy),nh=ah+(ay-ny);if(nh>=mn){trimArea.y=ny;trimArea.height=nh;}}else if(trimDragHandle==='s'){const nh=Math.max(mn,ah+dy);if(ay+nh<=trimCanvas.height)trimArea.height=nh;}else if(trimDragHandle==='w'){const nx=Math.max(0,ax+dx),nw=aw+(ax-nx);if(nw>=mn){trimArea.x=nx;trimArea.width=nw;}}else if(trimDragHandle==='e'){const nw=Math.max(mn,aw+dx);if(ax+nw<=trimCanvas.width)trimArea.width=nw;}}trimDragStartX=c.x;trimDragStartY=c.y;drawTrimCanvas();}
 function endTrimDrag(){trimDragging=false;trimDragHandle=null;}
 function resetTrimArea(){if(!trimImg.src)return;trimArea={x:0,y:0,width:trimCanvas.width,height:trimCanvas.height};trimmedResultCanvas=null;if(trimLockedRatio)applyLockedRatio();drawTrimCanvas();}
 function setSquareTrim(){if(!trimImg.src)return;const sz=Math.min(trimCanvas.width,trimCanvas.height);trimArea={x:(trimCanvas.width-sz)/2,y:(trimCanvas.height-sz)/2,width:sz,height:sz};trimmedResultCanvas=null;drawTrimCanvas();}
@@ -3665,55 +3667,36 @@ async function fetchBookCover() {
     bookcoverImageBlob = null;
 
     try {
-        let imageUrl, bookTitle;
-
-        // 자체 서버 API 시도 (Express 서버 운영 중일 때)
-        const selfApiOk = await (async () => {
-            try {
-                const ctrl = new AbortController();
-                const t = setTimeout(() => ctrl.abort(), 4000);
-                const res = await fetch('/api/bookcover?url=' + encodeURIComponent(url), { signal: ctrl.signal }).finally(() => clearTimeout(t));
-                if (!res.ok) return false;
-                const data = await res.json();
-                if (!data.imageUrl) return false;
-                imageUrl  = data.imageUrl;
-                bookTitle = data.title || '알라딘 도서';
-                return true;
-            } catch(e) { return false; }
-        })();
-
-        // 자체 서버가 없으면 공개 CORS 프록시로 폴백 (GitHub Pages 등 정적 환경)
-        if (!selfApiOk) {
-            const ctrl = new AbortController();
-            const t = setTimeout(() => ctrl.abort(), 15000);
-            const proxyRes = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url), { signal: ctrl.signal }).finally(() => clearTimeout(t));
-            if (!proxyRes.ok) throw new Error('페이지를 불러오지 못했습니다.');
-            const data = await proxyRes.json();
-            const html = data.contents || '';
-            if (!html) throw new Error('페이지 내용을 가져오지 못했습니다.');
-
-            const ogImg   = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
-                         || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
-            const ogTitle = html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i)
-                         || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:title["']/i);
-
-            if (!ogImg || !ogImg[1]) throw new Error('책 표지 이미지를 찾지 못했습니다.\n알라딘 도서 상세 페이지 URL인지 확인해주세요.');
-
-            imageUrl  = ogImg[1].trim();
-            if (imageUrl.startsWith('//')) imageUrl = 'https:' + imageUrl;
-            bookTitle = ogTitle ? ogTitle[1].replace(/\s*[-–—]\s*알라딘.*$/i, '').trim() : '알라딘 도서';
+        // 1단계: 서버에서 og:image / og:title 파싱
+        const ctrl1 = new AbortController();
+        const t1 = setTimeout(() => ctrl1.abort(), 10000);
+        let metaRes;
+        try {
+            metaRes = await fetch('/api/bookcover?url=' + encodeURIComponent(url), { signal: ctrl1.signal }).finally(() => clearTimeout(t1));
+        } catch(e) {
+            throw new Error('서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
         }
+        if (!metaRes.ok) throw new Error('서버 오류가 발생했습니다. (' + metaRes.status + ')');
+        const meta = await metaRes.json();
+        if (!meta.imageUrl) throw new Error('책 표지 이미지를 찾지 못했습니다.\n알라딘 도서 상세 페이지 URL인지 확인해주세요.');
 
-        // 이미지 Blob 다운로드 — 자체 서버 프록시 우선, 없으면 직접 fetch
-        const imgUrl = selfApiOk
-            ? '/api/bookcover-image?url=' + encodeURIComponent(imageUrl)
-            : 'https://api.allorigins.win/raw?url=' + encodeURIComponent(imageUrl);
+        const imageUrl = meta.imageUrl;
+        const bookTitle = meta.title || '알라딘 도서';
 
+        // 2단계: 서버 이미지 프록시로 Blob 수령
         const ctrl2 = new AbortController();
-        const t2 = setTimeout(() => ctrl2.abort(), 15000);
-        const imgRes = await fetch(imgUrl, { signal: ctrl2.signal }).finally(() => clearTimeout(t2));
-        if (!imgRes.ok) throw new Error('이미지를 불러오지 못했습니다.');
-        bookcoverImageBlob = await imgRes.blob();
+        const t2 = setTimeout(() => ctrl2.abort(), 10000);
+        let imgRes;
+        try {
+            imgRes = await fetch('/api/bookcover-image?url=' + encodeURIComponent(imageUrl), { signal: ctrl2.signal }).finally(() => clearTimeout(t2));
+        } catch(e) {
+            throw new Error('이미지를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
+        }
+        if (!imgRes.ok) throw new Error('이미지 다운로드에 실패했습니다. (' + imgRes.status + ')');
+        const blob = await imgRes.blob();
+        if (blob.size < 100) throw new Error('이미지 파일이 비어 있습니다.');
+
+        bookcoverImageBlob = blob;
         bookcoverImageUrl  = imageUrl;
 
         document.getElementById('bookcoverImg').src = URL.createObjectURL(bookcoverImageBlob);
