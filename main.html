@@ -1063,10 +1063,10 @@
             <div class="bookcover-info-box">
                 <strong>📚 알라딘 책 표지 다운로더</strong><br>
                 알라딘 도서 페이지 URL을 붙여넣으면 책 표지 이미지를 바로 다운로드할 수 있어요.<br>
-                <span style="font-size:11px;color:#888;">예) https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=...</span>
+                <span style="font-size:11px;color:#888;">단축 URL(naver.me 등)도 사용 가능해요</span>
             </div>
             <div class="bookcover-input-row">
-                <input type="text" id="bookcoverUrlInput" placeholder="알라딘 도서 URL 붙여넣기" autocomplete="off" autocorrect="off" spellcheck="false"
+                <input type="text" id="bookcoverUrlInput" placeholder="알라딘 도서 URL 또는 단축 URL 붙여넣기" autocomplete="off" autocorrect="off" spellcheck="false"
                     onkeydown="if(event.key==='Enter')fetchBookCover()">
                 <button class="bookcover-fetch-btn" id="bookcoverFetchBtn" onclick="fetchBookCover()">
                     <i data-lucide="search" style="width:16px;height:16px;"></i>불러오기
@@ -2577,10 +2577,6 @@ async function fetchBookCover() {
     const input = document.getElementById('bookcoverUrlInput');
     const url = (input.value || '').trim();
     if (!url) { showBookcoverError('URL을 입력해주세요.'); return; }
-    if (!url.includes('aladin.co.kr')) {
-        showBookcoverError('알라딘(aladin.co.kr) 도서 페이지 URL을 입력해주세요.');
-        return;
-    }
 
     setBookcoverLoading(true);
     clearBookcoverError();

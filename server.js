@@ -70,7 +70,7 @@ function fetchUrl(rawUrl, options, redirectCount) {
 }
 
 // ─── API: 책 표지 메타 정보 추출 ─────────────────────────────────────────────
-// GET /api/bookcover?url=<알라딘 도서 URL>
+// GET /api/bookcover?url=<도서 URL — 단축 URL 포함>
 // 응답: { imageUrl, title }
 app.get('/api/bookcover', async (req, res) => {
     const targetUrl = (req.query.url || '').trim();
@@ -78,11 +78,13 @@ app.get('/api/bookcover', async (req, res) => {
     if (!targetUrl) {
         return res.status(400).json({ error: 'url 파라미터가 필요합니다.' });
     }
-    if (!targetUrl.includes('aladin.co.kr')) {
-        return res.status(400).json({ error: '알라딘(aladin.co.kr) 도서 페이지 URL만 지원합니다.' });
+    // URL 형식만 검증 (단축 URL, naver.me 등 허용)
+    try { new URL(targetUrl); } catch(e) {
+        return res.status(400).json({ error: '올바른 URL 형식이 아닙니다.' });
     }
 
     try {
+        // 리다이렉트를 따라가 최종 페이지 HTML 수신
         const { body } = await fetchUrl(targetUrl);
         const html = body.toString('utf-8');
         const $    = cheerio.load(html);
@@ -114,14 +116,12 @@ app.get('/api/bookcover-image', async (req, res) => {
     if (!imageUrl) {
         return res.status(400).send('url 파라미터가 필요합니다.');
     }
-    // 허용 도메인: 알라딘 CDN만 허용 (SSRF 방지)
+    // 허용 도메인: 알라딘 관련 도메인만 허용 (SSRF 방지)
     let parsed;
     try { parsed = new URL(imageUrl); } catch(e) {
         return res.status(400).send('잘못된 URL');
     }
-    const allowed = ['image.aladin.co.kr', 'cdn.aladin.co.kr', 'img.aladin.co.kr',
-                     'image2.aladin.co.kr', 'cover.aladin.co.kr'];
-    if (!allowed.some(h => parsed.hostname === h || parsed.hostname.endsWith('.aladin.co.kr'))) {
+    if (!parsed.hostname.endsWith('.aladin.co.kr') && parsed.hostname !== 'aladin.co.kr') {
         return res.status(403).send('허용되지 않은 이미지 도메인입니다.');
     }
 
