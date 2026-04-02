@@ -3527,9 +3527,65 @@ function getDecorateExportCanvas(){
     texts.forEach(t=>{octx.save();octx.translate(t.x*ratio,t.y*ratio);octx.scale(t.scale,t.scale);octx.globalAlpha=t.opacity||1;const fw=t.bold?'900':'400',fi=t.italic?'italic ':'',fs=(t.size||40)*ratio;octx.font=`${fi}${fw} ${fs}px ${t.font||"'Noto Sans KR',sans-serif"}`;octx.textAlign=t.align||'center';octx.textBaseline='middle';const lines=(t.content||'').split('\n'),lineH=fs*(t.lineHeight||1.35);const col=t.color||'#fff',ef=t.effect||'none',sw=t.strokeWidth||0,sc2=t.strokeColor||'#000';if(t.bgColor&&t.bgColor!=='transparent'){lines.forEach((line,li)=>{const metrics=octx.measureText(line),lw=metrics.width;const lx=t.align==='center'?-lw/2:t.align==='right'?-lw:0;const ly=li*lineH-fs*0.6;octx.fillStyle=t.bgColor;octx.fillRect(lx-4,ly,lw+8,lineH);});}const ls=t.letterSpacing||0;
 function expDrawStr(str,startX,baseY){if(ls!==0&&str.length){const pAlign=octx.textAlign;octx.textAlign='left';let px=startX;for(let c=0;c<str.length;c++){octx.fillText(str[c],px,baseY);px+=octx.measureText(str[c]).width+ls*ratio;}if(ef==='outline'||sw>0){let px2=startX;for(let c=0;c<str.length;c++){octx.strokeText(str[c],px2,baseY);px2+=octx.measureText(str[c]).width+ls*ratio;}}octx.textAlign=pAlign;}else{octx.fillText(str,startX,baseY);if(ef==='outline'||sw>0)octx.strokeText(str,startX,baseY);}}
 function expLineW(str){if(ls!==0&&str.length){let w=0;for(let c=0;c<str.length;c++)w+=octx.measureText(str[c]).width;return w+(str.length-1)*ls*ratio;}return octx.measureText(str).width;}
-lines.forEach((line,li)=>{const ly=li*lineH;octx.shadowBlur=0;octx.shadowOffsetX=0;octx.shadowOffsetY=0;const lw=expLineW(line);const al=t.align||'center';const startX=al==='center'?-lw/2:al==='right'?-lw:0;if(ef==='neon'){octx.strokeStyle=col;octx.lineWidth=fs/5;octx.lineJoin='round';octx.shadowColor=col;octx.shadowBlur=25*ratio;expDrawStr(line,startX,ly);octx.shadowBlur=50*ratio;expDrawStr(line,startX,ly);octx.shadowBlur=0;octx.fillStyle='#fff';expDrawStr(line,startX,ly);}else if(ef==='emboss'){octx.fillStyle='rgba(255,255,255,0.5)';expDrawStr(line,startX-1,-1+ly);octx.fillStyle='rgba(0,0,0,0.5)';expDrawStr(line,startX+1,1+ly);octx.fillStyle=col;expDrawStr(line,startX,ly);}else if(ef==='glow'){octx.shadowColor=col;octx.shadowBlur=25*ratio;octx.fillStyle=col;expDrawStr(line,startX,ly);octx.shadowBlur=12*ratio;expDrawStr(line,startX,ly);octx.shadowBlur=0;expDrawStr(line,startX,ly);}else{const useSh=(t.shadowEnabled||t.shadowBlur>0);if(useSh){octx.shadowColor=t.shadowColor||'#000';octx.shadowBlur=(t.shadowBlur||8)*ratio;octx.shadowOffsetX=(t.shadowDist||4)*ratio;octx.shadowOffsetY=(t.shadowDist||4)*ratio;}octx.fillStyle=col;expDrawStr(line,startX,ly);octx.shadowBlur=0;octx.shadowOffsetX=0;octx.shadowOffsetY=0;if(ef==='outline'||sw>0){octx.strokeStyle=ef==='outline'?'#000':sc2;octx.lineWidth=ef==='outline'?fs/10:sw*ratio;octx.lineJoin='round';expDrawStr(line,startX,ly);}}});octx.restore();});
-    return oc;
-}
+lines.forEach((line, li) => {
+    const ly = li * lineH;
+    octx.shadowBlur = 0;
+    octx.shadowOffsetX = 0;
+    octx.shadowOffsetY = 0;
+    const lw = expLineW(line);
+    const al = t.align || 'center';
+    const startX = al === 'center' ? -lw / 2 : al === 'right' ? -lw : 0;
+
+    if (ef === 'neon') {
+        octx.strokeStyle = col;
+        octx.lineWidth = fs / 5;
+        octx.lineJoin = 'round';
+        octx.shadowColor = col;
+        octx.shadowBlur = 25 * ratio;
+        expDrawStr(line, startX, ly);
+        octx.shadowBlur = 50 * ratio;
+        expDrawStr(line, startX, ly);
+        octx.shadowBlur = 0;
+        octx.fillStyle = '#fff';
+        expDrawStr(line, startX, ly);
+    } else if (ef === 'emboss') {
+        octx.fillStyle = 'rgba(255,255,255,0.5)';
+        expDrawStr(line, -1, -1 + ly);
+        octx.fillStyle = 'rgba(0,0,0,0.5)';
+        expDrawStr(line, 1, 1 + ly);
+        octx.fillStyle = col;
+        expDrawStr(line, 0, ly);
+    } else if (ef === 'glow') {
+        octx.shadowColor = col;
+        octx.shadowBlur = 25 * ratio;
+        octx.fillStyle = col;
+        expDrawStr(line, startX, ly);
+        octx.shadowBlur = 12 * ratio;
+        expDrawStr(line, startX, ly);
+        octx.shadowBlur = 0;
+        expDrawStr(line, startX, ly);
+    } else {
+        const useSh = (t.shadowEnabled || t.shadowBlur > 0);
+        if (useSh) {
+            octx.shadowColor = t.shadowColor || '#000';
+            octx.shadowBlur = (t.shadowBlur || 8) * ratio;
+            octx.shadowOffsetX = (t.shadowDist || 4) * ratio;
+            octx.shadowOffsetY = (t.shadowDist || 4) * ratio;
+        }
+        octx.fillStyle = col;
+        const drawX = (ls === 0) ? 0 : startX;
+        expDrawStr(line, drawX, ly);
+        octx.shadowBlur = 0;
+        octx.shadowOffsetX = 0;
+        octx.shadowOffsetY = 0;
+        if (ef === 'outline' || sw > 0) {
+            octx.strokeStyle = ef === 'outline' ? '#000' : sc2;
+            octx.lineWidth = ef === 'outline' ? fs / 10 : sw * ratio;
+            octx.lineJoin = 'round';
+            expDrawStr(line, drawX, ly);
+        }
+    }
+});
 function downloadDecorateImage(){
     if(!decorateImg.src&&!stickers.length&&!texts.length){alert('이미지를 등록해주세요');return;}
     downloadCanvas(getDecorateExportCanvas(),`지망생_${getFmtDate()}_꾸미기.png`);
