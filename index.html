@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
-  <title>siinseon · 쉬운 웹 이미지 에디터</title>
+  <title>인플루언서 연습생 에디터 · 쉬운 웹 이미지 에디터</title>
   <meta name="description" content="브라우저에서 바로. 비율·자르기·꾸미기·콜라주까지." />
   <meta name="keywords" content="유튜브 썸네일, 채널아트 메이커, 이미지 편집, 김쌔랭" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="siinseon · 쉬운 웹 이미지 에디터" />
+  <meta property="og:title" content="인플루언서 연습생 에디터 · 쉬운 웹 이미지 에디터" />
   <meta property="og:description" content="브라우저에서 바로. 비율·자르기·꾸미기·콜라주까지." />
   <meta property="og:locale" content="ko_KR" />
   <meta name="google-site-verification" content="tDD81tB8clKV09toCYHYKsVAr6KBWFTaJtW82k5wv-w" />
@@ -86,9 +86,9 @@
     }
     .hero-logo {
       font-weight: 800;
-      font-size: 1.12rem;
+      font-size: 2.025rem;
       letter-spacing: -0.03em;
-      color: var(--land-text);
+      color: var(--land-green);
     }
     .hero-top-cta {
       font-size: .84rem;
@@ -116,7 +116,7 @@
       align-items: center;
     }
     @media (min-width: 900px) {
-      .hero-grid { grid-template-columns: minmax(0, 1fr) minmax(340px, 460px); gap: 48px 56px; }
+      .hero-grid { grid-template-columns: minmax(0, 1fr) minmax(300px, 380px); gap: 48px 64px; }
     }
     .hero-copy { text-align: left; }
     @media (max-width: 899px) {
@@ -127,14 +127,14 @@
       align-items: center;
       gap: 6px;
       background: var(--land-surface);
-      color: var(--land-muted);
-      font-size: .78rem;
-      font-weight: 600;
+      color: var(--land-green);
+      font-size: 0.95rem;
+      font-weight: 700;
       letter-spacing: .02em;
       padding: 8px 16px;
       border-radius: 999px;
       margin-bottom: 20px;
-      border: 1px solid rgba(15,23,42,.08);
+      border: 1px solid rgba(10,77,58,.15);
       box-shadow: 0 1px 2px rgba(15,23,42,.04);
       animation: fadeDown .55s ease both;
     }
@@ -256,24 +256,26 @@
     .hero-preview {
       background: var(--land-surface);
       border-radius: 24px;
-      padding: 14px;
+      padding: 8px;
       box-shadow:
-        0 4px 6px -1px rgba(15,23,42,.06),
-        0 24px 48px -12px rgba(10,77,58,.14),
-        0 0 0 1px rgba(15,23,42,.06);
+        0 0 0 1px rgba(15,23,42,.05),
+        0 2px 4px rgba(15,23,42,.02),
+        0 24px 64px -16px rgba(10,77,58,.18),
+        0 48px 96px -32px rgba(15,23,42,.12);
       transform: rotateY(-2deg) rotateX(2deg);
       transition: transform .45s ease, box-shadow .45s ease;
       animation: fadeDown .7s .2s ease both;
     }
     @media (max-width: 899px) {
-      .hero-preview { transform: none; max-width: 400px; margin: 0 auto; }
+      .hero-preview { transform: none; max-width: 320px; margin: 0 auto; }
     }
     .hero-preview:hover {
       transform: rotateY(0deg) rotateX(0deg) translateY(-4px);
       box-shadow:
-        0 8px 12px -2px rgba(15,23,42,.08),
-        0 32px 56px -16px rgba(10,77,58,.2),
-        0 0 0 1px rgba(15,23,42,.06);
+        0 0 0 1px rgba(15,23,42,.08),
+        0 4px 8px rgba(15,23,42,.04),
+        0 32px 80px -16px rgba(10,77,58,.22),
+        0 64px 128px -32px rgba(15,23,42,.15);
     }
     .hero-preview-tag {
       position: absolute;
@@ -307,67 +309,18 @@
       color: var(--land-muted);
       letter-spacing: .04em;
     }
-    .hero-preview-canvas {
-      aspect-ratio: 4/5;
-      background:
-        linear-gradient(145deg, rgba(10,77,58,.12) 0%, transparent 45%),
-        linear-gradient(180deg, #e8ebe9 0%, #d4d9d6 40%, #c5ccc8 100%);
+    .hero-preview-video-wrap {
       position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 100%;
+      aspect-ratio: 9/16;
+      background: #f8faf9;
+      overflow: hidden;
     }
-    .hero-preview-canvas::before {
-      content: '';
-      width: 72%;
-      height: 58%;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #c4a574 0%, #8b6914 35%, #5c4a2a 100%);
-      box-shadow: 0 12px 32px rgba(0,0,0,.18);
-      opacity: .92;
-    }
-    .hero-preview-sparkle {
-      position: absolute;
-      bottom: 18%; right: 16%;
-      width: 36px; height: 36px;
-      border-radius: 10px;
-      background: var(--land-green);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 8px 20px rgba(10,77,58,.35);
-    }
-    .hero-preview-sparkle svg { width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 2; }
-    .hero-preview-tools {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      padding: 12px;
-      background: #fff;
-      border-top: 1px solid rgba(15,23,42,.06);
-    }
-    .hero-preview-tool {
-      text-align: center;
-      padding: 10px 4px 8px;
-      border-radius: 12px;
-      background: var(--land-mint);
-      border: 1px solid rgba(10,77,58,.08);
-      transition: background .2s, border-color .2s;
-    }
-    .hero-preview-tool:hover { background: #e3f5ec; border-color: rgba(10,77,58,.15); }
-    .hero-preview-tool svg {
-      width: 20px; height: 20px;
-      margin: 0 auto 4px;
+    .hero-preview-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
       display: block;
-      stroke: var(--land-green);
-      fill: none;
-      stroke-width: 1.8;
-    }
-    .hero-preview-tool span {
-      font-size: .62rem;
-      font-weight: 700;
-      color: var(--land-text);
-      letter-spacing: -.01em;
     }
 
     .land-section {
@@ -627,6 +580,7 @@
       .land-step { padding: 18px 16px; }
       .hero-preview { border-radius: 20px; padding: 12px; }
       .hero-preview-tools { gap: 6px; padding: 10px; }
+      .land-cta-bar .btn-primary { width: 100%; justify-content: center; max-width: 320px; margin: 0 auto; display: flex; }
     }
     @media (min-width: 769px) {
       .hero { padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); }
@@ -1193,14 +1147,14 @@
   <section class="hero">
     <div class="hero-shell">
       <div class="hero-top">
-        <span class="hero-logo">siinseon.</span>
+        <span class="hero-logo"></span>
         <a class="hero-top-cta" href="#editor-section">시작하기</a>
       </div>
       <div class="hero-grid">
         <div class="hero-copy">
-          <p class="hero-badge">로그인 없이 바로 사용</p>
-          <h1 class="hero-title">콘텐츠 편집,<br><span>진짜 쉽게</span></h1>
-          <p class="hero-sub">비율 변경부터 자르기·꾸미기까지. 브라우저만 있으면 되고, 가입이나 설치는 필요 없어요.</p>
+          <p class="hero-badge">인플루언서 연습생 에디터</p>
+          <h1 class="hero-title">진짜 쉬운<br><span>콘텐츠 편집</span></h1>
+          <p class="hero-sub">비율 변경부터 자르기·꾸미기까지. 브라우저만 있으면 되고,<br>가입이나 설치는 필요 없어요.</p>
           <div class="hero-actions">
             <a href="#editor-section" class="btn-primary" rel="noopener">
               <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -1231,33 +1185,12 @@
         <div class="hero-preview-wrap">
           <div class="hero-preview">
             <div class="hero-preview-inner">
-              <span class="hero-preview-tag">NEW</span>
               <div class="hero-preview-bar">
                 <span class="hero-preview-dot"></span><span class="hero-preview-dot"></span><span class="hero-preview-dot"></span>
-                <span class="hero-preview-title">siinseon editor</span>
+                <span class="hero-preview-title">인플루언서 연습생 에디터 - 웹 이미지 편집</span>
               </div>
-              <div class="hero-preview-canvas">
-                <div class="hero-preview-sparkle" aria-hidden="true">
-                  <svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-                </div>
-              </div>
-              <div class="hero-preview-tools">
-                <div class="hero-preview-tool">
-                  <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg>
-                  <span>비율</span>
-                </div>
-                <div class="hero-preview-tool">
-                  <svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/></svg>
-                  <span>자르기</span>
-                </div>
-                <div class="hero-preview-tool">
-                  <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                  <span>꾸미기</span>
-                </div>
-                <div class="hero-preview-tool">
-                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-                  <span>필터</span>
-                </div>
+              <div class="hero-preview-video-wrap">
+                <img src="hero-demo.gif" alt="에디터 데모" class="hero-preview-video">
               </div>
             </div>
           </div>
@@ -1334,11 +1267,8 @@
             <div class="land-step-num">3</div>
             <div class="land-step-title">저장하기</div>
           </div>
-          <p class="land-step-desc">PNG·JPG·WEBP 중 골라 저장하고 바로 공유하세요.</p>
+          <p class="land-step-desc">쉽게 편집하고 저장 후 바로 공유하세요.</p>
           <div class="land-step-mock land-step-mock-save">
-            <span class="land-step-pill">PNG</span>
-            <span class="land-step-pill">JPG</span>
-            <span class="land-step-pill">WEBP</span>
             <div class="land-step-dl">다운로드</div>
           </div>
         </div>
@@ -1356,10 +1286,10 @@
   <section id="editor-section" class="editor-section">
 <div class="app-container">
     <header class="app-header" id="mainHeader">
-        <h1 style="width:100%;text-align:center;">인플루언서 지망생 Editor</h1>
+        <h1 style="width:100%;text-align:center;">인플루언서 연습생 에디터</h1>
     </header>
     <header class="app-header hidden" id="featureHeader">
-        <h1>인플루언서 지망생 Editor</h1>
+        <h1>인플루언서 연습생 에디터</h1>
         <button class="back-btn" onclick="goToMainMenu()">&lt;</button>
     </header>
 
@@ -1888,7 +1818,7 @@
     </div>
 </div>
 
-<footer class="app-footer"><p>© 2026 인플루언서 개인 연습생 에디터 by siinseon.</p></footer>
+<footer class="app-footer"><p>© 2026 인플루언서 연습생 에디터 by siinseon.</p></footer>
 
 <!-- 컬러픽커 팝업 -->
 <div class="color-popup-overlay" id="colorPopupOverlay">
@@ -1934,7 +1864,7 @@
   </section>
 
   <footer class="site-footer-min">
-    <p>© 2026 siinseon · 인플루언서 개인 연습생 에디터</p>
+    <p>© 2026 siinseon · 인플루언서 연습생 에디터</p>
     <div class="site-footer-links">
       <a href="/terms.html">이용약관</a>
       <span aria-hidden="true">|</span>
