@@ -448,6 +448,26 @@
       justify-content: center;
       gap: 8px;
       padding: 14px;
+      overflow: hidden;
+    }
+    .land-step-mock--img {
+      padding: 0;
+      border-style: solid;
+      border-color: rgba(15,23,42,.08);
+      background: #fff;
+      height: 180px;
+    }
+    .land-step-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .land-step-img--step1 {
+      object-position: center 35%;
+    }
+    .land-step-img--step2 {
+      object-position: center 10%;
     }
     .land-step-mock--edit {
       border-style: solid;
@@ -474,8 +494,11 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: 8px;
-      min-height: auto;
+      height: 180px;
       padding: 16px;
+      border-style: solid;
+      border-color: rgba(15,23,42,.08);
+      background: #fff;
     }
     .land-step-pill {
       font-size: .65rem;
@@ -1247,9 +1270,8 @@
             <div class="land-step-title">사진 올리기</div>
           </div>
           <p class="land-step-desc">갤러리에서 고르거나 드래그로 넣기만 하면 시작됩니다.</p>
-          <div class="land-step-mock">
-            <div class="land-step-upload-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
-            <span class="land-step-upload-txt">이미지 선택</span>
+          <div class="land-step-mock land-step-mock--img">
+            <img src="step1.png" alt="이미지 업로드" class="land-step-img land-step-img--step1">
           </div>
         </div>
         <div class="land-step reveal">
@@ -1258,8 +1280,8 @@
             <div class="land-step-title">편집하기</div>
           </div>
           <p class="land-step-desc">비율·자르기·꾸미기 중 필요한 도구만 골라 적용하세요.</p>
-          <div class="land-step-mock land-step-mock--edit">
-            <div class="land-step-mock-inner"></div>
+          <div class="land-step-mock land-step-mock--img">
+            <img src="step2.png" alt="비율 선택" class="land-step-img land-step-img--step2">
           </div>
         </div>
         <div class="land-step reveal">
