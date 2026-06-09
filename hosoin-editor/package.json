@@ -1,0 +1,17 @@
+{
+  "name": "hosoin-editor",
+  "version": "1.0.0",
+  "description": "인플루언서 지망생 에디터",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cheerio": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
