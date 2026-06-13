@@ -88,7 +88,7 @@
       --land-surface: #ffffff;
       position: relative;
       background: linear-gradient(180deg, #ffffff 0%, #fafcfb 55%, var(--land-mint) 100%);
-      padding: clamp(16px, 3vw, 28px) clamp(18px, 4vw, 40px) clamp(40px, 7vw, 72px);
+      padding: clamp(14px, 2.5vw, 24px) clamp(18px, 4vw, 40px) clamp(32px, 5.5vw, 56px);
       box-sizing: border-box;
       overflow: hidden;
     }
@@ -167,9 +167,9 @@
       font-size: clamp(2rem, 5.8vw, 3.35rem);
       font-weight: 800;
       color: var(--land-text);
-      line-height: 1.12;
-      letter-spacing: -.045em;
-      margin-bottom: 16px;
+      line-height: 1.08;
+      letter-spacing: -.05em;
+      margin-bottom: 14px;
       animation: fadeDown .55s .06s ease both;
     }
     .hero-title span {
@@ -177,12 +177,12 @@
       display: inline;
     }
     .hero-sub {
-      font-size: clamp(.95rem, 2.1vw, 1.12rem);
+      font-size: clamp(.9rem, 2vw, 1.05rem);
       color: var(--land-muted);
       font-weight: 400;
-      line-height: 1.65;
-      max-width: 34em;
-      margin-bottom: 28px;
+      line-height: 1.7;
+      max-width: 30em;
+      margin-bottom: 26px;
       animation: fadeDown .55s .12s ease both;
     }
     @media (max-width: 899px) {
@@ -208,20 +208,24 @@
       font-family: 'Noto Sans KR', sans-serif;
       font-size: .98rem;
       font-weight: 700;
-      padding: 16px 28px;
+      padding: 15px 28px;
       border-radius: 14px;
       text-decoration: none;
       border: none;
       cursor: pointer;
-      box-shadow: 0 4px 14px rgba(10,77,58,.28), 0 1px 2px rgba(10,77,58,.12);
-      transition: background .2s, transform .2s, box-shadow .2s;
+      box-shadow: 0 4px 14px rgba(10,77,58,.25), 0 1px 2px rgba(10,77,58,.1);
+      transition: background .25s cubic-bezier(.25,.46,.45,.94), transform .25s cubic-bezier(.25,.46,.45,.94), box-shadow .25s cubic-bezier(.25,.46,.45,.94);
       max-width: 100%;
       min-width: 0;
     }
     .btn-primary:hover {
       background: var(--land-green-hover);
-      transform: translateY(-2px);
-      box-shadow: 0 12px 28px rgba(10,77,58,.28);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 36px rgba(10,77,58,.28), 0 4px 8px rgba(10,77,58,.12);
+    }
+    .btn-primary:active {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(10,77,58,.22);
     }
     .btn-primary svg { width: 20px; height: 20px; flex-shrink: 0; }
     .btn-ghost {
@@ -249,10 +253,10 @@
     }
     .btn-ghost svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
     .hero-trust {
-      margin-top: 32px;
+      margin-top: 28px;
       display: flex;
       flex-wrap: wrap;
-      gap: 20px 28px;
+      gap: 16px 24px;
       animation: fadeDown .55s .26s ease both;
     }
     @media (max-width: 899px) {
@@ -349,13 +353,13 @@
 
     .land-section {
       background: #fff;
-      padding: clamp(48px, 9vw, 88px) clamp(18px, 4vw, 40px);
+      padding: clamp(48px, 8vw, 80px) clamp(18px, 4vw, 40px);
       box-sizing: border-box;
     }
     .land-section--muted {
       background: linear-gradient(180deg, #f7faf9 0%, #f0f9f6 100%);
     }
-    .land-section--tight { padding-top: clamp(32px, 6vw, 56px); }
+    .land-section--tight { padding-top: clamp(36px, 6vw, 60px); }
     .land-inner { max-width: 1040px; margin: 0 auto; text-align: center; }
     .land-eyebrow {
       font-size: .7rem;
@@ -366,12 +370,12 @@
       margin-bottom: 12px;
     }
     .land-heading {
-      font-size: clamp(1.35rem, 3.2vw, 1.85rem);
+      font-size: clamp(1.4rem, 3.2vw, 1.9rem);
       font-weight: 800;
       color: #0f172a;
-      letter-spacing: -.035em;
-      margin-bottom: clamp(32px, 5vw, 48px);
-      line-height: 1.25;
+      letter-spacing: -.04em;
+      margin-bottom: clamp(28px, 5vw, 44px);
+      line-height: 1.2;
     }
     .land-feat-grid {
       display: grid;
@@ -385,15 +389,17 @@
     .land-feat {
       background: #fff;
       border-radius: 20px;
-      padding: 22px 20px 20px;
+      padding: 22px 20px 22px;
       border: 1px solid rgba(15,23,42,.06);
-      box-shadow: 0 2px 8px rgba(15,23,42,.04), 0 12px 32px -8px rgba(10,77,58,.08);
-      transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+      box-shadow: 0 1px 4px rgba(15,23,42,.04), 0 8px 24px -6px rgba(10,77,58,.07);
+      transition: transform .3s cubic-bezier(.25,.46,.45,.94), box-shadow .3s cubic-bezier(.25,.46,.45,.94), border-color .3s ease;
+      display: flex;
+      flex-direction: column;
     }
     .land-feat:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(15,23,42,.08), 0 20px 40px -12px rgba(10,77,58,.12);
-      border-color: rgba(10,77,58,.12);
+      transform: translateY(-3px);
+      box-shadow: 0 4px 16px rgba(15,23,42,.07), 0 18px 36px -10px rgba(10,77,58,.11);
+      border-color: rgba(10,77,58,.1);
     }
     .land-feat-icon {
       width: 48px; height: 48px;
@@ -413,8 +419,8 @@
       stroke-linecap: round;
       stroke-linejoin: round;
     }
-    .land-feat-name { font-size: .95rem; font-weight: 800; color: #0f172a; margin-bottom: 6px; letter-spacing: -.02em; }
-    .land-feat-desc { font-size: .8rem; color: var(--land-muted); line-height: 1.5; }
+    .land-feat-name { font-size: .95rem; font-weight: 800; color: #0f172a; margin-bottom: 7px; letter-spacing: -.02em; }
+    .land-feat-desc { font-size: .8rem; color: var(--land-muted); line-height: 1.65; }
 
     .land-step-row {
       display: grid;
@@ -429,16 +435,16 @@
     }
     .land-step {
       background: #fff;
-      border-radius: 22px;
-      padding: 22px 20px 20px;
-      border: 1px solid rgba(15,23,42,.07);
-      box-shadow: 0 2px 8px rgba(15,23,42,.04), 0 16px 40px -12px rgba(10,77,58,.1);
+      border-radius: 20px;
+      padding: 22px 20px 22px;
+      border: 1px solid rgba(15,23,42,.06);
+      box-shadow: 0 1px 4px rgba(15,23,42,.04), 0 10px 28px -8px rgba(10,77,58,.08);
       position: relative;
-      transition: transform .28s ease, box-shadow .28s ease;
+      transition: transform .3s cubic-bezier(.25,.46,.45,.94), box-shadow .3s cubic-bezier(.25,.46,.45,.94);
     }
     .land-step:hover {
       transform: translateY(-3px);
-      box-shadow: 0 8px 28px rgba(15,23,42,.08), 0 24px 48px -16px rgba(10,77,58,.12);
+      box-shadow: 0 4px 16px rgba(15,23,42,.07), 0 20px 40px -12px rgba(10,77,58,.11);
     }
     .land-step-head {
       display: flex;
@@ -460,7 +466,7 @@
       box-shadow: 0 4px 12px rgba(10,77,58,.3);
     }
     .land-step-title { font-size: 1rem; font-weight: 800; color: #0f172a; letter-spacing: -.02em; }
-    .land-step-desc { font-size: .82rem; color: var(--land-muted); line-height: 1.55; margin-bottom: 16px; }
+    .land-step-desc { font-size: .82rem; color: var(--land-muted); line-height: 1.65; margin-bottom: 16px; max-width: 28em; }
     .land-step-mock {
       border-radius: 14px;
       background: #f8faf9;
@@ -553,7 +559,7 @@
 
     .land-cta-bar {
       background: linear-gradient(135deg, #0a4d3a 0%, #064e3b 100%);
-      padding: clamp(36px, 6vw, 52px) 24px;
+      padding: clamp(40px, 7vw, 60px) 24px;
       text-align: center;
       margin: 0;
     }
@@ -577,6 +583,8 @@
     .land-cta-bar .btn-primary:hover {
       background: #f0f9f6;
       color: #064e3b;
+      transform: translateY(-3px);
+      box-shadow: 0 16px 36px rgba(0,0,0,.25);
     }
 
     .site-footer-min {
@@ -617,17 +625,18 @@
 
     /* ─── 랜딩 반응형 ─── */
     @media (max-width: 480px) {
-      .hero { padding: 14px 16px 36px; }
-      .hero-top { margin-bottom: 20px; }
-      .hero-title { font-size: clamp(1.75rem, 8vw, 2.35rem); }
+      .hero { padding: 12px 16px 28px; }
+      .hero-top { margin-bottom: 18px; }
+      .hero-title { font-size: clamp(1.8rem, 8.5vw, 2.4rem); }
       .btn-primary, .btn-ghost { width: 100%; max-width: 100%; justify-content: center; }
       .land-section { padding-left: 16px; padding-right: 16px; }
-      .land-feat-grid { gap: 12px; }
-      .land-feat { padding: 18px 16px 16px; border-radius: 18px; }
-      .land-step { padding: 18px 16px; }
+      .land-feat-grid { gap: 10px; }
+      .land-feat { padding: 18px 16px 18px; border-radius: 18px; }
+      .land-step { padding: 18px 16px; border-radius: 18px; }
       .hero-preview { border-radius: 20px; padding: 12px; }
       .hero-preview-tools { gap: 6px; padding: 10px; }
       .land-cta-bar .btn-primary { width: 100%; justify-content: center; max-width: 320px; margin: 0 auto; display: flex; }
+      .editor-intro { padding: 28px 16px 20px; }
     }
     @media (min-width: 769px) {
       .hero { padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); }
@@ -646,10 +655,32 @@
     ════════════════════════════════════════════════ */
     .editor-section {
       background-color: #f4f6f8;
-      padding: 40px 16px;
+      padding: 0 0 40px;
     }
     @media (min-width: 768px) {
-      .editor-section { padding: 48px 20px; }
+      .editor-section { padding: 0 0 48px; }
+    }
+    .editor-intro {
+      text-align: center;
+      padding: clamp(36px, 6vw, 56px) 20px clamp(20px, 4vw, 32px);
+      background: linear-gradient(180deg, #fff 0%, #f4f6f8 100%);
+      border-bottom: 1px solid rgba(15,23,42,.05);
+    }
+    .editor-intro-eyebrow {
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--land-muted);
+      margin-bottom: 8px;
+    }
+    .editor-intro-sub {
+      font-size: clamp(.9rem, 2vw, 1.05rem);
+      color: var(--land-muted);
+      font-weight: 400;
+      line-height: 1.6;
+      max-width: 28em;
+      margin: 0 auto;
     }
 
     /* ════════════════════════════════════════════════
@@ -1067,8 +1098,8 @@
       </div>
       <div class="hero-grid">
         <div class="hero-copy">
-          <p class="hero-badge">크리에이터를 위한 이미지 에디터</p>
-          <h1 class="hero-title">팔로워<br><span>내놔</span></h1>
+          <h1 class="hero-title">팔로워 <span>내놔</span></h1>
+          <p class="hero-badge" style="background:none;border:none;box-shadow:none;padding:0;border-radius:0;font-size:clamp(1.3rem,3.5vw,2rem);margin-bottom:16px;">크리에이터를 위한 이미지 에디터</p>
           <p class="hero-sub">썸네일 · 캐러셀 · 비율 변경 · 인스타 피드 분할 · 누끼 정리까지 한 번에</p>
           <div class="hero-actions">
             <a href="#editor-section" class="btn-primary" rel="noopener">
@@ -1114,96 +1145,18 @@
     </div>
   </section>
 
-  <section class="land-section" id="features">
-    <div class="land-inner">
-      <p class="land-eyebrow reveal">Features</p>
-      <h2 class="land-heading reveal">바로 쓰는 핵심 네 가지</h2>
-      <div class="land-feat-grid">
-        <div class="land-feat reveal">
-          <div class="land-feat-icon">
-            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg>
-          </div>
-          <div class="land-feat-name">비율 변경</div>
-          <div class="land-feat-desc">인스타·유튜브·쇼츠 규격을 한 번에.</div>
-        </div>
-        <div class="land-feat reveal">
-          <div class="land-feat-icon">
-            <svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
-          </div>
-          <div class="land-feat-name">자르기</div>
-          <div class="land-feat-desc">원하는 프레임만 남기기.</div>
-        </div>
-        <div class="land-feat reveal">
-          <div class="land-feat-icon">
-            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          </div>
-          <div class="land-feat-name">꾸미기</div>
-          <div class="land-feat-desc">텍스트와 스티커로 마무리.</div>
-        </div>
-        <div class="land-feat reveal">
-          <div class="land-feat-icon">
-            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
-          </div>
-          <div class="land-feat-name">콜라주</div>
-          <div class="land-feat-desc">여러 장을 한 화면에.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="land-section land-section--muted land-section--tight" id="how">
-    <div class="land-inner">
-      <p class="land-eyebrow reveal">How it works</p>
-      <h2 class="land-heading reveal">3단계로 끝내는 사용법</h2>
-      <div class="land-step-row">
-        <div class="land-step reveal">
-          <div class="land-step-head">
-            <div class="land-step-num">1</div>
-            <div class="land-step-title">사진 올리기</div>
-          </div>
-          <p class="land-step-desc">갤러리에서 고르거나 드래그로 넣기만 하면 시작됩니다.</p>
-          <div class="land-step-mock land-step-mock--img">
-            <img src="step1.png" alt="이미지 업로드 및 편집 시작하기" class="land-step-img land-step-img--step1">
-          </div>
-        </div>
-        <div class="land-step reveal">
-          <div class="land-step-head">
-            <div class="land-step-num">2</div>
-            <div class="land-step-title">편집하기</div>
-          </div>
-          <p class="land-step-desc">비율·자르기·꾸미기 중 필요한 도구만 골라 적용하세요.</p>
-          <div class="land-step-mock land-step-mock--img">
-            <img src="step2.png" alt="인스타그램 및 유튜브 이미지 비율 변경 기능" class="land-step-img land-step-img--step2">
-          </div>
-        </div>
-        <div class="land-step reveal">
-          <div class="land-step-head">
-            <div class="land-step-num">3</div>
-            <div class="land-step-title">저장하기</div>
-          </div>
-          <p class="land-step-desc">쉽게 편집하고 저장 후 바로 공유하세요.</p>
-          <div class="land-step-mock land-step-mock-save">
-            <div class="land-step-dl">다운로드</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="land-cta-bar">
-    <h2>지금 바로 써보세요</h2>
-    <p>웹에서 열고, 바로 편집하고, 끝.</p>
-    <a href="#editor-section" class="btn-primary" rel="noopener">에디터 시작하기</a>
-  </div>
-
   <!-- ══════════════════════ 에디터 ══════════════════════ -->
   <section id="editor-section" class="editor-section">
+  <div class="editor-intro">
+    <p class="editor-intro-eyebrow">바로 써보기</p>
+    <p class="editor-intro-sub">설치 없이 브라우저에서 즉시 편집하세요</p>
+  </div>
 <div class="app-container">
     <header class="app-header" id="mainHeader">
-        <h1 style="width:100%;text-align:center;">인플루언서 연습생 에디터</h1>
+        <h1 style="width:100%;text-align:center;">팔로워 내놔</h1>
     </header>
     <header class="app-header hidden" id="featureHeader">
-        <h1>인플루언서 연습생 에디터</h1>
+        <h1>팔로워 내놔</h1>
         <button class="back-btn" onclick="goToMainMenu()">&lt;</button>
     </header>
 
@@ -1701,7 +1654,7 @@
 
 </div>
 
-<footer class="app-footer"><p>© 2026 인플루언서 연습생 에디터 by siinseon.</p></footer>
+<footer class="app-footer"><p>© 2026 팔로워 내놔 by siinseon.</p></footer>
 
 <!-- 컬러픽커 팝업 -->
 <div class="color-popup-overlay" id="colorPopupOverlay">
@@ -1746,8 +1699,91 @@
 
   </section>
 
+  <!-- 에디터 아래: 기능 소개 → 사용법 → CTA -->
+  <section class="land-section" id="features">
+    <div class="land-inner">
+      <p class="land-eyebrow reveal">Features</p>
+      <h2 class="land-heading reveal">바로 쓰는 핵심 네 가지</h2>
+      <div class="land-feat-grid">
+        <div class="land-feat reveal">
+          <div class="land-feat-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg>
+          </div>
+          <div class="land-feat-name">비율 변경</div>
+          <div class="land-feat-desc">인스타·유튜브·쇼츠 규격을 한 번에.</div>
+        </div>
+        <div class="land-feat reveal">
+          <div class="land-feat-icon">
+            <svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
+          </div>
+          <div class="land-feat-name">자르기</div>
+          <div class="land-feat-desc">원하는 프레임만 남기기.</div>
+        </div>
+        <div class="land-feat reveal">
+          <div class="land-feat-icon">
+            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </div>
+          <div class="land-feat-name">꾸미기</div>
+          <div class="land-feat-desc">텍스트와 스티커로 마무리.</div>
+        </div>
+        <div class="land-feat reveal">
+          <div class="land-feat-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
+          </div>
+          <div class="land-feat-name">콜라주</div>
+          <div class="land-feat-desc">여러 장을 한 화면에.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="land-section land-section--muted land-section--tight" id="how">
+    <div class="land-inner">
+      <p class="land-eyebrow reveal">How it works</p>
+      <h2 class="land-heading reveal">3단계로 끝내는 사용법</h2>
+      <div class="land-step-row">
+        <div class="land-step reveal">
+          <div class="land-step-head">
+            <div class="land-step-num">1</div>
+            <div class="land-step-title">사진 올리기</div>
+          </div>
+          <p class="land-step-desc">갤러리에서 고르거나 드래그로 넣기만 하면 시작됩니다.</p>
+          <div class="land-step-mock land-step-mock--img">
+            <img src="step1.png" alt="이미지 업로드 및 편집 시작하기" class="land-step-img land-step-img--step1">
+          </div>
+        </div>
+        <div class="land-step reveal">
+          <div class="land-step-head">
+            <div class="land-step-num">2</div>
+            <div class="land-step-title">편집하기</div>
+          </div>
+          <p class="land-step-desc">비율·자르기·꾸미기 중 필요한 도구만 골라 적용하세요.</p>
+          <div class="land-step-mock land-step-mock--img">
+            <img src="step2.png" alt="인스타그램 및 유튜브 이미지 비율 변경 기능" class="land-step-img land-step-img--step2">
+          </div>
+        </div>
+        <div class="land-step reveal">
+          <div class="land-step-head">
+            <div class="land-step-num">3</div>
+            <div class="land-step-title">저장하기</div>
+          </div>
+          <p class="land-step-desc">쉽게 편집하고 저장 후 바로 공유하세요.</p>
+          <div class="land-step-mock land-step-mock-save">
+            <div class="land-step-dl">다운로드</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="land-cta-bar">
+    <h2>지금 바로 써보세요</h2>
+    <p>웹에서 열고, 바로 편집하고, 끝.</p>
+    <a href="#editor-section" class="btn-primary" rel="noopener">에디터 시작하기</a>
+  </div>
+
   <footer class="site-footer-min">
-    <p>© 2026 siinseon · 인플루언서 연습생 에디터</p>
+    <p>© 2026 siinseon · 팔로워 내놔</p>
     <div class="site-footer-links">
       <a href="/terms.html">이용약관</a>
       <span aria-hidden="true">|</span>
