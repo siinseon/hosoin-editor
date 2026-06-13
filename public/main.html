@@ -123,14 +123,16 @@
     .hero-check-item { display: flex; align-items: center; gap: 7px; font-size: .78rem; font-weight: 500; color: var(--land-muted); line-height: 1.4; }
     .hero-check-item::before { content: '✔'; color: var(--land-green); font-size: .72rem; flex-shrink: 0; }
     .hero-preview-wrap { perspective: 1200px; }
+    .hero-preview-wrap { max-width: 240px; margin-left: auto; }
+    @media (max-width: 899px) { .hero-preview-wrap { margin: 0 auto; } }
     .hero-preview {
-      background: #fff; border-radius: 32px; padding: 0;
+      background: #fff; border-radius: 28px; padding: 0;
       border: 1px solid rgba(15,23,42,.09);
       box-shadow: 0 2px 4px rgba(15,23,42,.04), 0 30px 80px rgba(0,0,0,.12), 0 50px 100px -20px rgba(10,77,58,.1);
       transform: rotate(1deg); transition: transform .4s cubic-bezier(.25,.46,.45,.94), box-shadow .4s cubic-bezier(.25,.46,.45,.94);
       animation: fadeDown .7s .2s ease both; overflow: hidden;
     }
-    @media (max-width: 899px) { .hero-preview { transform: none; max-width: 340px; margin: 0 auto; border-radius: 24px; } }
+    @media (max-width: 899px) { .hero-preview { transform: none; max-width: 200px; margin: 0 auto; border-radius: 22px; } }
     .hero-preview:hover {
       transform: rotate(0deg) translateY(-4px);
       box-shadow: 0 4px 8px rgba(15,23,42,.05), 0 40px 100px rgba(0,0,0,.14), 0 60px 120px -24px rgba(10,77,58,.13);

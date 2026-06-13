@@ -309,10 +309,11 @@
     }
 
     /* 에디터 미리보기 카드 */
-    .hero-preview-wrap { }
+    .hero-preview-wrap { max-width: 240px; margin-left: auto; }
+    @media (max-width: 899px) { .hero-preview-wrap { margin: 0 auto; } }
     .hero-preview {
       background: #fff;
-      border-radius: 32px;
+      border-radius: 28px;
       padding: 0;
       border: 1px solid rgba(15,23,42,.09);
       box-shadow:
@@ -325,7 +326,7 @@
       overflow: hidden;
     }
     @media (max-width: 899px) {
-      .hero-preview { transform: none; max-width: 340px; margin: 0 auto; border-radius: 24px; }
+      .hero-preview { transform: none; max-width: 200px; margin: 0 auto; border-radius: 22px; }
     }
     .hero-preview:hover {
       transform: rotate(0deg) translateY(-4px);
