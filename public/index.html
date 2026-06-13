@@ -898,6 +898,7 @@
         }
 
         .file-upload-wrapper { position: relative; width: 100%; margin-bottom: 10px; }
+        .upload-hint { font-size: 11px; color: #aaa; margin: -4px 0 6px; text-align: center; }
         .file-upload-label { display: block; width: 100%; padding: 12px; text-align: center; background: #e8f5e9; color: var(--primary); border: 2px dashed var(--primary); border-radius: 10px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
         input[type="file"] { display: none; }
         .hidden { display: none; }
@@ -1362,7 +1363,7 @@
         <div class="control-panel">
             <div class="tool-section">
                 <div class="section-title">이미지 업로드</div>
-                <div class="file-upload-wrapper"><label for="ratioUpload" class="file-upload-label">+ 이미지 선택하기</label><input type="file" id="ratioUpload" accept="image/*"></div>
+                <div class="file-upload-wrapper"><label for="ratioUpload" class="file-upload-label">+ 이미지 선택하기</label><input type="file" id="ratioUpload" accept="image/*"></div><p class="upload-hint">JPG · PNG · WEBP · HEIC 지원</p>
             </div>
             <div class="tool-section">
                 <div class="section-title">비율 선택</div>
@@ -1423,7 +1424,7 @@
         <div class="control-panel">
             <div class="tool-section">
                 <div class="section-title">이미지 추가 (최대 10개)</div>
-                <div class="file-upload-wrapper"><label for="collageUpload" class="file-upload-label">+ 이미지 추가하기</label><input type="file" id="collageUpload" accept="image/*" multiple></div>
+                <div class="file-upload-wrapper"><label for="collageUpload" class="file-upload-label">+ 이미지 추가하기</label><input type="file" id="collageUpload" accept="image/*" multiple></div><p class="upload-hint">JPG · PNG · WEBP · HEIC 지원 · 최대 10장</p>
                 <p style="font-size:11px;color:#888;margin:0 0 8px;text-align:center;background:#f0f8f0;padding:10px;border-radius:8px;">자유 배치 모드: 터치/드래그로 이동, 핀치로 크기 조절</p>
                 <div id="collagePreviewList" class="image-preview-list"></div>
             </div>
@@ -1563,7 +1564,7 @@
             </div>
             <div class="tool-section">
                 <div class="section-title">배경 이미지</div>
-                <div class="file-upload-wrapper"><label for="decorateUpload" class="file-upload-label">+ 배경 사진 불러오기</label><input type="file" id="decorateUpload" accept="image/*"></div>
+                <div class="file-upload-wrapper"><label for="decorateUpload" class="file-upload-label">+ 배경 사진 불러오기</label><input type="file" id="decorateUpload" accept="image/*"></div><p class="upload-hint">JPG · PNG · WEBP · HEIC 지원</p>
             </div>
             <div class="tool-section">
                 <div class="section-title">글 넣기</div>
@@ -1741,7 +1742,7 @@
     <div id="splitScreen" class="feature-screen">
         <div class="canvas-wrapper"><canvas id="splitCanvas"></canvas></div>
         <div class="control-panel">
-            <div class="tool-section"><div class="section-title">이미지 업로드</div><div class="file-upload-wrapper"><label for="splitUpload" class="file-upload-label">+ 분할할 이미지 선택</label><input type="file" id="splitUpload" accept="image/*"></div></div>
+            <div class="tool-section"><div class="section-title">이미지 업로드</div><div class="file-upload-wrapper"><label for="splitUpload" class="file-upload-label">+ 분할할 이미지 선택</label><input type="file" id="splitUpload" accept="image/*"></div><p class="upload-hint">JPG · PNG · WEBP · HEIC 지원</p></div>
             <div class="tool-section">
                 <div class="section-title">분할 방식</div>
                 <div class="ratio-grid">
@@ -1762,7 +1763,7 @@
     <div id="cropScreen" class="feature-screen">
         <div class="canvas-wrapper"><canvas id="cropCanvas"></canvas></div>
         <div class="control-panel">
-            <div class="tool-section"><div class="section-title">이미지 업로드</div><div class="file-upload-wrapper"><label for="cropUpload" class="file-upload-label">+ 테두리 깎을 이미지 선택</label><input type="file" id="cropUpload" accept="image/*"></div></div>
+            <div class="tool-section"><div class="section-title">이미지 업로드</div><div class="file-upload-wrapper"><label for="cropUpload" class="file-upload-label">+ 테두리 깎을 이미지 선택</label><input type="file" id="cropUpload" accept="image/*"></div><p class="upload-hint">JPG · PNG · WEBP · HEIC 지원</p></div>
             <div class="tool-section">
                 <div class="section-title">테두리 깎기 설정</div>
                 <div class="slider-row"><label>깎을 두께</label><input type="range" id="cropAmount" min="1" max="50" value="5" oninput="document.getElementById('cropAmountValue').textContent=this.value+'px'"><span class="val" id="cropAmountValue">5px</span></div>
@@ -1803,7 +1804,7 @@
     <div id="trimScreen" class="feature-screen">
         <div class="canvas-wrapper"><canvas id="trimCanvas"></canvas></div>
         <div class="control-panel">
-            <div class="tool-section"><div class="section-title">이미지 업로드</div><div class="file-upload-wrapper"><label for="trimUpload" class="file-upload-label">+ 자를 이미지 선택</label><input type="file" id="trimUpload" accept="image/*"></div></div>
+            <div class="tool-section"><div class="section-title">이미지 업로드</div><div class="file-upload-wrapper"><label for="trimUpload" class="file-upload-label">+ 자를 이미지 선택</label><input type="file" id="trimUpload" accept="image/*"></div><p class="upload-hint">JPG · PNG · WEBP · HEIC 지원</p></div>
             <div class="tool-section">
                 <div class="section-title">자르기 비율 고정</div>
                 <div class="ratio-grid">
