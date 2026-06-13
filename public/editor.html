@@ -3885,6 +3885,8 @@
         });
         
         input.value = "";
+        const arrangeBtn = document.getElementById('btn-arrange');
+        if (arrangeBtn) toggleMode('arrange');
         selectedTextIndex = texts.length - 1;
         selectedStickerIndex = -1;
         const panel = document.getElementById('selectedItemPanel');
@@ -3892,8 +3894,6 @@
             panel.style.display = 'block';
             updateSelectedItemPanel();
         }
-        const arrangeBtn = document.getElementById('btn-arrange');
-        if (arrangeBtn) toggleMode('arrange');
         saveHistory(); // 히스토리 저장
         drawDecorate();
     };
