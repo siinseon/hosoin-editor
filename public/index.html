@@ -140,7 +140,7 @@
       align-items: center;
     }
     @media (min-width: 900px) {
-      .hero-grid { grid-template-columns: minmax(0, 1fr) minmax(300px, 380px); gap: 48px 64px; }
+      .hero-grid { grid-template-columns: minmax(0, 4fr) minmax(320px, 5fr); gap: 40px 56px; }
     }
     .hero-copy { text-align: left; }
     @media (max-width: 899px) {
@@ -252,58 +252,87 @@
       transform: translateY(-1px);
     }
     .btn-ghost svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
-    .hero-trust {
-      margin-top: 28px;
+    /* 상단 pill 배지 */
+    .hero-pills {
       display: flex;
       flex-wrap: wrap;
-      gap: 16px 24px;
-      animation: fadeDown .55s .26s ease both;
+      gap: 8px;
+      margin-bottom: 20px;
+      animation: fadeDown .5s ease both;
     }
-    @media (max-width: 899px) {
-      .hero-trust { justify-content: center; }
-    }
-    .hero-trust-item {
-      display: flex;
+    @media (max-width: 899px) { .hero-pills { justify-content: center; } }
+    .hero-pill {
+      display: inline-flex;
       align-items: center;
-      gap: 10px;
-      font-size: .8rem;
-      font-weight: 600;
-      color: var(--land-muted);
+      gap: 6px;
+      font-size: .72rem;
+      font-weight: 700;
+      color: var(--land-green);
+      background: rgba(10,77,58,.07);
+      border: 1px solid rgba(10,77,58,.14);
+      border-radius: 999px;
+      padding: 5px 12px;
+      letter-spacing: .01em;
+      white-space: nowrap;
     }
-    .hero-trust-item svg {
-      width: 18px; height: 18px;
+    .hero-pill svg {
+      width: 13px; height: 13px;
       stroke: var(--land-green);
       fill: none;
-      stroke-width: 2;
+      stroke-width: 2.2;
       flex-shrink: 0;
-      opacity: .9;
+    }
+
+    /* 버튼 아래 체크 메시지 */
+    .hero-checks {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      animation: fadeDown .55s .26s ease both;
+    }
+    @media (max-width: 899px) { .hero-checks { align-items: center; } }
+    .hero-check-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: .78rem;
+      font-weight: 500;
+      color: var(--land-muted);
+      line-height: 1.4;
+    }
+    .hero-check-item::before {
+      content: '✔';
+      color: var(--land-green);
+      font-size: .72rem;
+      flex-shrink: 0;
     }
 
     /* 에디터 미리보기 카드 */
     .hero-preview-wrap { perspective: 1200px; }
     .hero-preview {
       background: var(--land-surface);
-      border-radius: 24px;
+      border-radius: 28px;
       padding: 8px;
       box-shadow:
-        0 0 0 1px rgba(15,23,42,.05),
-        0 2px 4px rgba(15,23,42,.02),
-        0 24px 64px -16px rgba(10,77,58,.18),
-        0 48px 96px -32px rgba(15,23,42,.12);
-      transform: rotateY(-2deg) rotateX(2deg);
-      transition: transform .45s ease, box-shadow .45s ease;
+        0 0 0 1px rgba(15,23,42,.06),
+        0 4px 6px rgba(15,23,42,.03),
+        0 30px 80px rgba(0,0,0,.12),
+        0 50px 100px -20px rgba(10,77,58,.14);
+      transform: rotateY(-1.5deg) rotateX(1.5deg);
+      transition: transform .5s cubic-bezier(.25,.46,.45,.94), box-shadow .5s cubic-bezier(.25,.46,.45,.94);
       animation: fadeDown .7s .2s ease both;
     }
     @media (max-width: 899px) {
-      .hero-preview { transform: none; max-width: 320px; margin: 0 auto; }
+      .hero-preview { transform: none; max-width: 340px; margin: 0 auto; border-radius: 24px; }
     }
     .hero-preview:hover {
-      transform: rotateY(0deg) rotateX(0deg) translateY(-4px);
+      transform: rotateY(0deg) rotateX(0deg) translateY(-6px);
       box-shadow:
         0 0 0 1px rgba(15,23,42,.08),
-        0 4px 8px rgba(15,23,42,.04),
-        0 32px 80px -16px rgba(10,77,58,.22),
-        0 64px 128px -32px rgba(15,23,42,.15);
+        0 8px 16px rgba(15,23,42,.05),
+        0 40px 100px rgba(0,0,0,.14),
+        0 70px 120px -24px rgba(10,77,58,.18);
     }
     .hero-preview-tag {
       position: absolute;
@@ -1098,6 +1127,20 @@
       </div>
       <div class="hero-grid">
         <div class="hero-copy">
+          <div class="hero-pills">
+            <span class="hero-pill">
+              <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              설치 없음
+            </span>
+            <span class="hero-pill">
+              <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              광고 최소
+            </span>
+            <span class="hero-pill">
+              <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              완전 무료
+            </span>
+          </div>
           <h1 class="hero-title">팔로워 <span>내놔</span></h1>
           <p class="hero-badge" style="background:none;border:none;box-shadow:none;padding:0;border-radius:0;font-size:clamp(1.3rem,3.5vw,2rem);margin-bottom:16px;">크리에이터를 위한 이미지 에디터</p>
           <p class="hero-sub">썸네일 · 캐러셀 · 비율 변경 · 인스타 피드 분할 · 누끼 정리까지 한 번에</p>
@@ -1113,19 +1156,10 @@
               사용 방법
             </a>
           </div>
-          <div class="hero-trust">
-            <div class="hero-trust-item">
-              <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              설치 없음
-            </div>
-            <div class="hero-trust-item">
-              <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              광고 최소
-            </div>
-            <div class="hero-trust-item">
-              <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-              완전 무료
-            </div>
+          <div class="hero-checks">
+            <span class="hero-check-item">설치 없이 바로 사용</span>
+            <span class="hero-check-item">업로드 이미지는 저장되지 않음</span>
+            <span class="hero-check-item">유튜브 · 인스타 제작에 최적화</span>
           </div>
         </div>
         <div class="hero-preview-wrap">
@@ -1133,10 +1167,10 @@
             <div class="hero-preview-inner">
               <div class="hero-preview-bar">
                 <span class="hero-preview-dot"></span><span class="hero-preview-dot"></span><span class="hero-preview-dot"></span>
-                <span class="hero-preview-title">인플루언서 연습생 에디터 - 웹 이미지 편집</span>
+                <span class="hero-preview-title">팔로워 내놔 — 웹 이미지 편집</span>
               </div>
               <div class="hero-preview-video-wrap">
-                <img src="hero-demo.gif" alt="무료 온라인 이미지 편집기 데모 - 인플루언서 연습생 에디터" class="hero-preview-video">
+                <img src="hero-demo.gif" alt="무료 온라인 이미지 편집기 데모 - 팔로워 내놔" class="hero-preview-video">
               </div>
             </div>
           </div>
