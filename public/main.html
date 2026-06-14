@@ -51,21 +51,6 @@
       pointer-events: none;
     }
     .hero-shell { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; }
-    .hero-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: clamp(28px, 5vw, 44px);
-    }
-    .hero-logo { font-weight: 800; font-size: 2.025rem; letter-spacing: -0.03em; color: var(--land-green); }
-    .hero-top-cta {
-      font-size: .84rem; font-weight: 600; color: var(--land-green);
-      text-decoration: none; padding: 10px 18px; border-radius: 999px;
-      border: 1px solid rgba(10,77,58,.18); background: rgba(255,255,255,.7);
-      backdrop-filter: blur(8px); transition: background .2s, color .2s, border-color .2s, box-shadow .2s; white-space: nowrap;
-    }
-    .hero-top-cta:hover { background: var(--land-green); color: #fff; border-color: var(--land-green); box-shadow: 0 8px 24px rgba(10,77,58,.2); }
     .hero-grid { display: grid; grid-template-columns: 1fr; gap: clamp(32px, 6vw, 48px); align-items: center; }
     @media (min-width: 900px) { .hero-grid { grid-template-columns: minmax(0, 4fr) minmax(320px, 5fr); gap: 40px 56px; } }
     .hero-copy { text-align: left; }
@@ -80,16 +65,18 @@
     }
     .hero-title {
       font-family: 'Noto Sans KR', sans-serif;
-      font-size: clamp(2rem, 5.8vw, 3.35rem); font-weight: 800;
+      font-size: clamp(2.4rem, 6.96vw, 4.02rem); font-weight: 800;
       color: var(--land-text); line-height: 1.08; letter-spacing: -.05em;
       margin-bottom: 14px; animation: fadeDown .55s .06s ease both;
     }
     .hero-title span { color: var(--land-green); display: inline; }
     .hero-sub {
       font-size: clamp(.9rem, 2vw, 1.05rem); color: var(--land-muted);
-      font-weight: 400; line-height: 1.7; max-width: 30em;
+      font-weight: 400; line-height: 1.6; max-width: 28em;
+      text-align: center; word-break: keep-all;
       margin-bottom: 26px; animation: fadeDown .55s .12s ease both;
     }
+    .hero-sub-line { display: inline-block; white-space: nowrap; }
     @media (max-width: 899px) { .hero-sub { margin-left: auto; margin-right: auto; } }
     .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; animation: fadeDown .55s .18s ease both; }
     @media (max-width: 899px) { .hero-actions { justify-content: center; } }
@@ -209,8 +196,7 @@
     .editor-intro-sub { font-size: clamp(.9rem, 2vw, 1.05rem); color: var(--land-muted); font-weight: 400; line-height: 1.6; max-width: 28em; margin: 0 auto; }
     @media (max-width: 480px) {
       .hero { padding: 12px 16px 28px; }
-      .hero-top { margin-bottom: 18px; }
-      .hero-title { font-size: clamp(1.8rem, 8.5vw, 2.4rem); }
+      .hero-title { font-size: clamp(2.16rem, 10.2vw, 2.88rem); }
       .btn-primary, .btn-ghost { width: 100%; max-width: 100%; justify-content: center; }
       .land-section { padding-left: 16px; padding-right: 16px; }
       .land-feat-grid { gap: 10px; }
@@ -757,10 +743,6 @@
 
   <section class="hero">
     <div class="hero-shell">
-      <div class="hero-top">
-        <span class="hero-logo"></span>
-        <a class="hero-top-cta" href="#editor-section">시작하기</a>
-      </div>
       <div class="hero-grid">
         <div class="hero-copy">
           <div class="hero-pills">
@@ -779,7 +761,7 @@
           </div>
           <h1 class="hero-title">팔로워 <span>내놔</span></h1>
           <p class="hero-badge" style="background:none;border:none;box-shadow:none;padding:0;border-radius:0;font-size:clamp(1.3rem,3.5vw,2rem);margin-bottom:16px;">크리에이터를 위한 이미지 에디터</p>
-          <p class="hero-sub">썸네일 · 캐러셀 · 비율 변경 · 인스타 피드 분할 · 누끼 정리까지 한 번에</p>
+          <p class="hero-sub"><span class="hero-sub-line">썸네일 · 인스타 캐러셀 · 비율 변경</span><br><span class="hero-sub-line">피드 분할 · 누끼 테두리 정리까지 한 번에</span></p>
           <div class="hero-actions">
             <a href="#editor-section" class="btn-primary" rel="noopener">
               <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
