@@ -646,7 +646,7 @@
       .hero-preview { border-radius: 20px; padding: 12px; }
       .hero-preview-tools { gap: 6px; padding: 10px; }
       .land-cta-bar .btn-primary { width: 100%; justify-content: center; max-width: 320px; margin: 0 auto; display: flex; }
-      .editor-intro { padding: 28px 16px 20px; }
+      .editor-intro { padding: 20px 16px; }
     }
     @media (min-width: 769px) {
       .hero { padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); }
@@ -672,17 +672,9 @@
     }
     .editor-intro {
       text-align: center;
-      padding: clamp(36px, 6vw, 56px) 20px clamp(20px, 4vw, 32px);
+      padding: clamp(28px, 5vw, 44px) 20px clamp(20px, 4vw, 32px);
       background: linear-gradient(180deg, #fff 0%, #f4f6f8 100%);
       border-bottom: 1px solid rgba(15,23,42,.05);
-    }
-    .editor-intro-eyebrow {
-      font-size: .7rem;
-      font-weight: 700;
-      letter-spacing: .16em;
-      text-transform: uppercase;
-      color: var(--land-muted);
-      margin-bottom: 8px;
     }
     .editor-intro-sub {
       font-size: clamp(.9rem, 2vw, 1.05rem);
@@ -1173,8 +1165,7 @@
   <!-- ══════════════════════ 에디터 ══════════════════════ -->
   <section id="editor-section" class="editor-section">
   <div class="editor-intro">
-    <p class="editor-intro-eyebrow">바로 써보기</p>
-    <p class="editor-intro-sub">설치 없이 브라우저에서 즉시 편집하세요</p>
+    <p class="editor-intro-sub">설치 없이, 결제 없이 바로 편집하세요</p>
   </div>
 <div class="app-container">
     <header class="app-header" id="mainHeader">
